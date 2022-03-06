@@ -4,7 +4,9 @@ use std::mem::size_of_val;
 
 use crate::gates::*;
 use crate::types::*;
-
+/// A sturct to contain the state the quantum experiment. The system is comprised of a
+/// quantum register and a classical register. The classical register is described by 'number_of_bits' bits.
+/// Whilest the quantum register, of 'number_of_qubits' qubits, must be described by a density matrix.
 #[derive(Debug)]
 pub struct State {
     pub number_of_qubits: Qubit,
