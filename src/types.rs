@@ -24,7 +24,7 @@ pub static PI: Angle = std::f64::consts::PI as Angle;
 /// The acceptable numerical precision for the test
 pub static COMPARISON_PRECISION: R = 1e-6;
 
-/// The 2x2 idenitiy matrix
+/// The pauli idenitiy matrix
 pub static IDENTITY: Matrix2x2 = Matrix2x2::new(
     C::new(1., 0.),
     C::new(0., 0.),
