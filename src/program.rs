@@ -1,10 +1,11 @@
-use log::{debug, info, warn};
-use nalgebra::ComplexField;
 use std::mem::size_of_val;
 
+use log::{debug, info, warn};
+use nalgebra::ComplexField;
+
 use crate::gates::*;
-use crate::types::*;
 use crate::state::*;
+use crate::types::*;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.

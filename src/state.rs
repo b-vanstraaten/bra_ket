@@ -1,15 +1,16 @@
-use crate::types::*;
 use std::mem::size_of_val;
-use log::{debug, info, warn};
 
+use log::{debug, info, warn};
 use nalgebra::ComplexField;
+
+use crate::types::*;
 
 fn create_density_matrix(number_of_qubits: usize) -> DensityMatrix {
     // calculating the hilbert dim
     let hilbert_dim = (1 << number_of_qubits) as usize;
     // printing the size of the density matrix to be created
     {
-        let density_matrix_footprint = hilbert_dim.pow(2) * size_of_val(&C::new(0., 0.));
+        let density_matrix_footprint = (hilbert_dim << 2) * size_of_val(&C::new(0., 0.));
         let bytes_to_gigabyte: usize = 2 << 33;
         debug!(
             "Allocating density matrix of size: {:.4} Gb",

@@ -1,8 +1,10 @@
 use nalgebra::{dmatrix, dvector};
 use pretty_assertions::assert_eq;
-use test_log::test; // pretty assertions for human readability
+use test_log::test;
 
 use zx::*;
+
+// pretty assertions for human readability
 
 #[test]
 fn one_qubit_x_gate_pi() {
