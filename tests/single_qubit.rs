@@ -1,5 +1,4 @@
 use nalgebra::{dmatrix, dvector};
-use pretty_assertions::assert_eq;
 use test_log::test;
 
 use zx::*;
@@ -139,4 +138,38 @@ fn one_qubit_z_gate_pi_half() {
     };
 
     assert_approximately_equal(required_state, program.state)
+}
+
+#[test]
+fn single_qubit_xy_commutation() {
+    let number_of_qubits: usize = 1;
+    let angle = PI;
+
+    let mut program = Program::new(number_of_qubits);
+    program.x(0, angle);
+    program.y(0, angle);
+    program.run();
+
+    let mut other_program = Program::new(number_of_qubits);
+    other_program.z(0, angle);
+    other_program.run();
+
+    assert_approximately_equal(program.state, other_program.state)
+}
+
+#[test]
+fn single_qubit_xz_commutation() {
+    let number_of_qubits: usize = 1;
+    let angle = PI;
+
+    let mut program = Program::new(number_of_qubits);
+    program.x(0, angle);
+    program.z(0, angle);
+    program.run();
+
+    let mut other_program = Program::new(number_of_qubits);
+    other_program.y(0, 3. * angle);
+    other_program.run();
+
+    assert_approximately_equal(program.state, other_program.state)
 }

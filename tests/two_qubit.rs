@@ -1,6 +1,5 @@
 use nalgebra::dvector;
 use test_log::test; // pretty assertions for human readability
-
 use zx::*;
 
 // hello

@@ -2,6 +2,7 @@ use std::mem::size_of_val;
 
 use log::{debug, info, warn};
 use nalgebra::ComplexField;
+use pretty_assertions::assert_eq;
 
 use crate::types::*;
 
