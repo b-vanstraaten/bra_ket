@@ -3,7 +3,6 @@ use test_log::test;
 
 use zx::*;
 
-
 #[test]
 fn reset_test() {
     let number_of_qubits: usize = 2;

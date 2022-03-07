@@ -1,4 +1,5 @@
 use nalgebra::{Complex, DMatrix, SMatrix};
+use std::f64::consts::{PI as PI_f64, SQRT_2};
 
 /// A qubit index
 pub type Qubit = usize;
@@ -19,7 +20,7 @@ pub type Matrix2x2 = SMatrix<C, 2, 2>;
 pub type Angle = R;
 
 /// pi
-pub static PI: Angle = std::f64::consts::PI as Angle;
+pub static PI: Angle = PI_f64 as Angle;
 
 /// The acceptable numerical precision for the test
 pub static COMPARISON_PRECISION: R = 1e-6;
@@ -54,4 +55,11 @@ pub static SIGMA_Z: Matrix2x2 = Matrix2x2::new(
     C::new(0., 0.),
     C::new(0., 0.),
     C::new(-1., 0.),
+);
+
+pub static H: Matrix2x2 = Matrix2x2::new(
+    C::new(1. / SQRT_2, 0.),
+    C::new(1. / SQRT_2, 0.),
+    C::new(1. / SQRT_2, 0.),
+    C::new(-1. / SQRT_2, 0.),
 );

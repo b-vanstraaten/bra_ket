@@ -45,15 +45,19 @@ impl State {
     }
 
     pub fn reset(&mut self) {
-        self.density_matrix = &self.density_matrix * C::new(0. ,0.);
+        self.density_matrix = &self.density_matrix * C::new(0., 0.);
         self.density_matrix[(0, 0)] = C::new(1., 0.);
     }
 
+    pub fn is_pure(&self) -> bool {
+        let trace = (&self.density_matrix * &self.density_matrix).trace();
+        trace.re > (1. - COMPARISON_PRECISION)
+    }
 }
 
 pub fn assert_approximately_equal(required_state: State, state: State) {
     if !approx_eq(&required_state, &state) {
-        debug!("final_state: \n{}", state.density_matrix);
+        println!("final_state: \n{}", state.density_matrix);
         assert_eq!(required_state.density_matrix, state.density_matrix);
     }
 }

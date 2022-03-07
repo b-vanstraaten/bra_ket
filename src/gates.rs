@@ -11,6 +11,7 @@ pub enum Gate {
     X(Qubit, Angle),
     Y(Qubit, Angle),
     Z(Qubit, Angle),
+    H(Qubit),
 }
 
 pub fn implement_gate(state: &mut State, gate: &Gate) {
@@ -20,6 +21,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::X(qubit, angle) => x(state, qubit, angle),
         Gate::Y(qubit, angle) => y(state, qubit, angle),
         Gate::Z(qubit, angle) => z(state, qubit, angle),
+        Gate::H(qubit) => h(state, qubit),
     }
 }
 
@@ -44,19 +46,19 @@ fn state_iter(states: [Qubit; 2]) -> Vec<((Qubit, Qubit), (Qubit, Qubit))> {
 
 fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     let state_pairs = calculate_state_pairs(&state.number_of_qubits, qubit);
+    debug!("density matrix before:\n{}", state.density_matrix);
     for states in state_pairs {
         let mut rho = Matrix2x2::zeros();
         for (qubit_index, slice_index) in state_iter(states) {
             rho[slice_index] = state.density_matrix[qubit_index];
         }
-        debug!("rho before:\n{}", rho);
         rho = u * rho * u.adjoint();
-        debug!("rho after:\n{}", rho);
 
         for (qubit_index, slice_index) in state_iter(states) {
             state.density_matrix[qubit_index] = rho[slice_index];
         }
     }
+    debug!("density matrix after:\n{}", state.density_matrix);
 }
 
 fn measure(state: &mut State, qubit: &Qubit) {
@@ -83,4 +85,9 @@ fn z(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Z * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
+}
+
+fn h(state: &mut State, qubit: &Qubit) {
+    debug!("u:\n{}", H);
+    single_qubit_gate(state, qubit, H)
 }

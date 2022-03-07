@@ -173,3 +173,68 @@ fn single_qubit_xz_commutation() {
 
     assert_approximately_equal(program.state, other_program.state)
 }
+
+/// tests the x gate on a single qubit
+#[test]
+fn single_qubit_measurement() {
+    let number_of_qubits: usize = 1;
+    let angle = PI / 3.;
+
+    let mut program = Program::new(number_of_qubits);
+    program.x(0, angle);
+    program.measure(0);
+    program.run();
+
+    let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
+
+    let required_density_matrix = dmatrix![
+        C::new(c * c, 0.), C::new(0., 0.);
+        C::new(0., 0.), C::new(s * s, 0.);
+    ];
+    let required_state = State {
+        number_of_qubits,
+        density_matrix: required_density_matrix,
+    };
+
+    assert_approximately_equal(required_state, program.state)
+}
+
+#[test]
+fn single_qubit_pure_state() {
+    let number_of_qubits: usize = 1;
+    let angle = PI / 3.;
+
+    let mut program = Program::new(number_of_qubits);
+    program.x(0, angle);
+    program.run();
+
+    // assert the state is pure
+    assert!(program.state.is_pure());
+
+    program.reset(); // reset the program to empty
+    program.x(0, angle);
+    program.measure(0);
+    program.run();
+
+    // assert that the state is not pure
+    assert!(!program.state.is_pure())
+}
+
+#[test]
+fn single_qubit_hadamard() {
+    let number_of_qubits: usize = 1;
+
+    let mut program = Program::new(number_of_qubits);
+    program.h(0);
+    program.run();
+
+    let required_density_matrix = dmatrix![
+        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
+        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
+    ];
+
+    let required_state = State {
+        number_of_qubits,
+        density_matrix: required_density_matrix,
+    };
+}

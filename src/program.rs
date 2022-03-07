@@ -82,4 +82,8 @@ impl Program {
     pub fn z(&mut self, qubit: Qubit, angle: Angle) {
         self.add_gate(Gate::Z(qubit, angle))
     }
+
+    pub fn h(&mut self, qubit: Qubit) {
+        self.add_gate(Gate::H(qubit))
+    }
 }
