@@ -6,9 +6,9 @@ use zx::*;
 
 // pretty assertions for human readability
 
+/// tests the x gate on a single qubit
 #[test]
 fn one_qubit_x_gate_pi() {
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let angle = PI;
 
@@ -30,9 +30,9 @@ fn one_qubit_x_gate_pi() {
     assert_approximately_equal(required_state, program.state)
 }
 
+/// tests the x gate on a single qubit
 #[test]
 fn one_qubit_x_gate_pi_half() {
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let angle = PI / 2.;
 
@@ -55,9 +55,9 @@ fn one_qubit_x_gate_pi_half() {
     assert_approximately_equal(required_state, program.state)
 }
 
+/// tests the x gate on a single qubit
 #[test]
 fn one_qubit_y_gate_pi() {
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let angle = PI;
 
@@ -79,10 +79,9 @@ fn one_qubit_y_gate_pi() {
     assert_approximately_equal(required_state, program.state)
 }
 
+/// tests the y gate on a single qubit
 #[test]
 fn one_qubit_y_gate_pi_half() {
-    /// tests the x gate on a single qubit
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let angle = PI / 2.;
 
@@ -104,9 +103,9 @@ fn one_qubit_y_gate_pi_half() {
     assert_approximately_equal(required_state, program.state)
 }
 
+/// tests the z gate on a single qubit
 #[test]
 fn one_qubit_z_gate_pi() {
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let mut program = Program::new(number_of_qubits);
     program.z(0, PI);
@@ -123,8 +122,9 @@ fn one_qubit_z_gate_pi() {
     assert_approximately_equal(required_state, program.state)
 }
 
+/// tests the x gate on a single qubit
+#[test]
 fn one_qubit_z_gate_pi_half() {
-    /// tests the x gate on a single qubit
     let number_of_qubits: usize = 1;
     let mut program = Program::new(number_of_qubits);
     program.z(0, PI / 2.);

@@ -1,7 +1,7 @@
 mod gates;
 mod program;
-mod types;
 mod state;
+mod types;
 
 pub use program::*;
 pub use state::*;

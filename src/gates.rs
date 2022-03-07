@@ -2,8 +2,8 @@ use itertools::{iproduct, zip};
 use log::{debug, info, warn};
 use nalgebra::{Complex, SMatrix};
 
-use crate::{Program, State};
 use crate::types::*;
+use crate::{Program, State};
 
 #[derive(Debug)]
 pub enum Gate {

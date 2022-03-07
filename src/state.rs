@@ -25,7 +25,6 @@ fn create_density_matrix(number_of_qubits: usize) -> DensityMatrix {
     return rho;
 }
 
-
 /// A struct to contain the state the quantum experiment. The system is comprised of a
 /// quantum register and a classical register. The classical register is described by 'number_of_bits' bits.
 /// Whilest the quantum register, of 'number_of_qubits' qubits, must be described by a density matrix.

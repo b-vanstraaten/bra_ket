@@ -78,4 +78,3 @@ impl Program {
         self.add_gate(Gate::Z(qubit, angle))
     }
 }
-
