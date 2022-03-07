@@ -42,7 +42,7 @@ fn state_iter(states: [Qubit; 2]) -> Vec<((Qubit, Qubit), (Qubit, Qubit))> {
     zip(qubit_index_iter, slice_index_iter).collect()
 }
 
-fn single_qubit_gate(state: &mut State, qubit: &Qubit, U: Matrix2x2) {
+fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     let state_pairs = calculate_state_pairs(&state.number_of_qubits, qubit);
     for states in state_pairs {
         let mut rho = Matrix2x2::zeros();
@@ -50,8 +50,7 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, U: Matrix2x2) {
             rho[slice_index] = state.density_matrix[qubit_index];
         }
         debug!("rho before:\n{}", rho);
-        debug!("U:\n{}", U);
-        rho = U * rho * U.adjoint();
+        rho = u * rho * u.adjoint();
         debug!("rho after:\n{}", rho);
 
         for (qubit_index, slice_index) in state_iter(states) {
@@ -63,16 +62,19 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, U: Matrix2x2) {
 fn measure(mut state: &State, qubit: &Qubit) {}
 
 fn x(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let U = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_X * C::new(0., (angle / 2.).sin());
-    single_qubit_gate(state, qubit, U)
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_X * C::new(0., (angle / 2.).sin());
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
 }
 
 fn y(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let U = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Y * C::new(0., (angle / 2.).sin());
-    single_qubit_gate(state, qubit, U)
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Y * C::new(0., (angle / 2.).sin());
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
 }
 
 fn z(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let U = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Z * C::new(0., (angle / 2.).sin());
-    single_qubit_gate(state, qubit, U)
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Z * C::new(0., (angle / 2.).sin());
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
 }
