@@ -43,6 +43,12 @@ impl State {
             density_matrix,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.density_matrix = &self.density_matrix * C::new(0. ,0.);
+        self.density_matrix[(0, 0)] = C::new(1., 0.);
+    }
+
 }
 
 pub fn assert_approximately_equal(required_state: State, state: State) {

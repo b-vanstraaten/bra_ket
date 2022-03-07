@@ -59,7 +59,13 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     }
 }
 
-fn measure(mut state: &State, qubit: &Qubit) {}
+fn measure(state: &mut State, qubit: &Qubit) {
+    let state_pairs = calculate_state_pairs(&state.number_of_qubits, qubit);
+    for states in state_pairs {
+        state.density_matrix[(states[0], states[1])] = C::new(0., 0.);
+        state.density_matrix[(states[1], states[0])] = C::new(0., 0.);
+    }
+}
 
 fn x(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_X * C::new(0., (angle / 2.).sin());

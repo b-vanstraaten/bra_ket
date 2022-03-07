@@ -38,6 +38,11 @@ impl Program {
         return Program { state, gates };
     }
 
+    pub fn reset(&mut self) {
+        self.state.reset();
+        self.gates = vec![];
+    }
+
     /// Adds a gate to the quantum program. It should be noted that the term gate is a slight
     /// simplification of notation. As the "gate" can be a measurement or even conditional logic.
     ///
