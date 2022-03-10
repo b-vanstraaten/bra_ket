@@ -38,24 +38,23 @@ fn calculate_state_pairs(number_of_qubits: &Qubit, qubit: &Qubit) -> Vec<[Qubit;
         .collect()
 }
 
-fn state_iter(states: [Qubit; 2]) -> Vec<((Qubit, Qubit), (Qubit, Qubit))> {
-    let qubit_index_iter = iproduct!(states, states);
-    let slice_index_iter = iproduct!(0..2 as Qubit, 0..2 as Qubit);
-    zip(qubit_index_iter, slice_index_iter).collect()
-}
 
 fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
-    let state_pairs = calculate_state_pairs(&state.number_of_qubits, qubit);
     debug!("density matrix before:\n{}", state.density_matrix);
-    for states in state_pairs {
-        let mut rho = Matrix2x2::zeros();
-        for (qubit_index, slice_index) in state_iter(states) {
-            rho[slice_index] = state.density_matrix[qubit_index];
+
+    let mut rho = Matrix2x2::zeros();
+    for (i_offset, j_offset) in iproduct!(
+        (0..1 << state.number_of_qubits).step_by(2),
+        (0..1 << state.number_of_qubits).step_by(2)
+    ) {
+        for (i, j) in iproduct!(0..2, 0..2) {
+            rho[(i, j)] = state.density_matrix[(i_offset + i, j_offset + j)];
         }
+
         rho = u * rho * u.adjoint();
 
-        for (qubit_index, slice_index) in state_iter(states) {
-            state.density_matrix[qubit_index] = rho[slice_index];
+        for (i, j) in iproduct!(0..2, 0..2) {
+            state.density_matrix[(i_offset + i, j_offset + j)] = rho[(i, j)]
         }
     }
     debug!("density matrix after:\n{}", state.density_matrix);

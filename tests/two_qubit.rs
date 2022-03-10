@@ -2,7 +2,23 @@ use nalgebra::{dvector, dmatrix, DMatrix};
 use test_log::test; // pretty assertions for human readability
 use zx::*;
 
-// hello
+#[test]
+fn two_qubit_hadamard() {
+    let number_of_qubits: usize = 2;
+
+    let mut program = Program::new(number_of_qubits);
+    program.h(0);
+    program.h(1);
+    program.run();
+
+    let required_density_matrix = DMatrix::from_element(4, 4, C::new(1. / 4., 0.));
+
+    let required_state = State {
+        number_of_qubits,
+        density_matrix: required_density_matrix,
+    };
+    assert_approximately_equal(required_state, program.state);
+}
 
 #[test]
 fn two_qubit_x_gate() {
@@ -101,20 +117,3 @@ fn two_qubit_z_gate() {
     assert_approximately_equal(required_state, program.state);
 }
 
-#[test]
-fn two_qubit_hadamard() {
-    let number_of_qubits: usize = 2;
-
-    let mut program = Program::new(number_of_qubits);
-    program.h(0);
-    program.h(1);
-    program.run();
-
-    let required_density_matrix = DMatrix::from_element(4, 4, C::new(1. / 4., 0.));
-
-    let required_state = State {
-        number_of_qubits,
-        density_matrix: required_density_matrix,
-    };
-    assert_approximately_equal(required_state, program.state);
-}
