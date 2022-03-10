@@ -1,9 +1,26 @@
-use itertools::{iproduct, zip};
+use itertools::iproduct;
 use log::{debug, info, warn};
 use nalgebra::{Complex, SMatrix};
-
+use std::cmp::Ordering;
 use crate::types::*;
 use crate::{Program, State};
+
+fn _swap_bit_values(x: usize, bit_position_1: &Qubit, bit_position_0: &Qubit) -> Qubit {
+    let bit_value_0 = x & (1 << bit_position_0);
+    let x = x ^ bit_value_0;
+    let bit_value_1 = x & (1 << bit_position_1);
+    let x = x ^ bit_value_1;
+    let bit_values = (bit_value_1 >> (bit_position_1 - bit_position_0)) ^ (bit_value_0 << (bit_position_1 - bit_position_0));
+    return x ^ bit_values
+}
+
+fn swap_bit_values(x: usize, bit_position_1: &Qubit, bit_position_0: &Qubit) -> Qubit {
+    match bit_position_1.cmp(&bit_position_0) {
+        Ordering::Less => return _swap_bit_values(x, bit_position_0, bit_position_1),
+        Ordering::Equal => return x,
+        Ordering::Greater => return _swap_bit_values(x, bit_position_1, bit_position_0)
+    }
+}
 
 #[derive(Debug)]
 pub enum Gate {
@@ -25,20 +42,6 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
     }
 }
 
-fn calculate_state_pairs(number_of_qubits: &Qubit, qubit: &Qubit) -> Vec<[Qubit; 2]> {
-    let number_of_right_bits = qubit;
-    let number_of_left_bits = number_of_qubits - (qubit + 1);
-
-    let left_iterator = 0..((1 as Qubit) << number_of_left_bits);
-    let right_iterator = 0..((1 as Qubit) << number_of_right_bits);
-
-    iproduct!(left_iterator, right_iterator)
-        .map(|(left_bits, right_bits)| (left_bits << number_of_right_bits + 1) + right_bits)
-        .map(|index_zero| [index_zero, index_zero + (1 << qubit)])
-        .collect()
-}
-
-
 fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
@@ -48,24 +51,37 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
         (0..1 << state.number_of_qubits).step_by(2)
     ) {
         for (i, j) in iproduct!(0..2, 0..2) {
-            rho[(i, j)] = state.density_matrix[(i_offset + i, j_offset + j)];
+            rho[(i, j)] = state.density_matrix[(
+                swap_bit_values(i + i_offset, qubit, &0),
+                swap_bit_values(j + j_offset, qubit, &0)
+            )];
         }
 
         rho = u * rho * u.adjoint();
 
         for (i, j) in iproduct!(0..2, 0..2) {
-            state.density_matrix[(i_offset + i, j_offset + j)] = rho[(i, j)]
+            state.density_matrix[(
+                swap_bit_values(i + i_offset, qubit, &0),
+                swap_bit_values(j + j_offset, qubit, &0)
+            )] = rho[(i, j)]
         }
     }
     debug!("density matrix after:\n{}", state.density_matrix);
 }
 
 fn measure(state: &mut State, qubit: &Qubit) {
-    let state_pairs = calculate_state_pairs(&state.number_of_qubits, qubit);
-    for states in state_pairs {
-        state.density_matrix[(states[0], states[1])] = C::new(0., 0.);
-        state.density_matrix[(states[1], states[0])] = C::new(0., 0.);
+    for (i_offset, j_offset) in iproduct!(
+        (0..1 << state.number_of_qubits).step_by(2),
+        (0..1 << state.number_of_qubits).step_by(2)
+    ) {
+        for (i, j) in [(0, 1), (1, 0)] {
+             state.density_matrix[(
+                swap_bit_values(i + i_offset, qubit, &0),
+                swap_bit_values(j + j_offset, qubit, &0)
+            )] = C::new(0., 0.)
+        }
     }
+    debug!("density matrix after:\n{}", state.density_matrix);
 }
 
 fn x(state: &mut State, qubit: &Qubit, angle: &Angle) {
