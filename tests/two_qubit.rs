@@ -3,6 +3,24 @@ use test_log::test; // pretty assertions for human readability
 use zx::*;
 
 #[test]
+fn two_qubit_cnot() {
+    let number_of_qubits: usize = 2;
+
+    let mut program = Program::new(number_of_qubits);
+    program.h(1);
+    program.cnot(0, 1);
+    program.run();
+
+    let required_density_matrix = DMatrix::from_element(4, 4, C::new(1. / 4., 0.));
+
+    let required_state = State {
+        number_of_qubits,
+        density_matrix: required_density_matrix,
+    };
+    assert_approximately_equal(required_state, program.state);
+}
+
+#[test]
 fn two_qubit_hadamard() {
     let number_of_qubits: usize = 2;
 

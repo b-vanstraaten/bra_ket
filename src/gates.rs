@@ -29,6 +29,7 @@ pub enum Gate {
     Y(Qubit, Angle),
     Z(Qubit, Angle),
     H(Qubit),
+    CNOT(Qubit, Qubit)
 }
 
 pub fn implement_gate(state: &mut State, gate: &Gate) {
@@ -39,6 +40,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::Y(qubit, angle) => y(state, qubit, angle),
         Gate::Z(qubit, angle) => z(state, qubit, angle),
         Gate::H(qubit) => h(state, qubit),
+        Gate::CNOT(control, target) => cnot(state, control, target),
     }
 }
 
@@ -63,6 +65,35 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
             state.density_matrix[(
                 swap_bit_values(i + i_offset, qubit, &0),
                 swap_bit_values(j + j_offset, qubit, &0)
+            )] = rho[(i, j)]
+        }
+    }
+    debug!("density matrix after:\n{}", state.density_matrix);
+}
+
+fn two_qubit_gate(state: &mut State, qubit_0: &Qubit, qubit_1: &Qubit, u: Matrix4x4) {
+    debug!("density matrix before:\n{}", state.density_matrix);
+
+    let mut rho = Matrix4x4::zeros();
+    for (i_offset, j_offset) in iproduct!(
+        (0..1 << state.number_of_qubits).step_by(4),
+        (0..1 << state.number_of_qubits).step_by(4)
+    ) {
+        for (i, j) in iproduct!(0..4, 0..4) {
+            rho[(i, j)] = state.density_matrix[(
+                swap_bit_values(swap_bit_values(i + i_offset, qubit_0, &0), qubit_1, &1),
+                swap_bit_values(swap_bit_values(j + j_offset, qubit_0, &0), qubit_1, &1)
+            )];
+        }
+
+        println!("{}", rho);
+
+        rho = u * rho * u.adjoint();
+
+        for (i, j) in iproduct!(0..4, 0..4) {
+            state.density_matrix[(
+                swap_bit_values(swap_bit_values(i + i_offset, qubit_0, &0), qubit_1, &1),
+                swap_bit_values(swap_bit_values(j + j_offset, qubit_0, &0), qubit_1, &1)
             )] = rho[(i, j)]
         }
     }
@@ -105,4 +136,8 @@ fn z(state: &mut State, qubit: &Qubit, angle: &Angle) {
 fn h(state: &mut State, qubit: &Qubit) {
     debug!("u:\n{}", H);
     single_qubit_gate(state, qubit, H)
+}
+
+fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {
+    two_qubit_gate(state, control, target, CNOT)
 }
