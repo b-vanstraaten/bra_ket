@@ -1,4 +1,4 @@
-use nalgebra::{Complex, DMatrix, SMatrix};
+use nalgebra::{Complex, DMatrix, matrix, SMatrix};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
 /// A qubit index
@@ -30,59 +30,38 @@ pub static I: C = C::new(0., 1.);
 pub static COMPARISON_PRECISION: R = 1e-6;
 
 /// The pauli idenitiy matrix
-pub static IDENTITY: Matrix2x2 = Matrix2x2::new(
-    C::new(1., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(1., 0.),
-);
+pub static IDENTITY: Matrix2x2 = matrix![
+    C::new(1., 0.), C::new(0., 0.);
+    C::new(0., 0.), C::new(1., 0.);
+];
 
 /// The x pauli matrix
-pub static SIGMA_X: Matrix2x2 = Matrix2x2::new(
-    C::new(0., 0.),
-    C::new(1., 0.),
-    C::new(1., 0.),
-    C::new(0., 0.),
-);
+pub static SIGMA_X: Matrix2x2 = matrix![
+    C::new(0., 0.), C::new(1., 0.);
+    C::new(1., 0.), C::new(0., 0.);
+];
 
 /// the y pauli matrix
-pub static SIGMA_Y: Matrix2x2 = Matrix2x2::new(
-    C::new(0., 0.),
-    C::new(0., -1.),
-    C::new(0., 1.),
-    C::new(0., 0.),
-);
+pub static SIGMA_Y: Matrix2x2 = matrix![
+    C::new(0., 0.), C::new(0., -1.);
+    C::new(0., 1.), C::new(0., 0.);
+];
 
 /// The z pauli matrix
-pub static SIGMA_Z: Matrix2x2 = Matrix2x2::new(
-    C::new(1., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(-1., 0.),
-);
+pub static SIGMA_Z: Matrix2x2 = matrix![
+    C::new(1., 0.), C::new(0., 0.);
+    C::new(0., 0.), C::new(-1., 0.);
+];
 
-pub static H: Matrix2x2 = Matrix2x2::new(
-    C::new(1. / SQRT_2, 0.),
-    C::new(1. / SQRT_2, 0.),
-    C::new(1. / SQRT_2, 0.),
-    C::new(-1. / SQRT_2, 0.),
-);
+/// The hadamard matrix
+pub static H: Matrix2x2 = matrix![
+    C::new(1. / SQRT_2, 0.), C::new(1. / SQRT_2, 0.);
+    C::new(1. / SQRT_2, 0.), C::new(-1. / SQRT_2, 0.);
+];
 
-pub static CNOT: Matrix4x4 = Matrix4x4::new(
-    C::new(1., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(1., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(1., 0.),
-    C::new(0., 0.),
-    C::new(0., 0.),
-    C::new(1., 0.),
-    C::new(0., 0.),
+pub static CNOT: Matrix4x4 = matrix!(
+    C::new(1., 0.), C::new(0., 0.),C::new(0., 0.),C::new(0., 0.);
+    C::new(0., 0.), C::new(1., 0.),C::new(0., 0.),C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 0.),C::new(0., 0.),C::new(1., 0.);
+    C::new(0., 0.), C::new(0., 0.),C::new(1., 0.),C::new(0., 0.);
 );
