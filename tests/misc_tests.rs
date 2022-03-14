@@ -1,4 +1,3 @@
-use nalgebra::{dmatrix, dvector};
 use test_log::test;
 
 use zx::*;
@@ -14,7 +13,28 @@ fn reset_test() {
     program.run();
     program.reset();
 
-    let mut other_program = Program::new(number_of_qubits);
+    let other_program = Program::new(number_of_qubits);
 
     assert_approximately_equal(program.state, other_program.state)
+}
+
+#[test]
+fn pure_state() {
+    let number_of_qubits: usize = 1;
+    let angle = PI / 3.;
+
+    let mut program = Program::new(number_of_qubits);
+    program.x(0, angle);
+    program.run();
+
+    // assert the state is pure
+    assert!(program.state.is_pure());
+
+    program.reset(); // reset the program to empty
+    program.x(0, angle);
+    program.measure(0);
+    program.run();
+
+    // assert that the state is not pure
+    assert!(!program.state.is_pure())
 }

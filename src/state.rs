@@ -1,6 +1,6 @@
 use std::mem::size_of_val;
 
-use log::{debug, info, warn};
+use log::debug;
 use nalgebra::ComplexField;
 
 use crate::types::*;
@@ -36,7 +36,7 @@ pub struct State {
 
 impl State {
     pub fn new(number_of_qubits: Qubit) -> State {
-        let mut density_matrix = create_density_matrix(number_of_qubits);
+        let density_matrix = create_density_matrix(number_of_qubits);
         State {
             number_of_qubits,
             density_matrix,
@@ -54,9 +54,10 @@ impl State {
     }
 }
 
-pub fn assert_approximately_equal(required_state: State, state: State) {
-    if !approx_eq(&required_state, &state) {
-        println!("final_state: \n{}", state.density_matrix);
+pub fn assert_approximately_equal(state: State, other_state: State) {
+    if !approx_eq(&state, &other_state) {
+        println!("state: \n{}", state.density_matrix);
+        println!("other state: \n{}", other_state.density_matrix);
         panic!("matrices are different");
     }
 }
@@ -70,8 +71,10 @@ fn approx_eq(state: &State, other_state: &State) -> bool {
                 result = true;
             }
         } else {
-            panic!("matrices are different sizes")
+            panic!("matrices are different sizes: {:#?} =/= {:#?}", state.density_matrix.shape(), other_state.density_matrix.shape())
         }
+    } else {
+        panic!("states reprsent different numbers of qubits: {} =/= {}", state.number_of_qubits, other_state.number_of_qubits)
     }
     result
 }

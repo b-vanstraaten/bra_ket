@@ -1,9 +1,9 @@
-use nalgebra::{dmatrix, dvector, DMatrix};
+use nalgebra::dmatrix;
 use test_log::test; // pretty assertions for human readability
 use zx::*;
 
 #[test]
-fn two_qubit_cnot_control_0() {
+fn h0_cnot01() {
     let number_of_qubits: usize = 2;
 
     let mut program = Program::new(number_of_qubits);
@@ -24,7 +24,7 @@ fn two_qubit_cnot_control_0() {
 }
 
 #[test]
-fn two_qubit_cnot_control_1() {
+fn h0_cnot10() {
     let number_of_qubits: usize = 2;
 
     let mut program = Program::new(number_of_qubits);
@@ -45,7 +45,7 @@ fn two_qubit_cnot_control_1() {
 }
 
 #[test]
-fn two_qubit_hadamard() {
+fn h0_h1() {
     let number_of_qubits: usize = 2;
 
     let mut program = Program::new(number_of_qubits);
@@ -66,9 +66,8 @@ fn two_qubit_hadamard() {
 }
 
 #[test]
-fn two_qubit_x_gate() {
-    /// tests the x gate on two qubits
-    let number_of_qubits: usize = 2;
+fn x0_x1() {
+    let number_of_qubits = 2;
     let mut program = Program::new(number_of_qubits);
 
     program.x(0, PI);
@@ -88,8 +87,7 @@ fn two_qubit_x_gate() {
 }
 
 #[test]
-fn two_qubit_measure() {
-    /// tests the x gate on two qubits
+fn x0_x1_m0_m1() {
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
 
@@ -113,8 +111,7 @@ fn two_qubit_measure() {
 }
 
 #[test]
-fn two_qubit_y_gate() {
-    /// tests the y gate an two qubits
+fn y1() {
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
 
@@ -135,8 +132,7 @@ fn two_qubit_y_gate() {
 }
 
 #[test]
-fn two_qubit_z_gate() {
-    /// tests the z gate on two qubis
+fn h0_z1 () {
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
     program.h(0);

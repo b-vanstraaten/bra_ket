@@ -1,8 +1,3 @@
-use std::mem::size_of_val;
-
-use log::{debug, info, warn};
-use nalgebra::ComplexField;
-
 use crate::gates::*;
 use crate::state::*;
 use crate::types::*;
