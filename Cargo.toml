@@ -11,6 +11,7 @@ log = "0.4.14"
 env_logger = "0.8.4"
 itertools = "0.10.3"
 pretty_assertions = "1.1.0"
+rayon = "1.5.1"
 
 [dev-dependencies]
 test-log = "0.2.8"

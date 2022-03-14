@@ -4,22 +4,30 @@ use nalgebra::{Complex, SMatrix};
 use std::cmp::Ordering;
 use crate::types::*;
 use crate::{Program, State};
+use std::mem;
 
-fn _swap_bit_values(x: usize, bit_position_1: &Qubit, bit_position_0: &Qubit) -> Qubit {
-    let bit_value_0 = x & (1 << bit_position_0);
+fn _swap_bits(x: usize, bits: (&Qubit, &Qubit)) -> usize {
+    let bit_value_0 = x & (1 << bits.0);
     let x = x ^ bit_value_0;
-    let bit_value_1 = x & (1 << bit_position_1);
+    let bit_value_1 = x & (1 << bits.1);
     let x = x ^ bit_value_1;
-    let bit_values = (bit_value_1 >> (bit_position_1 - bit_position_0)) ^ (bit_value_0 << (bit_position_1 - bit_position_0));
+    let bit_values = (bit_value_1 >> (bits.1 - bits.0)) ^ (bit_value_0 << (bits.1 - bits.0));
     return x ^ bit_values
 }
 
-fn swap_bit_values(x: usize, bit_position_1: &Qubit, bit_position_0: &Qubit) -> Qubit {
-    match bit_position_1.cmp(&bit_position_0) {
-        Ordering::Less => return _swap_bit_values(x, bit_position_0, bit_position_1),
+fn swap_two_bits(x: usize, bits: (&Qubit, &Qubit)) -> usize {
+    match bits.1.cmp(&bits.0) {
+        Ordering::Less => return _swap_bits(x, (bits.1, bits.0)),
         Ordering::Equal => return x,
-        Ordering::Greater => return _swap_bit_values(x, bit_position_1, bit_position_0)
+        Ordering::Greater => return _swap_bits(x, (bits.0, bits.1))
     }
+}
+
+fn swap_four_bits(mut x: usize, bit_pairs: [(&Qubit, &Qubit); 2]) -> usize {
+    for (bit_0, bit_1) in bit_pairs.iter() {
+        x = swap_two_bits(x, (bit_0, bit_1));
+    };
+    return x
 }
 
 #[derive(Debug)]
@@ -47,6 +55,11 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
 fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
+    let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match qubit {
+        0 => Box::new(|x: usize| x),
+        _ => Box::new(|x: usize| swap_two_bits(x, (&qubit, &0))),
+    };
+
     let mut rho = Matrix2x2::zeros();
     for (i_offset, j_offset) in iproduct!(
         (0..1 << state.number_of_qubits).step_by(2),
@@ -54,8 +67,8 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     ) {
         for (i, j) in iproduct!(0..2, 0..2) {
             rho[(i, j)] = state.density_matrix[(
-                swap_bit_values(i + i_offset, qubit, &0),
-                swap_bit_values(j + j_offset, qubit, &0)
+                swap_qubits(i + i_offset),
+                swap_qubits(j + j_offset)
             )];
         }
 
@@ -63,8 +76,8 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
 
         for (i, j) in iproduct!(0..2, 0..2) {
             state.density_matrix[(
-                swap_bit_values(i + i_offset, qubit, &0),
-                swap_bit_values(j + j_offset, qubit, &0)
+                swap_qubits(i + i_offset),
+                swap_qubits(j + j_offset)
             )] = rho[(i, j)]
         }
     }
@@ -74,6 +87,12 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
 fn two_qubit_gate(state: &mut State, qubit_0: &Qubit, qubit_1: &Qubit, u: Matrix4x4) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
+    let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match (qubit_0, qubit_1) {
+        (0, 1) => Box::new(|x| x),
+        (1, 0) => Box::new(|x| swap_two_bits(x, (&0, &1))),
+        (_, _) => Box::new(|x: usize| swap_four_bits(x, [(&qubit_0, &0), (&qubit_1, &1)])),
+    };
+
     let mut rho = Matrix4x4::zeros();
     for (i_offset, j_offset) in iproduct!(
         (0..1 << state.number_of_qubits).step_by(4),
@@ -81,19 +100,17 @@ fn two_qubit_gate(state: &mut State, qubit_0: &Qubit, qubit_1: &Qubit, u: Matrix
     ) {
         for (i, j) in iproduct!(0..4, 0..4) {
             rho[(i, j)] = state.density_matrix[(
-                swap_bit_values(swap_bit_values(i + i_offset, qubit_0, &0), qubit_1, &1),
-                swap_bit_values(swap_bit_values(j + j_offset, qubit_0, &0), qubit_1, &1)
+                swap_qubits(i + i_offset),
+                swap_qubits(j + j_offset)
             )];
         }
-
-        println!("{}", rho);
 
         rho = u * rho * u.adjoint();
 
         for (i, j) in iproduct!(0..4, 0..4) {
             state.density_matrix[(
-                swap_bit_values(swap_bit_values(i + i_offset, qubit_0, &0), qubit_1, &1),
-                swap_bit_values(swap_bit_values(j + j_offset, qubit_0, &0), qubit_1, &1)
+                swap_qubits(i + i_offset),
+                swap_qubits(j + j_offset)
             )] = rho[(i, j)]
         }
     }
@@ -107,8 +124,8 @@ fn measure(state: &mut State, qubit: &Qubit) {
     ) {
         for (i, j) in [(0, 1), (1, 0)] {
              state.density_matrix[(
-                swap_bit_values(i + i_offset, qubit, &0),
-                swap_bit_values(j + j_offset, qubit, &0)
+                swap_two_bits(i + i_offset, (qubit, &0)),
+                swap_two_bits(j + j_offset, (qubit, &0))
             )] = C::new(0., 0.)
         }
     }
@@ -139,5 +156,5 @@ fn h(state: &mut State, qubit: &Qubit) {
 }
 
 fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {
-    two_qubit_gate(state, control, target, CNOT)
+    two_qubit_gate(state, target, control, CNOT)
 }

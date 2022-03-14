@@ -2,7 +2,6 @@ use std::mem::size_of_val;
 
 use log::{debug, info, warn};
 use nalgebra::ComplexField;
-use pretty_assertions::assert_eq;
 
 use crate::types::*;
 
@@ -58,7 +57,7 @@ impl State {
 pub fn assert_approximately_equal(required_state: State, state: State) {
     if !approx_eq(&required_state, &state) {
         println!("final_state: \n{}", state.density_matrix);
-        assert_eq!(required_state.density_matrix, state.density_matrix);
+        panic!("matrices are different");
     }
 }
 
@@ -70,6 +69,8 @@ fn approx_eq(state: &State, other_state: &State) -> bool {
             if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
                 result = true;
             }
+        } else {
+            panic!("matrices are different sizes")
         }
     }
     result

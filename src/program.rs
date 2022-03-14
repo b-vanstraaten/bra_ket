@@ -87,5 +87,7 @@ impl Program {
         self.add_gate(Gate::H(qubit))
     }
 
-    pub fn cnot(&mut self, control: Qubit, target: Qubit) {self.add_gate(Gate::CNOT(control, target))}
+    pub fn cnot(&mut self, control: Qubit, target: Qubit) {
+        self.add_gate(Gate::CNOT(control, target))
+    }
 }
