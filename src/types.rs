@@ -24,8 +24,6 @@ pub type Angle = R;
 /// pi
 pub static PI: Angle = PI_f64 as Angle;
 
-pub static I: C = C::new(0., 1.);
-
 /// The acceptable numerical precision for the test
 pub static COMPARISON_PRECISION: R = 1e-6;
 

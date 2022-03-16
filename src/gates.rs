@@ -56,7 +56,9 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
     let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match qubit {
+        // do nothing it is already correct
         0 => Box::new(|x: usize| x),
+        // swap the bit at qubit to bit zero
         _ => Box::new(|x: usize| swap_two_bits(x, (&qubit, &0))),
     };
 
@@ -86,22 +88,16 @@ fn two_qubit_gate(state: &mut State, qubit_0: &Qubit, qubit_1: &Qubit, u: Matrix
     let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match (qubit_0, qubit_1) {
         // do nothing it is already correct
         (0, 1) => Box::new(|x| x),
-
         // swap the two bit values
         (1, 0) => Box::new(|x| swap_two_bits(x, (&0, &1))),
-
         // it is only necessary to swap bit_1
         (0, _) => Box::new(|x: usize| swap_two_bits(x, (&1, &qubit_1))),
-
         // it is only necessary to swap bit_0
         (_, 1) => Box::new(|x: usize| swap_two_bits(x, (&0, &qubit_0))),
-
-        // swap bits 0 and 1 then swap bit 0 with qubit_1
+        // swap bits 0 and 1 then swap bit 0 with bit_1
         (1, _) => Box::new(|x: usize| swap_four_bits(x, [(&0, &1), (&0, &qubit_1)])),
-
         // swap bits 0 and 1 then swap bit 1 with qubit_0
         (_, 0) => Box::new(|x: usize| swap_four_bits(x, [(&0, &1), (&1, &qubit_0)])),
-
         // swap both bits
         (_, _) => Box::new(|x: usize| swap_four_bits(x, [(&0, &qubit_0), (&1, &qubit_1)]))
     };
@@ -142,19 +138,19 @@ fn measure(state: &mut State, qubit: &Qubit) {
 }
 
 fn x(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_X * C::new(0., (angle / 2.).sin());
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_X * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
 }
 
 fn y(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Y * C::new(0., (angle / 2.).sin());
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Y * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
 }
 
 fn z(state: &mut State, qubit: &Qubit, angle: &Angle) {
-    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) + SIGMA_Z * C::new(0., (angle / 2.).sin());
+    let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Z * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
 }

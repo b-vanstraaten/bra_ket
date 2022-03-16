@@ -10,7 +10,6 @@ pub struct Program {
     pub gates: Vec<Gate>,
 }
 
-#[allow(dead_code)]
 impl Program {
     /// Creates a new program. It initialises the density matrix based on the number_of_qubits. The
     /// density matrix is initialised in the |00..><00..| state.

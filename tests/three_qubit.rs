@@ -287,7 +287,7 @@ fn hhh_measure() {
 }
 
 #[test]
-fn deutsch_join_balanced() {
+fn deutsch_jozsa_balanced() {
     let number_of_qubits: usize = 3;
 
     let mut program = Program::new(number_of_qubits);
