@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use nalgebra::{ComplexField, matrix};
 
 use itertools::iproduct;
 use log::debug;
@@ -41,6 +42,7 @@ pub enum Gate {
     RX(Qubit, Angle),
     RY(Qubit, Angle),
     RZ(Qubit, Angle),
+    R(Qubit, Angle, Angle, Angle),
 
     CNOT(Qubit, Qubit),
 }
@@ -57,7 +59,9 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::RX(qubit, angle) => rx(state, qubit, angle),
         Gate::RY(qubit, angle) => ry(state, qubit, angle),
         Gate::RZ(qubit, angle) => rz(state, qubit, angle),
+        Gate::R(qubit, omega, theta , phi) => r(state, qubit, omega, theta, phi),
         Gate::H(qubit) => h(state, qubit),
+
         Gate::CNOT(control, target) => cnot(state, control, target),
     }
 }
@@ -186,6 +190,29 @@ fn rz(state: &mut State, qubit: &Qubit, angle: &Angle) {
 fn h(state: &mut State, qubit: &Qubit) {
     debug!("u:\n{}", H);
     single_qubit_gate(state, qubit, H)
+}
+
+fn r(state: &mut State, qubit: &Qubit, phi: &Angle, theta: &Angle, omega: &Angle) {
+
+
+
+    let (c_theta, s_theta) = ((theta / 2.).cos(), (theta / 2.).sin());
+    let (c_plus, s_plus) = (((phi + omega) / 2.).cos(), ((phi + omega) / 2.).sin());
+    let (c_minus, s_minus) = (((phi - omega) / 2.).cos(), ((phi - omega) / 2.).sin());
+
+    let u: Matrix2x2 = matrix![
+        C::new(c_plus, -s_plus) * c_theta, -C::new(c_minus, s_minus) * s_theta;
+        C::new(c_minus, -s_minus) * s_theta,  C::new(c_plus, s_plus) * c_theta
+    ];
+
+    // let u_phi = IDENTITY * C::new((phi / 2.).cos(), 0.) - SIGMA_Z * C::new(0., (phi / 2.).sin());
+    // let u_theta = IDENTITY * C::new((theta / 2.).cos(), 0.) - SIGMA_Y * C::new(0., (theta / 2.).sin());
+    // let u_omega = IDENTITY * C::new((omega / 2.).cos(), 0.) - SIGMA_Z * C::new(0., (omega / 2.).sin());
+
+    // let u =  u_omega * u_theta * u_phi
+
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
 }
 
 fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {

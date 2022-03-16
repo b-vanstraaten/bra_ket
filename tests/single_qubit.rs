@@ -1,5 +1,6 @@
 use nalgebra::{dmatrix, dvector};
 use test_log::test;
+use rand::{Rng, thread_rng};
 
 use zx::*;
 
@@ -12,7 +13,7 @@ fn x0_pi() {
     let angle = PI;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
+    program.rx(0, angle);
     program.run();
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
@@ -33,7 +34,7 @@ fn x0_pi_half() {
     let angle = PI / 2.;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
+    program.rx(0, angle);
     program.run();
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
@@ -56,7 +57,7 @@ fn y0_pi() {
     let angle = PI;
 
     let mut program = Program::new(number_of_qubits);
-    program.y(0, angle);
+    program.ry(0, angle);
     program.run();
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
@@ -79,7 +80,7 @@ fn y0_pi_half() {
     let angle = PI / 2.;
 
     let mut program = Program::new(number_of_qubits);
-    program.y(0, angle);
+    program.ry(0, angle);
     program.run();
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
@@ -99,7 +100,7 @@ fn y0_pi_half() {
 fn z0_pi() {
     let number_of_qubits: usize = 1;
     let mut program = Program::new(number_of_qubits);
-    program.z(0, PI);
+    program.rz(0, PI);
     program.run();
 
     let required_state = State {
@@ -115,7 +116,7 @@ fn z0_pi() {
 fn z0_pi_half() {
     let number_of_qubits: usize = 1;
     let mut program = Program::new(number_of_qubits);
-    program.z(0, PI / 2.);
+    program.rz(0, PI / 2.);
     program.run();
 
     let required_state = State {
@@ -132,12 +133,12 @@ fn xy_commutation() {
     let angle = PI;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
-    program.y(0, angle);
+    program.rx(0, angle);
+    program.ry(0, angle);
     program.run();
 
     let mut other_program = Program::new(number_of_qubits);
-    other_program.z(0, angle);
+    other_program.rz(0, angle);
     other_program.run();
 
     assert_approximately_equal(program.state, other_program.state)
@@ -149,12 +150,12 @@ fn xz_commutation() {
     let angle = PI;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
-    program.z(0, angle);
+    program.rx(0, angle);
+    program.rz(0, angle);
     program.run();
 
     let mut other_program = Program::new(number_of_qubits);
-    other_program.y(0, 3. * angle);
+    other_program.ry(0, 3. * angle);
     other_program.run();
 
     assert_approximately_equal(program.state, other_program.state)
@@ -167,7 +168,7 @@ fn m0() {
     let angle = PI / 3.;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
+    program.rx(0, angle);
     program.measure(0);
     program.run();
 
@@ -203,4 +204,27 @@ fn h0() {
     };
 
     assert_approximately_equal(required_state, program.state)
+}
+
+#[test]
+fn r0() {
+    let number_of_qubits: usize = 1;
+    let mut range = thread_rng();
+    for _ in 1..10 {
+        let phi = 2. * PI * range.gen::<Angle>();
+        let theta = 2. * PI * range.gen::<Angle>();
+        let omega = 2. * PI * range.gen::<Angle>();
+
+        let mut program = Program::new(number_of_qubits);
+        program.r(0, phi, theta, omega);
+        program.run();
+
+        let mut other_program = Program::new(number_of_qubits);
+        other_program.rz(0, phi);
+        other_program.ry(0, theta);
+        other_program.rz(0, omega);
+        other_program.run();
+
+        assert_approximately_equal(program.state, other_program.state)
+    }
 }

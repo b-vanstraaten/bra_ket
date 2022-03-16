@@ -8,8 +8,8 @@ fn reset_test() {
     let angle = PI;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
-    program.x(1, angle);
+    program.rx(0, angle);
+    program.rx(1, angle);
     program.run();
     program.reset();
 
@@ -24,14 +24,14 @@ fn pure_state() {
     let angle = PI / 3.;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(0, angle);
+    program.rx(0, angle);
     program.run();
 
     // assert the state is pure
     assert!(program.state.is_pure());
 
     program.reset(); // reset the program to empty
-    program.x(0, angle);
+    program.rx(0, angle);
     program.measure(0);
     program.run();
 
