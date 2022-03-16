@@ -33,10 +33,15 @@ fn swap_four_bits(mut x: usize, bit_pairs: [(&Qubit, &Qubit); 2]) -> usize {
 #[derive(Debug)]
 pub enum Gate {
     Measure(Qubit),
-    X(Qubit, Angle),
-    Y(Qubit, Angle),
-    Z(Qubit, Angle),
+    X(Qubit),
+    Y(Qubit),
+    Z(Qubit),
     H(Qubit),
+
+    RX(Qubit, Angle),
+    RY(Qubit, Angle),
+    RZ(Qubit, Angle),
+
     CNOT(Qubit, Qubit),
 }
 
@@ -44,9 +49,14 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
     debug!("{:?}", gate);
     match gate {
         Gate::Measure(qubit) => measure(state, qubit),
-        Gate::X(qubit, angle) => x(state, qubit, angle),
-        Gate::Y(qubit, angle) => y(state, qubit, angle),
-        Gate::Z(qubit, angle) => z(state, qubit, angle),
+
+        Gate::X(qubit) => x(state, qubit),
+        Gate::Y(qubit) => y(state, qubit),
+        Gate::Z(qubit) => z(state, qubit),
+
+        Gate::RX(qubit, angle) => rx(state, qubit, angle),
+        Gate::RY(qubit, angle) => ry(state, qubit, angle),
+        Gate::RZ(qubit, angle) => rz(state, qubit, angle),
         Gate::H(qubit) => h(state, qubit),
         Gate::CNOT(control, target) => cnot(state, control, target),
     }
@@ -137,19 +147,37 @@ fn measure(state: &mut State, qubit: &Qubit) {
     debug!("density matrix after:\n{}", state.density_matrix);
 }
 
-fn x(state: &mut State, qubit: &Qubit, angle: &Angle) {
+fn x(state: &mut State, qubit: &Qubit) {
+    let u = SIGMA_X;
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
+}
+
+fn rx(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_X * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
 }
 
-fn y(state: &mut State, qubit: &Qubit, angle: &Angle) {
+fn y(state: &mut State, qubit: &Qubit) {
+    let u = SIGMA_Y;
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
+}
+
+fn ry(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Y * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
 }
 
-fn z(state: &mut State, qubit: &Qubit, angle: &Angle) {
+fn z(state: &mut State, qubit: &Qubit) {
+    let u = SIGMA_Z;
+    debug!("u:\n{}", u);
+    single_qubit_gate(state, qubit, u)
+}
+
+fn rz(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Z * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
     single_qubit_gate(state, qubit, u)
