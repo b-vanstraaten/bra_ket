@@ -291,7 +291,7 @@ fn deutsch_jozsa_balanced() {
     let number_of_qubits: usize = 3;
 
     let mut program = Program::new(number_of_qubits);
-    program.x(2, PI);
+    program.rx(2, PI);
     program.h(0);
     program.h(1);
     program.h(2);

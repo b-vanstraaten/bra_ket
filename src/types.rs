@@ -57,9 +57,17 @@ pub static H: Matrix2x2 = matrix![
     C::new(1. / SQRT_2, 0.), C::new(-1. / SQRT_2, 0.);
 ];
 
-pub static CNOT: Matrix4x4 = matrix!(
+pub static CNOT: Matrix4x4 = matrix![
     C::new(1., 0.), C::new(0., 0.),C::new(0., 0.),C::new(0., 0.);
     C::new(0., 0.), C::new(1., 0.),C::new(0., 0.),C::new(0., 0.);
     C::new(0., 0.), C::new(0., 0.),C::new(0., 0.),C::new(1., 0.);
     C::new(0., 0.), C::new(0., 0.),C::new(1., 0.),C::new(0., 0.);
-);
+];
+
+
+pub static SISWAP: Matrix4x4 = matrix![
+    C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
+    C::new(0., 0.), C::new(1. / SQRT_2, 0.), C::new(0., 1. / SQRT_2), C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 1. / SQRT_2), C::new(1. / SQRT_2, 0.), C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
+];
