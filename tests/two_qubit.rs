@@ -150,3 +150,10 @@ fn h0_z1 () {
     };
     assert_approximately_equal(required_state, program.state);
 }
+
+#[test]
+fn root_iswap01 () {
+    let number_of_qubits: usize = 2;
+    let mut program = Program::new(number_of_qubits);
+
+}

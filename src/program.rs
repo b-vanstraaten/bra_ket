@@ -100,4 +100,9 @@ impl Program {
     pub fn cnot(&mut self, control: Qubit, target: Qubit) {
         self.add_gate(Gate::CNOT(control, target))
     }
+
+    pub fn siswap(&mut self, control: Qubit, target: Qubit) {
+        self.add_gate(Gate::SISWAP(control, target))
+    }
+
 }
