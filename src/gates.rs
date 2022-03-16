@@ -38,6 +38,7 @@ pub enum Gate {
     Y(Qubit),
     Z(Qubit),
     H(Qubit),
+    ArbitarySingle(Qubit, Matrix2x2),
 
     RX(Qubit, Angle),
     RY(Qubit, Angle),
@@ -45,7 +46,8 @@ pub enum Gate {
     R(Qubit, Angle, Angle, Angle),
 
     CNOT(Qubit, Qubit),
-    SISWAP(Qubit, Qubit)
+    SISWAP(Qubit, Qubit),
+    ArbitaryTwo(Qubit, Qubit, Matrix4x4)
 }
 
 pub fn implement_gate(state: &mut State, gate: &Gate) {
@@ -56,19 +58,21 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::X(qubit) => x(state, qubit),
         Gate::Y(qubit) => y(state, qubit),
         Gate::Z(qubit) => z(state, qubit),
+        Gate::H(qubit) => h(state, qubit),
 
         Gate::RX(qubit, angle) => rx(state, qubit, angle),
         Gate::RY(qubit, angle) => ry(state, qubit, angle),
         Gate::RZ(qubit, angle) => rz(state, qubit, angle),
         Gate::R(qubit, omega, theta , phi) => r(state, qubit, omega, theta, phi),
-        Gate::H(qubit) => h(state, qubit),
+        Gate::ArbitarySingle(qubit, u) => single_qubit_gate(state, qubit, u),
 
         Gate::CNOT(control, target) => cnot(state, control, target),
         Gate::SISWAP(control, target) => siswap(state, control, target),
+        Gate::ArbitaryTwo(control, target, u) => two_qubit_gate(state, control, target, u)
     }
 }
 
-fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
+fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: &Matrix2x2) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
     let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match qubit {
@@ -98,7 +102,7 @@ fn single_qubit_gate(state: &mut State, qubit: &Qubit, u: Matrix2x2) {
     debug!("density matrix after:\n{}", state.density_matrix);
 }
 
-fn two_qubit_gate(state: &mut State, target: &Qubit, control: &Qubit, u: Matrix4x4) {
+fn two_qubit_gate(state: &mut State, target: &Qubit, control: &Qubit, u: &Matrix4x4) {
     debug!("density matrix before:\n{}", state.density_matrix);
 
     let swap_qubits: Box<dyn Fn(usize) -> Qubit> = match (target, control) {
@@ -156,48 +160,45 @@ fn measure(state: &mut State, qubit: &Qubit) {
 fn x(state: &mut State, qubit: &Qubit) {
     let u = SIGMA_X;
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn rx(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_X * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn y(state: &mut State, qubit: &Qubit) {
     let u = SIGMA_Y;
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn ry(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Y * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn z(state: &mut State, qubit: &Qubit) {
     let u = SIGMA_Z;
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn rz(state: &mut State, qubit: &Qubit, angle: &Angle) {
     let u = IDENTITY * C::new((angle / 2.).cos(), 0.) - SIGMA_Z * C::new(0., (angle / 2.).sin());
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn h(state: &mut State, qubit: &Qubit) {
     debug!("u:\n{}", H);
-    single_qubit_gate(state, qubit, H)
+    single_qubit_gate(state, qubit, &H)
 }
 
 fn r(state: &mut State, qubit: &Qubit, phi: &Angle, theta: &Angle, omega: &Angle) {
-
-
-
     let (c_theta, s_theta) = ((theta / 2.).cos(), (theta / 2.).sin());
     let (c_plus, s_plus) = (((phi + omega) / 2.).cos(), ((phi + omega) / 2.).sin());
     let (c_minus, s_minus) = (((phi - omega) / 2.).cos(), ((phi - omega) / 2.).sin());
@@ -208,14 +209,14 @@ fn r(state: &mut State, qubit: &Qubit, phi: &Angle, theta: &Angle, omega: &Angle
     ];
 
     debug!("u:\n{}", u);
-    single_qubit_gate(state, qubit, u)
+    single_qubit_gate(state, qubit, &u)
 }
 
 fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {
-    two_qubit_gate(state, target, control, CNOT);
+    two_qubit_gate(state, target, control, &CNOT);
 }
 
 
 fn siswap(state: &mut State, control: &Qubit, target: &Qubit) {
-    two_qubit_gate(state, target, control, SISWAP)
+    two_qubit_gate(state, target, control, &SISWAP)
 }
