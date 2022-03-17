@@ -39,7 +39,7 @@ fn swap_two_qubits(mut x: usize, target: &Qubit, control: &Qubit) -> usize {
         (_, 0) => _swap_qubits(_swap_qubits(x, (&0, &1)), (&1, &target)),
         // swap both bits
         (_, _) => _swap_qubits(_swap_qubits(x, (&0, &target)), (&1, &control))
-    }
+    };
     return x;
 }
 

@@ -30,6 +30,7 @@ impl Program {
     pub fn new(number_of_qubits: Qubit) -> Program {
         let state = State::new(number_of_qubits);
         let gates: Vec<Gate> = vec![];
+        println!("{}", aadvark.to_owned());
         return Program { state, gates };
     }
 
