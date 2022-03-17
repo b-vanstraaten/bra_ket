@@ -1,8 +1,6 @@
-use std::cmp::Ordering;
-
 use itertools::iproduct;
 use log::debug;
-use nalgebra::{ComplexField, matrix};
+use nalgebra::{matrix};
 
 use crate::types::*;
 use crate::State;
@@ -39,8 +37,7 @@ fn swap_two_qubits(mut x: usize, target: &Qubit, control: &Qubit) -> usize {
         (_, 0) => _swap_qubits(_swap_qubits(x, (&0, &1)), (&1, &target)),
         // swap both bits
         (_, _) => _swap_qubits(_swap_qubits(x, (&0, &target)), (&1, &control))
-    };
-    return x;
+    }
 }
 
 #[derive(Debug)]
@@ -226,6 +223,6 @@ fn iswap(state: &mut State, control: &Qubit, target: &Qubit) {
 
 // s gate = root Z gate. Pi/2 rotation around Z axis.
 fn s(state: &mut State, qubit: &Qubit) {
-    single_qubit_gate(state, qubit, S)
+    single_qubit_gate(state, qubit, &S)
 }
 
