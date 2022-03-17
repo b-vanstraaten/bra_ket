@@ -228,3 +228,20 @@ fn r0() {
         assert_approximately_equal(program.state, other_program.state)
     }
 }
+
+#[test]
+fn s() {
+    let number_of_qubits: usize = 1;
+
+    let mut program = Program::new(number_of_qubits);
+    program.s(0);
+    program.s(0);
+    program.run();
+
+    let mut other_program = Program::new(number_of_qubits);
+    other_program.z(0);
+    other_program.run();
+
+    assert_approximately_equal(program.state, other_program.state)
+
+}

@@ -38,6 +38,7 @@ pub enum Gate {
     Y(Qubit),
     Z(Qubit),
     H(Qubit),
+    S(Qubit),
 
     RX(Qubit, Angle),
     RY(Qubit, Angle),
@@ -45,6 +46,7 @@ pub enum Gate {
     R(Qubit, Angle, Angle, Angle),
 
     CNOT(Qubit, Qubit),
+    ISWAP(Qubit, Qubit),
     SISWAP(Qubit, Qubit)
 }
 
@@ -56,6 +58,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::X(qubit) => x(state, qubit),
         Gate::Y(qubit) => y(state, qubit),
         Gate::Z(qubit) => z(state, qubit),
+        Gate::S(qubit) => s(state, qubit),
 
         Gate::RX(qubit, angle) => rx(state, qubit, angle),
         Gate::RY(qubit, angle) => ry(state, qubit, angle),
@@ -64,6 +67,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::H(qubit) => h(state, qubit),
 
         Gate::CNOT(control, target) => cnot(state, control, target),
+        Gate::ISWAP(control, target) => iswap(state, control, target),
         Gate::SISWAP(control, target) => siswap(state, control, target),
     }
 }
@@ -215,7 +219,16 @@ fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {
     two_qubit_gate(state, target, control, CNOT);
 }
 
-
 fn siswap(state: &mut State, control: &Qubit, target: &Qubit) {
     two_qubit_gate(state, target, control, SISWAP)
 }
+
+fn iswap(state: &mut State, control: &Qubit, target: &Qubit) {
+    two_qubit_gate(state, target, control, ISWAP)
+}
+
+// s gate = root Z gate. Pi/2 rotation around Z axis.
+fn s(state: &mut State, qubit: &Qubit) {
+    single_qubit_gate(state, qubit, S)
+}
+
