@@ -15,6 +15,11 @@ pub fn draw_circuit(
             v[n].push_str(&m);
         }
     }
+
+    for n in 0..program.state.number_of_qubits {
+        v[n].push_str("||")
+    }
+
     println!("_____________________________");
     println!("****** Quantum Circuit ******");
     println!("");
@@ -63,8 +68,12 @@ fn plot_gate( gate: &Gate, qubit_index: Qubit) -> String {
             let m: String = format!("{:-<7}","H");
             return_string(qubit_index, *qubit, m)
         },
+        Gate::CNOT(control, target) => {
+            let m: String = "CNOT".to_owned();
+            return_two_gate_string(qubit_index, *control, *target, m)
+        }
         _ => {
-            let default: String = "G------".to_owned();
+            let default: String = "Other__".to_owned();
             default
         }
     }
@@ -74,6 +83,18 @@ fn return_string(indexed_qubit: Qubit, gate_qubit: Qubit, message: String) -> St
     if indexed_qubit == gate_qubit {
         return message
     }
+    let default: String = format!("{:-<7}","-");
+    return  default
+}
+
+fn return_two_gate_string(indexed_qubit: Qubit, control: Qubit, target: Qubit, message: String) -> String {
+    if indexed_qubit == control {
+        let m: String = format!("{:->5}_C", message);
+        return m
+        } else if  indexed_qubit == target {
+        let m: String = format!("{:->5}_T", message);
+        return m
+        }
     let default: String = format!("{:-<7}","-");
     return  default
 }
