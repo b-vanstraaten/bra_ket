@@ -1,6 +1,6 @@
 use nalgebra::{dmatrix, dvector};
+use rand::{thread_rng, Rng};
 use test_log::test;
-use rand::{Rng, thread_rng};
 
 use zx::*;
 
@@ -184,7 +184,6 @@ fn m0() {
     assert_approximately_equal(required_state, program.state)
 }
 
-
 #[test]
 fn h0() {
     let number_of_qubits: usize = 1;
@@ -243,5 +242,4 @@ fn s() {
     other_program.run();
 
     assert_approximately_equal(program.state, other_program.state)
-
 }

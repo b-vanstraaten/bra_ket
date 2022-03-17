@@ -1,4 +1,4 @@
-use nalgebra::{Complex, DMatrix, matrix, SMatrix};
+use nalgebra::{matrix, Complex, DMatrix, SMatrix};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
 /// A qubit index

@@ -150,7 +150,6 @@ fn h2_cnot21() {
     assert_approximately_equal(required_state, program.state);
 }
 
-
 #[test]
 fn h2_cnot20() {
     let number_of_qubits: usize = 3;
@@ -253,7 +252,6 @@ fn ghz_2() {
     };
     assert_approximately_equal(required_state, program.state);
 }
-
 
 #[test]
 fn hhh_measure() {

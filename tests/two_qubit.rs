@@ -132,7 +132,7 @@ fn y1() {
 }
 
 #[test]
-fn h0_z1 () {
+fn h0_z1() {
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
     program.h(0);
@@ -153,8 +153,7 @@ fn h0_z1 () {
 }
 
 #[test]
-fn iswap01 () {
-
+fn iswap01() {
     // do the iswap gate
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
@@ -172,12 +171,9 @@ fn iswap01 () {
     assert_approximately_equal(program.state, other_program.state)
 }
 
-
-
-
 // https://qiskit.org/documentation/stubs/qiskit.circuit.library.iSwapGate.html
 #[test]
-fn root_iswap01 () {
+fn root_iswap01() {
     let number_of_qubits: usize = 2;
     let mut program = Program::new(number_of_qubits);
 

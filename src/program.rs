@@ -1,7 +1,7 @@
 use crate::gates::*;
-use crate::state::*;
-use crate::types::*;
 use crate::helpers::*;
+use crate::density_matrix::*;
+use crate::types::*;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
@@ -30,7 +30,6 @@ impl Program {
     pub fn new(number_of_qubits: Qubit) -> Program {
         let state = State::new(number_of_qubits);
         let gates: Vec<Gate> = vec![];
-        // println!("{}", aadvark.to_owned());
         return Program { state, gates };
     }
 
@@ -39,20 +38,6 @@ impl Program {
         self.gates = vec![];
     }
 
-    /// Adds a gate to the quantum program. It should be noted that the term gate is a slight
-    /// simplification of notation. As the "gate" can be a measurement or even conditional logic.
-    ///
-    /// # Arguments
-    ///
-    /// * `gate`: gate to be added to the program.
-    ///
-    /// returns: ()
-    ///
-    /// # Examples
-    ///
-    /// ```
-    ///
-    /// ```
     pub fn add_gate(&mut self, gate: Gate) {
         self.gates.push(gate);
     }
@@ -63,7 +48,7 @@ impl Program {
         }
     }
 
-    pub fn draw(&mut self){
+    pub fn draw(&mut self) {
         draw_circuit(&self)
     }
 
@@ -118,7 +103,4 @@ impl Program {
     pub fn s(&mut self, qubit: Qubit) {
         self.add_gate(Gate::S(qubit))
     }
-
-
-
 }
