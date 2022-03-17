@@ -307,6 +307,8 @@ fn deutsch_jozsa_balanced() {
 
     program.run();
 
+    program.draw();
+
     let required_state = State {
         number_of_qubits,
         density_matrix: dmatrix![

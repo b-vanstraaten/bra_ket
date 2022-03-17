@@ -138,6 +138,7 @@ fn h0_z1 () {
     program.h(0);
     program.rz(0, PI);
     program.run();
+    program.draw();
 
     let required_state = State {
         number_of_qubits,

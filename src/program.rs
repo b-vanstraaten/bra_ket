@@ -1,6 +1,7 @@
 use crate::gates::*;
 use crate::state::*;
 use crate::types::*;
+use crate::helpers::*;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
@@ -59,6 +60,10 @@ impl Program {
         for gate in &self.gates {
             implement_gate(&mut self.state, gate)
         }
+    }
+
+    pub fn draw(&mut self){
+        draw_circuit(&self)
     }
 
     pub fn measure(&mut self, qubit: Qubit) {
