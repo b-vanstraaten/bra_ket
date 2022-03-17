@@ -4,8 +4,8 @@ use itertools::iproduct;
 use log::debug;
 use nalgebra::{ComplexField, matrix};
 
-use crate::State;
 use crate::types::*;
+use crate::State;
 
 fn _swap_qubits(x: usize, bits: (&Qubit, &Qubit)) -> usize {
     let bit_value_0 = x & (1 << bits.0);
@@ -40,6 +40,7 @@ fn swap_two_qubits(mut x: usize, target: &Qubit, control: &Qubit) -> usize {
         // swap both bits
         (_, _) => _swap_qubits(_swap_qubits(x, (&0, &target)), (&1, &control))
     }
+    return x;
 }
 
 #[derive(Debug)]
@@ -50,6 +51,7 @@ pub enum Gate {
     Z(Qubit),
     H(Qubit),
     ArbitarySingle(Qubit, Matrix2x2),
+    S(Qubit),
 
     RX(Qubit, Angle),
     RY(Qubit, Angle),
@@ -59,6 +61,8 @@ pub enum Gate {
     CNOT(Qubit, Qubit),
     SISWAP(Qubit, Qubit),
     ArbitaryTwo(Qubit, Qubit, Matrix4x4),
+    ISWAP(Qubit, Qubit),
+
 }
 
 pub fn implement_gate(state: &mut State, gate: &Gate) {
@@ -69,6 +73,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::X(qubit) => x(state, qubit),
         Gate::Y(qubit) => y(state, qubit),
         Gate::Z(qubit) => z(state, qubit),
+        Gate::S(qubit) => s(state, qubit),
         Gate::H(qubit) => h(state, qubit),
 
         Gate::RX(qubit, angle) => rx(state, qubit, angle),
@@ -78,6 +83,7 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::ArbitarySingle(qubit, u) => single_qubit_gate(state, qubit, u),
 
         Gate::CNOT(control, target) => cnot(state, control, target),
+        Gate::ISWAP(control, target) => iswap(state, control, target),
         Gate::SISWAP(control, target) => siswap(state, control, target),
         Gate::ArbitaryTwo(control, target, u) => two_qubit_gate(state, control, target, u)
     }
@@ -213,3 +219,13 @@ fn cnot(state: &mut State, control: &Qubit, target: &Qubit) {
 fn siswap(state: &mut State, control: &Qubit, target: &Qubit) {
     two_qubit_gate(state, target, control, &SISWAP)
 }
+
+fn iswap(state: &mut State, control: &Qubit, target: &Qubit) {
+    two_qubit_gate(state, target, control, &ISWAP)
+}
+
+// s gate = root Z gate. Pi/2 rotation around Z axis.
+fn s(state: &mut State, qubit: &Qubit) {
+    single_qubit_gate(state, qubit, S)
+}
+

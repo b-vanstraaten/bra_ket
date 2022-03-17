@@ -110,4 +110,14 @@ impl Program {
         self.add_gate(Gate::SISWAP(control, target))
     }
 
+    pub fn iswap(&mut self, control: Qubit, target: Qubit) {
+        self.add_gate(Gate::ISWAP(control, target))
+    }
+
+    pub fn s(&mut self, qubit: Qubit) {
+        self.add_gate(Gate::S(qubit))
+    }
+
+
+
 }
