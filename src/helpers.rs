@@ -30,20 +30,20 @@ pub fn draw_circuit(
 fn plot_gate( gate: &Gate, qubit_index: Qubit) -> String {
     match gate {
         Gate::Measure(qubit) => {
-            let m: String = "M------".to_owned();
+            let m: String = format!("{:-<7}","M");
             return_string(qubit_index, *qubit, m)
             },
 
         Gate::X(qubit) => {
-            let m: String = "X------".to_owned();
+            let m: String = format!("{:-<7}","X");
             return_string(qubit_index, *qubit, m)
         },
         Gate::Y(qubit) => {
-            let m: String = "Y------".to_owned();
+            let m: String = format!("{:-<7}","Y");
             return_string(qubit_index, *qubit, m)
         },
         Gate::Z(qubit) => {
-            let m: String = "Z------".to_owned();
+            let m: String = format!("{:-<7}","Z");
             return_string(qubit_index, *qubit, m)
         },
 
@@ -60,7 +60,7 @@ fn plot_gate( gate: &Gate, qubit_index: Qubit) -> String {
             return_string(qubit_index, *qubit, m)
         },
         Gate::H(qubit) => {
-            let m: String = "H------".to_owned();
+            let m: String = format!("{:-<7}","H");
             return_string(qubit_index, *qubit, m)
         },
         _ => {
@@ -74,6 +74,6 @@ fn return_string(indexed_qubit: Qubit, gate_qubit: Qubit, message: String) -> St
     if indexed_qubit == gate_qubit {
         return message
     }
-    let default: String = "-------".to_owned();
+    let default: String = format!("{:-<7}","-");
     return  default
 }
