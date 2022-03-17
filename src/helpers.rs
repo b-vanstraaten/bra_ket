@@ -19,7 +19,7 @@ pub fn draw_circuit(
     for n in 0..program.state.number_of_qubits {
         v[n].push_str("||")
     }
-
+    println!("{}", aadvark.to_owned());
     println!("_____________________________");
     println!("****** Quantum Circuit ******");
     println!("");
