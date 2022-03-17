@@ -68,10 +68,27 @@ fn plot_gate( gate: &Gate, qubit_index: Qubit) -> String {
             let m: String = format!("{:-<7}","H");
             return_string(qubit_index, *qubit, m)
         },
+        Gate::R(qubit, omega, theta, phi) => {
+            let m: String = format!("R.{:.*},{:.*},{:.*}", 0, omega, 0, theta, 0, phi);
+            return_string(qubit_index, *qubit, m)
+        },
+        Gate::ArbitarySingle(qubit, u) => {
+            let m: String = format!("{:-<7}","ArbU");
+            return_string(qubit_index, *qubit, m)
+        },
         Gate::CNOT(control, target) => {
             let m: String = "CNOT".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
-        }
+        },
+        Gate::SISWAP(control, target) => {
+            let m: String = "SSwap".to_owned();
+            return_two_gate_string(qubit_index, *control, *target, m)
+        },
+        Gate::ArbitaryTwo(control, target, u) => {
+            let m: String = "ArbU".to_owned();
+            return_two_gate_string(qubit_index, *control, *target, m)
+        },
+
         _ => {
             let default: String = "Other__".to_owned();
             default
