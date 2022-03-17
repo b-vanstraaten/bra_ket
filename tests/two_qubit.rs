@@ -184,6 +184,8 @@ fn root_iswap01 () {
     program.siswap(0, 1);
     program.siswap(0, 1);
 
+    program.draw();
+
     let mut other_program = Program::new(number_of_qubits);
 
     other_program.iswap(0, 1);
