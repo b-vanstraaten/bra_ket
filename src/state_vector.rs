@@ -36,14 +36,14 @@ fn create_state_vector(number_of_qubits: usize) -> StateVector {
 pub struct State {
     pub number_of_qubits: Qubit,
     pub state_vector: StateVector,
-    pub state_vector_pointer: DensityMatrixPointer<C>,
+    pub state_vector_pointer: StateVectorPointer<C>,
 }
 
 impl State {
     pub fn new(number_of_qubits: Qubit) -> State {
         let mut state_vector = create_state_vector(number_of_qubits);
         let state_vector_pointer = StateVectorPointer::new(
-            &mut state_vector[(0, 0)],
+            &mut state_vector[0],
             1 << number_of_qubits,
         );
         State {
@@ -57,35 +57,20 @@ impl State {
         number_of_qubits: Qubit,
         mut state_vector: StateVector,
     ) -> State {
-        let state_vector_pointer = DensityMatrixPointer::new(
-            &mut state_vector[(0, 0)],
-            (1 >> number_of_qubits, 1 >> number_of_qubits),
+        let state_vector_pointer = StateVectorPointer::new(
+            &mut state_vector[0],
+            1 << number_of_qubits,
         );
         State {
             number_of_qubits,
-            density_matrix,
-            density_matrix_pointer,
+            state_vector,
+            state_vector_pointer,
         }
     }
 
     pub fn measure(&mut self, target: &Qubit) {
-        let swap = |x| swap_pair(x, target);
-        unsafe {
-            (0..1 << self.number_of_qubits)
-                .into_par_iter()
-                .step_by(2)
-                .for_each(|n: usize| {
-                    (0..1 << self.number_of_qubits)
-                        .step_by(2)
-                        .for_each(|m: usize| {
-                            for (i, j) in [(0, 1), (1, 0)] {
-                                self.density_matrix_pointer
-                                    .write((swap(i + n), swap(j + m)), C::new(0., 0.))
-                            }
-                        });
-                })
-        }
-        debug!("density matrix after:\n{}", self.density_matrix);
+
+        debug!("density matrix after:\n{}", self.state_vector);
     }
 
     pub fn single_qubit_gate(&mut self, target: &Qubit, u: &Matrix2x2) {
