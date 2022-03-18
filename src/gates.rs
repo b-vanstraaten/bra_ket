@@ -6,7 +6,7 @@ use crate::index_swapping::*;
 use crate::types::*;
 use crate::State;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Gate {
     Measure(Qubit),
     X(Qubit),
