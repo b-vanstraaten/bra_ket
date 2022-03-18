@@ -42,6 +42,10 @@ impl Program {
         self.gates.push(gate);
     }
 
+    pub fn add_gates(&mut self, mut gates: Vec<Gate>) {
+        self.gates.append(&mut gates)
+    }
+
     pub fn run(&mut self) {
         for gate in &self.gates {
             implement_gate(&mut self.state, gate)
