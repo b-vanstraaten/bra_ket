@@ -1,4 +1,4 @@
-use nalgebra::{matrix, Complex, DMatrix, SMatrix};
+use nalgebra::{matrix, Complex, DMatrix, SMatrix, DVector};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
 /// A qubit index
@@ -12,6 +12,9 @@ pub type C = Complex<R>;
 
 /// A density matrix
 pub type DensityMatrix = DMatrix<C>;
+
+/// A state vector
+pub type StateVector = DVector<C>;
 
 /// A 2x2 complex matrix
 pub type Matrix2x2 = SMatrix<C, 2, 2>;
@@ -135,3 +138,29 @@ impl<T> DensityMatrixPointer<T> {
 
 unsafe impl<T> Sync for DensityMatrixPointer<T> {}
 unsafe impl<T> Send for DensityMatrixPointer<T> {}
+
+
+#[derive(Debug)]
+pub struct StateVectorPointer<T> {
+    pointer: *mut T,
+    size: usize,
+}
+
+impl<T> StateVectorPointer<T> {
+    pub fn new(value: &mut T, size: usize) -> Self {
+        StateVectorPointer {
+            pointer: value as *mut T,
+            size,
+        }
+    }
+    pub unsafe fn read(&self, indices: usize) -> T {
+        self.pointer.add(indices).read()
+    }
+
+    pub unsafe fn write(&self, indices: usize, value: T) {
+        self.pointer.add(indices).write(value)
+    }
+}
+
+unsafe impl<T> Sync for StateVectorPointer<T> {}
+unsafe impl<T> Send for StateVectorPointer<T> {}
