@@ -68,16 +68,21 @@ impl State {
     }
 
     pub fn measure(&mut self, target: &Qubit) {
-        let swap_qubits = |x| swap_pair(x, target);
-
-        for (i_offset, j_offset) in iproduct!(
-            (0..1 << self.number_of_qubits).step_by(2),
-            (0..1 << self.number_of_qubits).step_by(2)
-        ) {
-            for (i, j) in [(0, 1), (1, 0)] {
-                self.density_matrix[(swap_qubits(i + i_offset), swap_qubits(j + j_offset))] =
-                    C::new(0., 0.)
-            }
+        let swap = |x| swap_pair(x, target);
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .for_each(|n: usize| {
+                    (0..1 << self.number_of_qubits)
+                        .step_by(2)
+                        .for_each(|m: usize| {
+                            for (i, j) in [(0, 1), (1, 0)] {
+                                self.density_matrix_pointer
+                                    .write((swap(i + n), swap(j + m)), C::new(0., 0.))
+                            }
+                        });
+                })
         }
         debug!("density matrix after:\n{}", self.density_matrix);
     }
