@@ -11,15 +11,15 @@ fn h0_cnot01() {
     program.cnot(0, 1);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state);
 }
 
@@ -32,15 +32,15 @@ fn h0_cnot10() {
     program.cnot(1, 0);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state);
 }
 
@@ -53,15 +53,15 @@ fn h0_h1() {
     program.h(1);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
             C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
             C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
             C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state);
 }
 
@@ -74,15 +74,15 @@ fn x0_x1() {
     program.rx(1, PI);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state);
 }
 
@@ -97,15 +97,15 @@ fn x0_x1_m0_m1() {
     program.measure(1);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.);
         ],
-    };
+    );
 
     assert_approximately_equal(required_state, program.state);
 }
@@ -118,15 +118,15 @@ fn y1() {
     program.ry(1, PI);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         ],
-    };
+    );
 
     assert_approximately_equal(required_state, program.state);
 }
@@ -140,15 +140,15 @@ fn h0_z1() {
     program.run();
     program.draw();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(0.5, 0.), C::new(-0.5, 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(-0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state);
 }
 

@@ -18,7 +18,6 @@ fn reset_test() {
     assert_approximately_equal(program.state, other_program.state)
 }
 
-#[test]
 fn pure_state() {
     let number_of_qubits: usize = 1;
     let angle = PI / 3.;

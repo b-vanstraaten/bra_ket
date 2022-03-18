@@ -1,6 +1,6 @@
+use crate::density_matrix::*;
 use crate::gates::*;
 use crate::helpers::*;
-use crate::density_matrix::*;
 use crate::types::*;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state

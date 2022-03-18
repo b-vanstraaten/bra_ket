@@ -89,3 +89,49 @@ pub static SWAP: Matrix4x4 = matrix![
     C::new(0., 0.), C::new(1., 0.), C::new(0., 0.), C::new(0., 0.);
     C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
 ];
+
+#[derive(Debug)]
+pub struct DensityMatrixPointer<T> {
+    pointer: *mut T,
+    shape: (usize, usize),
+}
+
+impl<T> DensityMatrixPointer<T> {
+    pub fn new(value: &mut T, shape: (usize, usize)) -> Self {
+        DensityMatrixPointer {
+            pointer: value as *mut T,
+            shape,
+        }
+    }
+
+    pub fn flatten_index(&self, indices: (usize, usize)) -> usize {
+        assert!(
+            indices.0 < self.shape.0,
+            "index out of range {} >= {}",
+            indices.0,
+            self.shape.0
+        );
+        assert!(
+            indices.1 < self.shape.1,
+            "index out of range {} >= {}",
+            indices.1,
+            self.shape.1
+        );
+        indices.0 + self.shape.1 * indices.1
+    }
+
+    pub unsafe fn offset(&self, indices: (usize, usize)) -> *mut T {
+        self.pointer.add(self.flatten_index(indices))
+    }
+
+    pub unsafe fn read(&self, indices: (usize, usize)) -> T {
+        self.offset(indices).read()
+    }
+
+    pub unsafe fn write(&self, indices: (usize, usize), value: T) {
+        self.offset(indices).write(value)
+    }
+}
+
+unsafe impl<T> Sync for DensityMatrixPointer<T> {}
+unsafe impl<T> Send for DensityMatrixPointer<T> {}

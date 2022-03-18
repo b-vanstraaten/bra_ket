@@ -17,13 +17,13 @@ fn x0_pi() {
     program.run();
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(c * c, 0.), C::new(0.,c * s);
             C::new(0., -c * s), C::new(s * s, 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state)
 }
 
@@ -39,13 +39,13 @@ fn x0_pi_half() {
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(c * c, 0.), C::new(0.,c * s);
             C::new(0., -c * s), C::new(s * s, 0.);
         ],
-    };
+    );
 
     assert_approximately_equal(required_state, program.state)
 }
@@ -62,13 +62,13 @@ fn y0_pi() {
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
         ],
-    };
+    );
 
     assert_approximately_equal(required_state, program.state)
 }
@@ -85,13 +85,13 @@ fn y0_pi_half() {
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
         ],
-    };
+    );
     assert_approximately_equal(required_state, program.state)
 }
 
@@ -103,10 +103,10 @@ fn z0_pi() {
     program.rz(0, PI);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: DensityMatrix::from_diagonal(&dvector!(C::new(1., 0.), C::new(0., 0.))),
-    };
+        DensityMatrix::from_diagonal(&dvector!(C::new(1., 0.), C::new(0., 0.))),
+    );
 
     assert_approximately_equal(required_state, program.state)
 }
@@ -119,10 +119,10 @@ fn z0_pi_half() {
     program.rz(0, PI / 2.);
     program.run();
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: DensityMatrix::from_diagonal(&dvector!(C::new(1., 0.), C::new(0., 0.))),
-    };
+        DensityMatrix::from_diagonal(&dvector!(C::new(1., 0.), C::new(0., 0.))),
+    );
 
     assert_approximately_equal(required_state, program.state)
 }
@@ -174,12 +174,12 @@ fn m0() {
 
     let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let required_state = State {
+    let required_state = State::new_from_density_matrix(
         number_of_qubits,
-        density_matrix: dmatrix![
+        dmatrix![
         C::new(c * c, 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(s * s, 0.);],
-    };
+    );
 
     assert_approximately_equal(required_state, program.state)
 }
@@ -197,10 +197,7 @@ fn h0() {
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
     ];
 
-    let required_state = State {
-        number_of_qubits,
-        density_matrix: required_density_matrix,
-    };
+    let required_state = State::new_from_density_matrix(number_of_qubits, required_density_matrix);
 
     assert_approximately_equal(required_state, program.state)
 }

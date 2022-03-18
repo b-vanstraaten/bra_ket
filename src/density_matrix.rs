@@ -6,7 +6,7 @@ use nalgebra::ComplexField;
 use crate::index_swapping::*;
 use crate::types::*;
 use itertools::iproduct;
-
+use rayon::prelude::*;
 
 fn create_density_matrix(number_of_qubits: usize) -> DensityMatrix {
     // calculating the hilbert dim
@@ -35,14 +35,35 @@ fn create_density_matrix(number_of_qubits: usize) -> DensityMatrix {
 pub struct State {
     pub number_of_qubits: Qubit,
     pub density_matrix: DensityMatrix,
+    pub density_matrix_pointer: DensityMatrixPointer<C>,
 }
 
 impl State {
     pub fn new(number_of_qubits: Qubit) -> State {
-        let density_matrix = create_density_matrix(number_of_qubits);
+        let mut density_matrix = create_density_matrix(number_of_qubits);
+        let density_matrix_pointer = DensityMatrixPointer::new(
+            &mut density_matrix[(0, 0)],
+            (1 << number_of_qubits, 1 << number_of_qubits),
+        );
         State {
             number_of_qubits,
             density_matrix,
+            density_matrix_pointer,
+        }
+    }
+
+    pub fn new_from_density_matrix(
+        number_of_qubits: Qubit,
+        mut density_matrix: DensityMatrix,
+    ) -> State {
+        let density_matrix_pointer = DensityMatrixPointer::new(
+            &mut density_matrix[(0, 0)],
+            (1 >> number_of_qubits, 1 >> number_of_qubits),
+        );
+        State {
+            number_of_qubits,
+            density_matrix,
+            density_matrix_pointer,
         }
     }
 
@@ -65,39 +86,56 @@ impl State {
         debug!("density matrix before:\n{}", self.density_matrix);
         let swap = |x| swap_pair(x, target);
 
-        let mut rho = Matrix2x2::zeros();
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .for_each(|n: usize| {
+                    let mut rho = Matrix2x2::zeros();
+                    (0..1 << self.number_of_qubits)
+                        .step_by(2)
+                        .for_each(|m: usize| {
+                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
+                                rho[(i, j)] =
+                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                            });
 
-        iproduct!(
-            (0..1 << self.number_of_qubits).step_by(2),
-            (0..1 << self.number_of_qubits).step_by(2)
-        ).for_each(|(i_offset, j_offset)| {
-            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                rho[(i, j)] = self.density_matrix[(swap(i + i_offset), swap(j + j_offset))]
-            });
-            rho = u * rho * u.adjoint();
-            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                self.density_matrix[(swap(i + i_offset), swap(j + j_offset))] = rho[(i, j)]
-            });
-        });
-        debug!("density matrix after:\n{}", self.density_matrix);
+                            rho = u * rho * u.adjoint();
+                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
+                                self.density_matrix_pointer
+                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
+                            });
+                        })
+                });
+        }
     }
 
     pub fn two_qubit_gate(&mut self, target: &Qubit, control: &Qubit, u: &Matrix4x4) {
         debug!("density matrix before:\n{}", self.density_matrix);
         let swap = |x| swap_two_pairs(x, target, control);
-        let mut rho = Matrix4x4::zeros();
-        for (i_offset, j_offset) in iproduct!(
-            (0..1 << self.number_of_qubits).step_by(4),
-            (0..1 << self.number_of_qubits).step_by(4)
-        ) {
-            iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                rho[(i, j)] = self.density_matrix[(swap(i + i_offset), swap(j + j_offset))]
-            });
-            rho = u * rho * u.adjoint();
-            iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                self.density_matrix[(swap(i + i_offset), swap(j + j_offset))] = rho[(i, j)]
-            });
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(4)
+                .for_each(|n: usize| {
+                    let mut rho = Matrix4x4::zeros();
+                    (0..1 << self.number_of_qubits)
+                        .step_by(4)
+                        .for_each(|m: usize| {
+                            iproduct!(0..4, 0..4).for_each(|(i, j)| {
+                                rho[(i, j)] =
+                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                            });
+
+                            rho = u * rho * u.adjoint();
+                            iproduct!(0..4, 0..4).for_each(|(i, j)| {
+                                self.density_matrix_pointer
+                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
+                            });
+                        })
+                });
         }
+
         debug!("density matrix after:\n{}", self.density_matrix);
     }
 
