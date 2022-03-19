@@ -39,6 +39,7 @@ pub struct State {
 }
 
 impl State {
+
     pub fn new(number_of_qubits: Qubit) -> State {
         let mut density_matrix = create_density_matrix(number_of_qubits);
         let density_matrix_pointer = DensityMatrixPointer::new(
@@ -52,13 +53,14 @@ impl State {
         }
     }
 
-    pub fn new_from_density_matrix(
-        number_of_qubits: Qubit,
-        mut density_matrix: DensityMatrix,
-    ) -> State {
+    pub fn new_from_density_matrix(mut density_matrix: DensityMatrix) -> State {
+        let shape = density_matrix.shape();
+        assert!(shape.0 == shape.1, "density matrix not square {} =/= {}", shape.0, shape.1);
+
+
         let density_matrix_pointer = DensityMatrixPointer::new(
             &mut density_matrix[(0, 0)],
-            (1 >> number_of_qubits, 1 >> number_of_qubits),
+            density_matrix.shape(),
         );
         State {
             number_of_qubits,

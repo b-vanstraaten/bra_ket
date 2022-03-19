@@ -12,7 +12,7 @@ fn x0_pi() {
     let number_of_qubits: usize = 1;
     let angle = PI;
 
-    let mut program = Program::new(number_of_qubits);
+    let mut program = Program::new();
     program.rx(0, angle);
     program.run();
 

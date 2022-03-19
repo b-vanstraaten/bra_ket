@@ -7,13 +7,13 @@ fn reset_test() {
     let number_of_qubits: usize = 2;
     let angle = PI;
 
-    let mut program = Program::new(number_of_qubits);
+    let mut program = Program::new();
     program.rx(0, angle);
     program.rx(1, angle);
     program.run();
     program.reset();
 
-    let other_program = Program::new(number_of_qubits);
+    let other_program = Program::new();
 
     assert_approximately_equal(program.state, other_program.state)
 }
@@ -22,7 +22,7 @@ fn pure_state() {
     let number_of_qubits: usize = 1;
     let angle = PI / 3.;
 
-    let mut program = Program::new(number_of_qubits);
+    let mut program = Program::new();
     program.rx(0, angle);
     program.run();
 
