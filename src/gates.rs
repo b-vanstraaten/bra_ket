@@ -4,7 +4,7 @@ use nalgebra::matrix;
 
 use crate::index_swapping::*;
 use crate::types::*;
-use crate::State;
+use crate::{Program, State};
 
 #[derive(Debug, Clone)]
 pub enum Gate {
@@ -31,7 +31,6 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
     debug!("{:?}", gate);
     match gate {
         Gate::Measure(qubit) => state.measure(qubit),
-
         Gate::X(qubit) => x(state, qubit),
         Gate::Y(qubit) => y(state, qubit),
         Gate::Z(qubit) => z(state, qubit),
@@ -48,6 +47,28 @@ pub fn implement_gate(state: &mut State, gate: &Gate) {
         Gate::ISWAP(control, target) => iswap(state, control, target),
         Gate::SISWAP(control, target) => siswap(state, control, target),
         Gate::ArbitaryTwo(control, target, u) => state.two_qubit_gate(control, target, u),
+    }
+}
+
+pub fn which_qubits(gate: &Gate) -> Vec<&Qubit> {
+    match gate {
+        Gate::Measure(qubit) => vec![qubit],
+        Gate::X(qubit) => vec![qubit],
+        Gate::Y(qubit) => vec![qubit],
+        Gate::Z(qubit) => vec![qubit],
+        Gate::S(qubit) => vec![qubit],
+        Gate::H(qubit) => vec![qubit],
+
+        Gate::RX(qubit, _) => vec![qubit],
+        Gate::RY(qubit, _) => vec![qubit],
+        Gate::RZ(qubit, _) => vec![qubit],
+        Gate::R(qubit,_, _, _) => vec![qubit],
+        Gate::ArbitarySingle(qubit, _) => vec![qubit],
+
+        Gate::CNOT(control, target) => vec![control, target],
+        Gate::ISWAP(control, target) => vec![control, target],
+        Gate::SISWAP(control, target) => vec![control, target],
+        Gate::ArbitaryTwo(control, target, _) => vec![control, target],
     }
 }
 
