@@ -2,98 +2,91 @@ use nalgebra::{dmatrix, dvector};
 use rand::{thread_rng, Rng};
 use test_log::test;
 
-use zx::*;
+use simulator::*;
 
 // pretty assertions for human readability
 
 /// tests the x gate on a single qubit
 #[test]
 fn x0() {
-    let number_of_qubits: usize = 1;
+    let mut range = thread_rng();
+    for _ in 1..10 {
+        let angle = 2. * PI * range.gen::<Angle>();
+        let mut state = DensityMatrix::new(1);
 
-    let angle = PI;
+        let mut program = Program::new();
+        program.rx(0, angle);
+        program.run(&mut state);
 
-    let mut state = State::new(number_of_qubits);
-
-    let mut program = Program::new();
-    program.rx(0, angle);
-    program.run(&mut state);
-
-    let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-    let required_state = State::new_from_density_matrix(
-        dmatrix![
+        let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
+        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
             C::new(c * c, 0.), C::new(0.,c * s);
             C::new(0., -c * s), C::new(s * s, 0.);
-        ],
-    );
-    assert_approximately_equal(&required_state, &state)
+        ]);
+        assert_approximately_equal(&required_state, &state)
+    }
 }
 
 /// tests the x gate on a single qubit
 #[test]
 fn y0() {
-    let number_of_qubits: usize = 1;
+    let mut range = thread_rng();
+    for _ in 1..10 {
+        let angle = 2. * PI * range.gen::<Angle>();
 
-    let angle = PI;
+        let mut state = DensityMatrix::new(1);
 
-    let mut state = State::new(number_of_qubits);
+        let mut program = Program::new();
+        program.ry(0, angle);
+        program.run(&mut state);
 
-    let mut program = Program::new();
-    program.ry(0, angle);
-    program.run(&mut state);
+        let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-
-    let required_state = State::new_from_density_matrix(
-        dmatrix![
+        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
-        ],
-    );
+        ]);
 
-    assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal(&required_state, &state)
+    }
 }
-
 
 /// tests the z gate on a single qubit
 #[test]
 fn z0() {
-    let number_of_qubits: usize = 1;
+    let mut range = thread_rng();
+    for _ in 1..10 {
+        let angle = 2. * PI * range.gen::<Angle>();
 
-    let angle = PI;
+        let mut state = DensityMatrix::new(1);
 
-    let mut state = State::new(number_of_qubits);
+        let mut program = Program::new();
+        program.ry(0, angle);
+        program.run(&mut state);
 
-    let mut program = Program::new();
-    program.ry(0, angle);
-    program.run(&mut state);
+        let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-
-    let required_state = State::new_from_density_matrix(
-        dmatrix![
+        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
-        ],
-    );
+        ]);
 
-    assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal(&required_state, &state)
+    }
 }
-
 
 #[test]
 fn xy_commutation() {
     let number_of_qubits: usize = 1;
 
-    let mut state = State::new(number_of_qubits);
-    let mut other_state = State::new(number_of_qubits);
+    let mut state = DensityMatrix::new(number_of_qubits);
+    let mut other_state = DensityMatrix::new(number_of_qubits);
 
     let mut other_program = Program::new();
     let mut program = Program::new();
     program.x(0);
     program.y(0);
     program.run(&mut state);
-
 
     other_program.z(0);
     other_program.run(&mut other_state);
@@ -105,8 +98,8 @@ fn xy_commutation() {
 fn xz_commutation() {
     let angle = PI;
 
-    let mut state = State::new(1);
-    let mut other_state = State::new(1);
+    let mut state = DensityMatrix::new(1);
+    let mut other_state = DensityMatrix::new(1);
 
     let mut program = Program::new();
     let mut other_program = Program::new();
@@ -124,30 +117,30 @@ fn xz_commutation() {
 /// tests the x gate on a single qubit
 #[test]
 fn m0() {
+    let mut range = thread_rng();
+    for _ in 1..10 {
+        let mut state = DensityMatrix::new(1);
+        let mut program = Program::new();
 
-    let mut state = State::new(1);
-    let mut program = Program::new();
+        let angle = 2. * PI * range.gen::<Angle>();
 
-    let angle = PI / 3.;
+        program.rx(0, angle);
+        program.measure(0);
+        program.run(&mut state);
 
-    program.rx(0, angle);
-    program.measure(0);
-    program.run(&mut state);
+        let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-    let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-
-    let required_state = State::new_from_density_matrix(
-        dmatrix![
+        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
         C::new(c * c, 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(s * s, 0.);],
-    );
+        C::new(0., 0.), C::new(s * s, 0.);]);
 
-    assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal(&required_state, &state)
+    }
 }
 
 #[test]
 fn h0() {
-    let mut state = State::new(1);
+    let mut state = DensityMatrix::new(1);
     let mut program = Program::new();
 
     program.h(0);
@@ -158,8 +151,7 @@ fn h0() {
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
     ];
 
-    let required_state = State::new_from_density_matrix(
-        dmatrix![
+    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
     ]);
@@ -169,13 +161,10 @@ fn h0() {
 
 #[test]
 fn r0() {
-    let number_of_qubits: usize = 1;
     let mut range = thread_rng();
-
     for _ in 1..10 {
-
-        let mut state = State::new(1);
-        let mut other_state = State::new(1);
+        let mut state = DensityMatrix::new(1);
+        let mut other_state = DensityMatrix::new(1);
 
         let mut program = Program::new();
         let mut other_program = Program::new();
@@ -183,7 +172,6 @@ fn r0() {
         let phi = 2. * PI * range.gen::<Angle>();
         let theta = 2. * PI * range.gen::<Angle>();
         let omega = 2. * PI * range.gen::<Angle>();
-
 
         program.r(0, phi, theta, omega);
         program.run(&mut state);
@@ -199,9 +187,8 @@ fn r0() {
 
 #[test]
 fn s() {
-
-    let mut state = State::new(1);
-    let mut other_state = State::new(1);
+    let mut state = DensityMatrix::new(1);
+    let mut other_state = DensityMatrix::new(1);
 
     let mut program = Program::new();
     let mut other_program = Program::new();

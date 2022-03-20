@@ -1,8 +1,8 @@
 use crate::gates::Gate;
-use crate::{Program, Qubit};
+use crate::Program;
 use itertools::zip;
 
-pub fn draw_circuit(program:  &Program) {
+pub fn draw_circuit(program: &Program) {
     let qubits = program.which_qubits();
     let mut circuit: Vec<String> = vec![String::from("Qubit "); qubits.len()];
 
@@ -31,7 +31,7 @@ pub fn draw_circuit(program:  &Program) {
     println!("_____________________________");
 }
 //
-fn plot_gate(gate: &Gate, qubit_index: &Qubit) -> String {
+fn plot_gate(gate: &Gate, qubit_index: &usize) -> String {
     match gate {
         Gate::Measure(qubit) => {
             let m: String = format!("{:-<7}", "M");
@@ -94,7 +94,7 @@ fn plot_gate(gate: &Gate, qubit_index: &Qubit) -> String {
     }
 }
 
-fn return_string(indexed_qubit: &Qubit, gate_qubit: Qubit, message: String) -> String {
+fn return_string(indexed_qubit: &usize, gate_qubit: usize, message: String) -> String {
     if *indexed_qubit == gate_qubit {
         return message;
     }
@@ -103,9 +103,9 @@ fn return_string(indexed_qubit: &Qubit, gate_qubit: Qubit, message: String) -> S
 }
 
 fn return_two_gate_string(
-    indexed_qubit: &Qubit,
-    control: Qubit,
-    target: Qubit,
+    indexed_qubit: &usize,
+    control: usize,
+    target: usize,
     message: String,
 ) -> String {
     if *indexed_qubit == control {

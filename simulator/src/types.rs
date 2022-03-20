@@ -1,9 +1,6 @@
 use nalgebra::{matrix, Complex, DMatrix, SMatrix, DVector};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
-/// A qubit index
-pub type Qubit = usize;
-
 /// A real number
 pub type R = f64;
 
@@ -11,7 +8,7 @@ pub type R = f64;
 pub type C = Complex<R>;
 
 /// A density matrix
-pub type DensityMatrix = DMatrix<C>;
+pub type CMatrix = DMatrix<C>;
 
 /// A state vector
 pub type StateVector = DVector<C>;
@@ -124,7 +121,7 @@ impl<T> DensityMatrixPointer<T> {
     }
 
     pub unsafe fn offset(&self, indices: (usize, usize)) -> *mut T {
-        self.pointer.add(self.flatten_index(indices))
+        self.pointer.add(self.flatten_index(indices) as usize)
     }
 
     pub unsafe fn read(&self, indices: (usize, usize)) -> T {
