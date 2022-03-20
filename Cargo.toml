@@ -2,6 +2,7 @@
 name = "zx"
 version = "0.1.0"
 edition = "2021"
+proc-macro = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -13,7 +14,6 @@ itertools = "0.10.3"
 pretty_assertions = "1.1.0"
 rayon = "1.5.1"
 rand = "0.8.5"
-bitvec = "1.0.0"
 
 [dev-dependencies]
 test-log = "0.2.8"

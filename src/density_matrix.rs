@@ -8,6 +8,10 @@ use crate::types::*;
 use itertools::iproduct;
 use rayon::prelude::*;
 
+fn log2(x: usize) -> usize {
+    (x as f64).log2() as usize
+}
+
 fn create_density_matrix(number_of_qubits: usize) -> DensityMatrix {
     // calculating the hilbert dim
     let hilbert_dim = (1 << number_of_qubits) as usize;
@@ -56,11 +60,11 @@ impl State {
     pub fn new_from_density_matrix(mut density_matrix: DensityMatrix) -> State {
         let shape = density_matrix.shape();
         assert!(shape.0 == shape.1, "density matrix not square {} =/= {}", shape.0, shape.1);
-
+        let number_of_qubits = log2(shape.0);
 
         let density_matrix_pointer = DensityMatrixPointer::new(
             &mut density_matrix[(0, 0)],
-            density_matrix.shape(),
+            shape,
         );
         State {
             number_of_qubits,
@@ -157,7 +161,7 @@ impl State {
     }
 }
 
-pub fn assert_approximately_equal(state: State, other_state: State) {
+pub fn assert_approximately_equal(state: &State, other_state: &State) {
     if !approx_eq(&state, &other_state) {
         println!("state: \n{}", state.density_matrix);
         println!("other state: \n{}", other_state.density_matrix);

@@ -1,5 +1,4 @@
 use crate::types::*;
-use bitvec::prelude::*;
 
 fn swap(x: usize, bits: (&Qubit, &Qubit)) -> usize {
     let bit_value_0 = (x & (1 << bits.0)) >> bits.0;
