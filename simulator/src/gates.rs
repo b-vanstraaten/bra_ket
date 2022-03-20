@@ -7,11 +7,13 @@ use crate::index_swapping::*;
 use crate::types::*;
 use crate::{DensityMatrix, Program};
 
-use crate::state::{Measure, SingleQubitGate, TwoQubitGate};
+use crate::state::{Measure, MeasureAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
 
 #[derive(Debug, Clone)]
 pub enum Operation {
     Measure(usize),
+    MeasureAll,
+
     X(usize),
     Y(usize),
     Z(usize),
@@ -34,6 +36,8 @@ impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Operation::Measure(qubit) => write!(f, "M"),
+            Operation::MeasureAll => write!(f, ""),
+
             Operation::X(qubit) => write!(f, "X_{}", qubit),
             Operation::Y(qubit) => write!(f, "Y_{}", qubit),
             Operation::Z(qubit) => write!(f, "Z_{}", qubit),
@@ -53,10 +57,12 @@ impl fmt::Display for Operation {
     }
 }
 
-pub fn implement_gate<T: Measure + SingleQubitGate + TwoQubitGate>(state: &mut T, gate: &Operation) {
+pub fn implement_gate<T: Measure + MeasureAll + SingleQubitGate + TwoQubitGate>(state: &mut T, gate: &Operation) {
     debug!("{:?}", gate);
     match gate {
         Operation::Measure(qubit) => state.measure(qubit),
+        Operation::MeasureAll => state.measure_all(),
+
         Operation::X(qubit) => state.single_qubit_gate(qubit, &SIGMA_X),
         Operation::Y(qubit) => state.single_qubit_gate(qubit, &SIGMA_Y),
         Operation::Z(qubit) => state.single_qubit_gate(qubit, &SIGMA_Z),
@@ -103,6 +109,8 @@ pub fn implement_gate<T: Measure + SingleQubitGate + TwoQubitGate>(state: &mut T
 pub fn which_qubits(gate: &Operation) -> Vec<&usize> {
     match gate {
         Operation::Measure(qubit) => vec![qubit],
+        Operation::MeasureAll => vec![],
+
         Operation::X(qubit) => vec![qubit],
         Operation::Y(qubit) => vec![qubit],
         Operation::Z(qubit) => vec![qubit],

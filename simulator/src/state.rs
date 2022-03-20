@@ -17,6 +17,10 @@ pub trait SingleQubitGate {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2);
 }
 
+pub trait SingleQubitKraus {
+    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2);
+}
+
 pub trait TwoQubitGate {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4);
 }

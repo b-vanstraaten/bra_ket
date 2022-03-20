@@ -1,6 +1,9 @@
 use nalgebra::dmatrix;
+use test_log::test;
+
 use simulator::*;
-use test_log::test; // pretty assertions for human readability
+
+// pretty assertions for human readability
 
 #[test]
 fn h0_cnot01() {
@@ -21,8 +24,6 @@ fn h0_cnot01() {
 
 #[test]
 fn h0_cnot10() {
-    let number_of_qubits: usize = 2;
-
     let mut state = DensityMatrix::new(2);
     let mut program = Program::new();
 
