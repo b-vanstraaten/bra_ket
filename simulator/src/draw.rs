@@ -1,4 +1,4 @@
-use crate::gates::Gate;
+use crate::gates::Operation;
 use crate::Program;
 use itertools::zip;
 
@@ -31,59 +31,59 @@ pub fn draw_circuit(program: &Program) {
     println!("_____________________________");
 }
 //
-fn plot_gate(gate: &Gate, qubit_index: &usize) -> String {
+fn plot_gate(gate: &Operation, qubit_index: &usize) -> String {
     match gate {
-        Gate::Measure(qubit) => {
+        Operation::Measure(qubit) => {
             let m: String = format!("{:-<7}", "M");
             return_string(qubit_index, *qubit, m)
         }
 
-        Gate::X(qubit) => {
+        Operation::X(qubit) => {
             let m: String = format!("{:-<7}", "X");
             return_string(qubit_index, *qubit, m)
         }
-        Gate::Y(qubit) => {
+        Operation::Y(qubit) => {
             let m: String = format!("{:-<7}", "Y");
             return_string(qubit_index, *qubit, m)
         }
-        Gate::Z(qubit) => {
+        Operation::Z(qubit) => {
             let m: String = format!("{:-<7}", "Z");
             return_string(qubit_index, *qubit, m)
         }
 
-        Gate::RX(qubit, angle) => {
+        Operation::RX(qubit, angle) => {
             let m: String = format!("RX({:.*})", 1, angle);
             return_string(qubit_index, *qubit, m)
         }
-        Gate::RY(qubit, angle) => {
+        Operation::RY(qubit, angle) => {
             let m: String = format!("RY({:.*})", 1, angle);
             return_string(qubit_index, *qubit, m)
         }
-        Gate::RZ(qubit, angle) => {
+        Operation::RZ(qubit, angle) => {
             let m: String = format!("RZ({:.*})", 1, angle);
             return_string(qubit_index, *qubit, m)
         }
-        Gate::H(qubit) => {
+        Operation::H(qubit) => {
             let m: String = format!("{:-<7}", "H");
             return_string(qubit_index, *qubit, m)
         }
-        Gate::R(qubit, omega, theta, phi) => {
+        Operation::R(qubit, omega, theta, phi) => {
             let m: String = format!("R.{:.*},{:.*},{:.*}", 0, omega, 0, theta, 0, phi);
             return_string(qubit_index, *qubit, m)
         }
-        Gate::ArbitarySingle(qubit, u) => {
+        Operation::ArbitarySingle(qubit, u) => {
             let m: String = format!("{:-<7}", "ArbU");
             return_string(qubit_index, *qubit, m)
         }
-        Gate::CNOT(control, target) => {
+        Operation::CNOT(control, target) => {
             let m: String = "CNOT".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
         }
-        Gate::SISWAP(control, target) => {
+        Operation::SISWAP(control, target) => {
             let m: String = "SSwap".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
         }
-        Gate::ArbitaryTwo(control, target, u) => {
+        Operation::ArbitaryTwo(control, target, u) => {
             let m: String = "ArbU".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
         }
