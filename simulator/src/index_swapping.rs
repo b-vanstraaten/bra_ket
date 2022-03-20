@@ -1,6 +1,7 @@
 use crate::types::*;
+use std::mem::transmute;
 
-fn swap(x: usize, bits: (&Qubit, &Qubit)) -> usize {
+fn swap(x: usize, bits: (&usize, &usize)) -> usize {
     let bit_value_0 = (x & (1 << bits.0)) >> bits.0;
     let bit_value_1 = (x & (1 << bits.1)) >> bits.1;
     let difference = {
@@ -10,11 +11,11 @@ fn swap(x: usize, bits: (&Qubit, &Qubit)) -> usize {
     return x ^ difference;
 }
 
-pub fn swap_pair(x: usize, target: &Qubit) -> usize {
+pub fn swap_pair(x: usize, target: &usize) -> usize {
     swap(x, (&0, target))
 }
 
-pub fn swap_two_pairs(mut x: usize, target: &Qubit, control: &Qubit) -> usize {
+pub fn swap_two_pairs(mut x: usize, target: &usize, control: &usize) -> usize {
     match (target, control) {
         // do nothing it is already correct
         (0, 1) => x,
