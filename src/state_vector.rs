@@ -7,6 +7,7 @@ use nalgebra::ComplexField;
 use crate::index_swapping::*;
 use crate::types::*;
 use itertools::iproduct;
+use rand::thread_rng;
 use rayon::prelude::*;
 
 fn create_state_vector(number_of_qubits: usize) -> StateVector {
@@ -68,76 +69,133 @@ impl State {
         }
     }
 
-    pub fn measure(&mut self, target: &Qubit) {
+    pub fn index_state(n: usize, target: usize) -> usize {
+        let mask: usize = (1 << target) - 1;
+        let not_mask: usize = !mask;
+        return (n & mask) | ((n & not_mask) << 1);
+    }
 
-        debug!("density matrix after:\n{}", self.state_vector);
+    pub fn collapse(&mut self, target: &Qubit, collapsed_state: usize, state_sum: C) {
+        let index_partial = |x| index_state(x, target);
+
+        for i in 0..1<<(self.number_of_qubits-1) {
+
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1 << target);
+
+            match  collapsed_state {
+                0 => {
+                    self.state_vector[zero_state] = self.state_vector[zero_state] / state_sum;
+                    self.state_vector[one_state] = C::new(0.0, 0.0);
+                },
+                1 => {
+                    self.state_vector[one_state] = self.state_vector[one_state] / state_sum;
+                    self.state_vector[zero_state] = C::new(0.0, 0.0);
+                },
+                _ => (),
+            }
+        }
+    }
+    pub fn measure(&mut self, target: &Qubit) {
+        debug!("state vector before: \n{}", self.state_vector);
+        let index_partial = |x| index_state(x, target);
+
+        let mut sum_zero: C = C::new(0.0, 0.0);
+        let mut sum_one: C = C::new(0.0,0.0);
+
+        for i in 0..1<<(self.number_of_qubits-1) {
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1 << target);
+
+            sum_zero += self.state_vector[zero_state].modulus_squared();
+            sum_one += self.state_vector[one_state].modulus_squared();
+        }
+        assert_eq!(sum_one + sum_zero, 1);
+
+        let mut rng = rand::thread_rng();
+        let n: f64 = rng.gen();
+
+        if sum_zero > n {
+            let collapsed_state: usize = 0;
+            collapse(&mut self, target, collapsed_state, state_sum);
+        }
     }
 
     pub fn single_qubit_gate(&mut self, target: &Qubit, u: &Matrix2x2) {
-        debug!("density matrix before:\n{}", self.density_matrix);
-        let swap = |x| swap_pair(x, target);
+        debug!("state vector before: \n{}", self.state_vector);
+        let index_partial = |x| index_state(x, target);
+        for i in 0..1<<(self.number_of_qubits-1) {
 
-        unsafe {
-            (0..1 << self.number_of_qubits)
-                .into_par_iter()
-                .step_by(2)
-                .for_each(|n: usize| {
-                    let mut rho = Matrix2x2::zeros();
-                    (0..1 << self.number_of_qubits)
-                        .step_by(2)
-                        .for_each(|m: usize| {
-                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                                rho[(i, j)] =
-                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
-                            });
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1<<target);
 
-                            rho = u * rho * u.adjoint();
-                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                                self.density_matrix_pointer
-                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
-                            });
-                        })
-                });
+            let zero_amplitude: C = self.state_vector[zero_state];
+            let one_amplitude: C = self.state_vector[one_state];
+
+            self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)];
+            self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
         }
     }
 
-    pub fn two_qubit_gate(&mut self, target: &Qubit, control: &Qubit, u: &Matrix4x4) {
+    pub fn two_qubit_gate(&mut self, target: &Qubit, control: &Qubit, u: &Matrix2x2) {
         debug!("density matrix before:\n{}", self.density_matrix);
-        let swap = |x| swap_two_pairs(x, target, control);
-        unsafe {
-            (0..1 << self.number_of_qubits)
-                .into_par_iter()
-                .step_by(4)
-                .for_each(|n: usize| {
-                    let mut rho = Matrix4x4::zeros();
-                    (0..1 << self.number_of_qubits)
-                        .step_by(4)
-                        .for_each(|m: usize| {
-                            iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                                rho[(i, j)] =
-                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
-                            });
+        let index_partial = |x| index_state(x, target);
+        for i in 0..1<<(self.number_of_qubits-1) {
 
-                            rho = u * rho * u.adjoint();
-                            iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                                self.density_matrix_pointer
-                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
-                            });
-                        })
-                });
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1<<target);
+
+            let control_val: usize = (1 << control) & zero_state;
+
+            control_val_zero = (((1 << control) & zero_state) > 0) ? 1 : 0;
+
+            let zero_amplitude: C = self.state_vector[zero_state];
+            let one_amplitude: C = self.state_vector[one_state];
+
+            match control_val {
+                0 => {
+                    self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)]
+                },
+                1 => {
+                    self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
+                } ,
+                _ => (),
+            }
         }
-
-        debug!("density matrix after:\n{}", self.density_matrix);
     }
 
+    // pub fn two_qubit_gate(&mut self, target: &Qubit, control: &Qubit, u: &Matrix4x4) {
+    //     debug!("density matrix before:\n{}", self.density_matrix);
+    //     let swap = |x| swap_two_pairs(x, target, control);
+    //     unsafe {
+    //         (0..1 << self.number_of_qubits)
+    //             .into_par_iter()
+    //             .step_by(4)
+    //             .for_each(|n: usize| {
+    //                 let mut rho = Matrix4x4::zeros();
+    //                 (0..1 << self.number_of_qubits)
+    //                     .step_by(4)
+    //                     .for_each(|m: usize| {
+    //                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
+    //                             rho[(i, j)] =
+    //                                 self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+    //                         });
+    //
+    //                         rho = u * rho * u.adjoint();
+    //                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
+    //                             self.density_matrix_pointer
+    //                                 .write((swap(i + n), swap(j + m)), rho[(i, j)])
+    //                         });
+    //                     })
+    //             });
+    //     }
+    //
+    //     debug!("density matrix after:\n{}", self.density_matrix);
+    // }
+    //
     pub fn reset(&mut self) {
-        self.density_matrix = &self.density_matrix * C::new(0., 0.);
-        self.density_matrix[(0, 0)] = C::new(1., 0.);
-    }
-
-    pub fn is_pure(&self) -> bool {
-        let trace = (&self.density_matrix * &self.density_matrix).trace();
-        trace.re > (1. - COMPARISON_PRECISION)
+        self.state_vector = &self.state_vector * C::new(0., 0.);
+        self.state_vector[0] = C::new(1., 0.);
     }
 }
 

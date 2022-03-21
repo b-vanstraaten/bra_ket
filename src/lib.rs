@@ -6,6 +6,7 @@ mod macros;
 mod program;
 mod types;
 mod state_vector;
+mod program_state_vector;
 
 pub use density_matrix::*;
 pub use helpers::*;
