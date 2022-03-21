@@ -171,12 +171,7 @@ impl DensityMatrix {
 
     pub fn new_from_density_matrix(mut density_matrix: CMatrix) -> DensityMatrix {
         let shape = density_matrix.shape();
-        assert!(
-            shape.0 == shape.1,
-            "density matrix not square {} =/= {}",
-            shape.0,
-            shape.1
-        );
+        assert_eq!(shape.0, shape.1, "density matrix not square {} =/= {}", shape.0, shape.1);
         let number_of_qubits = log2(shape.0 as usize);
 
         let density_matrix_pointer = DensityMatrixPointer::new(&mut density_matrix[(0, 0)], shape);
