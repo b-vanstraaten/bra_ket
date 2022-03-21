@@ -1,13 +1,10 @@
-use itertools::iproduct;
-use log::debug;
-use nalgebra::matrix;
 use std::fmt;
 
-use crate::index_swapping::*;
-use crate::types::*;
-use crate::{DensityMatrix, Program};
+use log::debug;
+use nalgebra::matrix;
 
 use crate::state::{Measure, MeasureAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
+use crate::types::*;
 
 #[derive(Debug, Clone)]
 pub enum Operation {
