@@ -16,25 +16,25 @@ pub struct StateVector {
 
 impl Reset for StateVector {
     fn reset(&mut self) {
-        todo!();
+        todo!("not implemented yet");
     }
 }
 
 impl Measure for StateVector {
     fn measure(&mut self, target: &usize) {
-        todo!();
+        todo!("not implemented yet");
     }
 }
 
 impl MeasureAll for StateVector {
     fn measure_all(&mut self) {
-        todo!();
+        todo!("not implemented yet");
     }
 }
 
 impl SingleQubitGate for StateVector {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
-        todo!();
+        todo!("not implemented yet");
     }
 }
 
@@ -46,6 +46,6 @@ impl SingleQubitKraus for StateVector {
 
 impl TwoQubitGate for StateVector {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
-        todo!()
+        todo!("not implemented yet");
         }
 }
