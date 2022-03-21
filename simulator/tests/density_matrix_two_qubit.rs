@@ -19,7 +19,7 @@ fn h0_cnot01() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -37,7 +37,7 @@ fn h0_cnot10() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -55,7 +55,7 @@ fn h0_h1() {
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -73,7 +73,7 @@ fn x0_x1() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -94,7 +94,7 @@ fn x0_x1_m0_m1() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.);
     ]);
 
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -112,7 +112,7 @@ fn y1() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
 
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -130,7 +130,7 @@ fn h0_z1() {
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -153,7 +153,7 @@ fn iswap01() {
     other_program.h(1);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal(&other_state, &state);
+    assert_approximately_equal_density(&other_state, &state);
 }
 
 // https://qiskit.org/documentation/stubs/qiskit.circuit.library.iSwapGate.html
@@ -172,5 +172,5 @@ fn root_iswap01() {
     other_program.iswap(0, 1);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal(&other_state, &state);
+    assert_approximately_equal_density(&other_state, &state);
 }

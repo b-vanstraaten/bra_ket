@@ -191,7 +191,7 @@ impl DensityMatrix {
     }
 }
 
-pub fn assert_approximately_equal(state: &DensityMatrix, other_state: &DensityMatrix) {
+pub fn assert_approximately_equal_density(state: &DensityMatrix, other_state: &DensityMatrix) {
     if !approx_eq(&state, &other_state) {
         println!("state: \n{}", state.density_matrix);
         println!("other state: \n{}", other_state.density_matrix);
@@ -216,7 +216,7 @@ fn approx_eq(state: &DensityMatrix, other_state: &DensityMatrix) -> bool {
         }
     } else {
         panic!(
-            "states reprsent different numbers of qubits: {} =/= {}",
+            "states represent different numbers of qubits: {} =/= {}",
             state.number_of_qubits, other_state.number_of_qubits
         )
     }

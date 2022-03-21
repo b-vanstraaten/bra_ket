@@ -20,7 +20,7 @@ fn h0() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -41,7 +41,7 @@ fn h1() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -62,7 +62,7 @@ fn h2() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -84,7 +84,7 @@ fn h0_cnot01() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -106,7 +106,7 @@ fn h0_cnot02() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn h2_cnot21() {
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -150,7 +150,7 @@ fn h2_cnot20() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -173,7 +173,7 @@ fn ghz_0() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -196,7 +196,7 @@ fn ghz_1() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -219,7 +219,7 @@ fn ghz_2() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -247,7 +247,7 @@ fn hhh_measure() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.125, 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.125, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }
 
 #[test]
@@ -281,5 +281,5 @@ fn deutsch_jozsa_balanced() {
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
             C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(-0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal(&required_state, &state);
+    assert_approximately_equal_density(&required_state, &state);
 }

@@ -23,7 +23,7 @@ fn x0() {
             C::new(c * c, 0.), C::new(0.,c * s);
             C::new(0., -c * s), C::new(s * s, 0.);
         ]);
-        assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal_density(&required_state, &state)
     }
 }
 
@@ -47,7 +47,7 @@ fn y0() {
             C::new(c * s, 0.), C::new(s * s, 0.);
         ]);
 
-        assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal_density(&required_state, &state)
     }
 }
 
@@ -71,7 +71,7 @@ fn z0() {
             C::new(c * s, 0.), C::new(s * s, 0.);
         ]);
 
-        assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal_density(&required_state, &state)
     }
 }
 
@@ -91,7 +91,7 @@ fn xy_commutation() {
     other_program.z(0);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal(&state, &other_state)
+    assert_approximately_equal_density(&state, &other_state)
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn xz_commutation() {
     other_program.ry(0, 3. * angle);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal(&state, &other_state)
+    assert_approximately_equal_density(&state, &other_state)
 }
 
 /// tests the x gate on a single qubit
@@ -134,7 +134,7 @@ fn m0() {
         C::new(c * c, 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(s * s, 0.);]);
 
-        assert_approximately_equal(&required_state, &state)
+        assert_approximately_equal_density(&required_state, &state)
     }
 }
 
@@ -156,7 +156,7 @@ fn h0() {
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
     ]);
 
-    assert_approximately_equal(&required_state, &state)
+    assert_approximately_equal_density(&required_state, &state)
 }
 
 #[test]
@@ -181,7 +181,7 @@ fn r0() {
         other_program.rz(0, omega);
         other_program.run(&mut other_state);
 
-        assert_approximately_equal(&state, &other_state)
+        assert_approximately_equal_density(&state, &other_state)
     }
 }
 
@@ -200,5 +200,5 @@ fn s() {
     other_program.z(0);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal(&state, &other_state)
+    assert_approximately_equal_density(&state, &other_state)
 }
