@@ -1,5 +1,4 @@
 use crate::types::{Matrix2x2, Matrix4x4};
-use nalgebra::Matrix;
 
 pub trait Reset {
     fn reset(&mut self);
