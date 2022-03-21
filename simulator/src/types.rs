@@ -18,6 +18,8 @@ pub type Matrix2x2 = SMatrix<C, 2, 2>;
 
 pub type Matrix4x4 = SMatrix<C, 4, 4>;
 
+pub type ClassicalRegister = DVector<R>;
+
 /// An angle
 pub type Angle = R;
 

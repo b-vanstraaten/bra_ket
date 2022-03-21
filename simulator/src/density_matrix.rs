@@ -7,7 +7,7 @@ use rayon::prelude::*;
 
 use crate::helper_functions::log2;
 use crate::index_swapping::*;
-use crate::state::{Measure, MeasureAll, Reset, SingleQubitGate, TwoQubitGate};
+use crate::state::{Measure, MeasureAll, Reset, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
 use crate::types::*;
 
 /// A struct to contain the state the quantum experiment. The system is comprised of a
@@ -18,6 +18,7 @@ pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,
     pub density_matrix_pointer: DensityMatrixPointer<C>,
+    pub classical_register: ClassicalRegister,
 }
 
 impl Reset for DensityMatrix {
@@ -52,7 +53,6 @@ impl Measure for DensityMatrix {
     }
 }
 
-
 impl MeasureAll for DensityMatrix {
     fn measure_all(&mut self) {
         (0..1 << self.number_of_qubits)
@@ -65,8 +65,7 @@ impl MeasureAll for DensityMatrix {
                 })
             });
     }
-    }
-
+}
 
 impl SingleQubitGate for DensityMatrix {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
@@ -95,6 +94,12 @@ impl SingleQubitGate for DensityMatrix {
                         })
                 });
         }
+    }
+}
+
+impl SingleQubitKraus for DensityMatrix {
+    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
+        todo!("not implemented yet");
     }
 }
 
@@ -137,7 +142,10 @@ impl DensityMatrix {
             {
                 let density_matrix_footprint = (hilbert_dim << 2) * size_of_val(&C::new(0., 0.));
                 let bytes_to_gigabyte: usize = 2 << 33;
-                debug!("Allocating density matrix of size: {:.4} Gb", (density_matrix_footprint as f32) / (bytes_to_gigabyte as f32));
+                debug!(
+                    "Allocating density matrix of size: {:.4} Gb",
+                    (density_matrix_footprint as f32) / (bytes_to_gigabyte as f32)
+                );
             }
 
             // creating the density matrix
@@ -150,10 +158,14 @@ impl DensityMatrix {
             &mut density_matrix[(0, 0)],
             (1 << number_of_qubits, 1 << number_of_qubits),
         );
+
+        let classical_register = ClassicalRegister::zeros(number_of_qubits);
+
         DensityMatrix {
             number_of_qubits,
             density_matrix,
             density_matrix_pointer,
+            classical_register,
         }
     }
 
@@ -168,10 +180,13 @@ impl DensityMatrix {
         let number_of_qubits = log2(shape.0 as usize);
 
         let density_matrix_pointer = DensityMatrixPointer::new(&mut density_matrix[(0, 0)], shape);
+        let classical_register = ClassicalRegister::zeros(number_of_qubits);
+
         DensityMatrix {
             number_of_qubits,
             density_matrix,
             density_matrix_pointer,
+            classical_register,
         }
     }
 

@@ -1,6 +1,3 @@
-use crate::types::*;
-use std::mem::transmute;
-
 fn swap(x: usize, bits: (&usize, &usize)) -> usize {
     let bit_value_0 = (x & (1 << bits.0)) >> bits.0;
     let bit_value_1 = (x & (1 << bits.1)) >> bits.1;
