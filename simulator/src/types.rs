@@ -12,7 +12,7 @@ pub type C = Complex<R>;
 pub type CMatrix = DMatrix<C>;
 
 /// A state vector
-pub type StateVector = DVector<C>;
+pub type CVector = DVector<C>;
 
 /// A 2x2 complex matrix
 pub type Matrix2x2 = SMatrix<C, 2, 2>;
