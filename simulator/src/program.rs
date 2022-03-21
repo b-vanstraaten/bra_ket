@@ -2,6 +2,7 @@ use crate::density_matrix::*;
 use crate::draw::*;
 use crate::gates::*;
 use crate::types::*;
+use tqdm::tqdm;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
@@ -23,7 +24,7 @@ impl Program {
 
     pub fn which_qubits(&self) -> Vec<&usize> {
         let mut qubits: Vec<&usize> = vec![];
-        for gate in &self.gates {
+        for gate in tqdm(self.gates.iter()) {
             qubits.append(which_qubits(gate).as_mut());
         }
         qubits
