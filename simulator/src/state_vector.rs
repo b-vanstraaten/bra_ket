@@ -6,6 +6,8 @@ use itertools::iproduct;
 use log::debug;
 use crate::index_swapping::*;
 
+
+
 #[derive(Debug)]
 pub struct StateVector {
     pub number_of_qubits: usize,

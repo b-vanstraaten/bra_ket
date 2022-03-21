@@ -162,35 +162,6 @@ impl State {
         }
     }
 
-    // pub fn two_qubit_gate(&mut self, target: &Qubit, control: &Qubit, u: &Matrix4x4) {
-    //     debug!("density matrix before:\n{}", self.density_matrix);
-    //     let swap = |x| swap_two_pairs(x, target, control);
-    //     unsafe {
-    //         (0..1 << self.number_of_qubits)
-    //             .into_par_iter()
-    //             .step_by(4)
-    //             .for_each(|n: usize| {
-    //                 let mut rho = Matrix4x4::zeros();
-    //                 (0..1 << self.number_of_qubits)
-    //                     .step_by(4)
-    //                     .for_each(|m: usize| {
-    //                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
-    //                             rho[(i, j)] =
-    //                                 self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
-    //                         });
-    //
-    //                         rho = u * rho * u.adjoint();
-    //                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
-    //                             self.density_matrix_pointer
-    //                                 .write((swap(i + n), swap(j + m)), rho[(i, j)])
-    //                         });
-    //                     })
-    //             });
-    //     }
-    //
-    //     debug!("density matrix after:\n{}", self.density_matrix);
-    // }
-    //
     pub fn reset(&mut self) {
         self.state_vector = &self.state_vector * C::new(0., 0.);
         self.state_vector[0] = C::new(1., 0.);
