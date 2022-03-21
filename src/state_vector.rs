@@ -145,9 +145,7 @@ impl State {
             let zero_state: usize = index_partial(i);
             let one_state: usize = zero_state | (1<<target);
 
-            let control_val: usize = (1 << control) & zero_state;
-
-            control_val_zero = (((1 << control) & zero_state) > 0) ? 1 : 0;
+            let control_val: usize = (((1 << control) & zero_state) > 0).into();
 
             let zero_amplitude: C = self.state_vector[zero_state];
             let one_amplitude: C = self.state_vector[one_state];
