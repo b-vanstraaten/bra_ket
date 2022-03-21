@@ -1,4 +1,4 @@
-use nalgebra::{matrix, Complex, DMatrix, SMatrix};
+use nalgebra::{matrix, Complex, DMatrix, SMatrix, DVector};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
 /// A real number
@@ -14,6 +14,8 @@ pub type CMatrix = DMatrix<C>;
 pub type Matrix2x2 = SMatrix<C, 2, 2>;
 
 pub type Matrix4x4 = SMatrix<C, 4, 4>;
+
+pub type ClassicalRegister = DVector<R>;
 
 /// An angle
 pub type Angle = R;

@@ -48,7 +48,9 @@ impl fmt::Display for Operation {
             Operation::RZ(qubit, angle) => write!(f, "RZ_{}({})", qubit, angle),
 
             Operation::ArbitarySingle(qubit, _) => write!(f, "U_{}", qubit),
-            Operation::R(qubit,phi, theta, omega) => write!(f, "R_{}({}, {}, {})", qubit, phi, theta, omega),
+            Operation::R(qubit, phi, theta, omega) => {
+                write!(f, "R_{}({}, {}, {})", qubit, phi, theta, omega)
+            }
             Operation::CNOT(control, target) => write!(f, "CNOT {} -> {}", control, target),
             Operation::SISWAP(_, _) => write!(f, ""),
             Operation::ArbitaryTwo(_, _, _) => write!(f, ""),
@@ -57,7 +59,12 @@ impl fmt::Display for Operation {
     }
 }
 
-pub fn implement_gate<T: Measure + MeasureAll + SingleQubitGate + TwoQubitGate>(state: &mut T, gate: &Operation) {
+pub fn implement_gate<
+    T: Measure + MeasureAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
+>(
+    state: &mut T,
+    gate: &Operation,
+) {
     debug!("{:?}", gate);
     match gate {
         Operation::Measure(qubit) => state.measure(qubit),
