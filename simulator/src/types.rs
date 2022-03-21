@@ -1,8 +1,6 @@
-use nalgebra::{matrix, Complex, DMatrix, SMatrix, DVector};
 use std::f64::consts::{PI as PI_f64, SQRT_2};
 
-/// A qubit index
-pub type Qubit = usize;
+use nalgebra::{Complex, DMatrix, DVector, matrix, SMatrix};
 
 /// A real number
 pub type R = f64;
@@ -11,15 +9,17 @@ pub type R = f64;
 pub type C = Complex<R>;
 
 /// A density matrix
-pub type DensityMatrix = DMatrix<C>;
+pub type CMatrix = DMatrix<C>;
 
 /// A state vector
-pub type StateVector = DVector<C>;
+pub type CVector = DVector<C>;
 
 /// A 2x2 complex matrix
 pub type Matrix2x2 = SMatrix<C, 2, 2>;
 
 pub type Matrix4x4 = SMatrix<C, 4, 4>;
+
+pub type ClassicalRegister = DVector<R>;
 
 /// An angle
 pub type Angle = R;
@@ -56,8 +56,8 @@ pub static SIGMA_Z: Matrix2x2 = matrix![
 
 /// The hadamard matrix
 pub static H: Matrix2x2 = matrix![
-    C::new(1. / SQRT_2, 0.), C::new(1. / SQRT_2, 0.);
-    C::new(1. / SQRT_2, 0.), C::new(-1. / SQRT_2, 0.);
+    C::new(1. / SQRT_2 as R, 0.), C::new(1. / SQRT_2 as R, 0.);
+    C::new(1. / SQRT_2 as R, 0.), C::new(-1. / SQRT_2 as R, 0.);
 ];
 
 pub static CNOT: Matrix4x4 = matrix![
@@ -76,8 +76,8 @@ pub static ISWAP: Matrix4x4 = matrix![
 
 pub static SISWAP: Matrix4x4 = matrix![
     C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-    C::new(0., 0.), C::new(1. / SQRT_2, 0.), C::new(0., 1. / SQRT_2), C::new(0., 0.);
-    C::new(0., 0.), C::new(0., 1. / SQRT_2), C::new(1. / SQRT_2, 0.), C::new(0., 0.);
+    C::new(0., 0.), C::new(1. / SQRT_2 as R, 0.), C::new(0., 1. / SQRT_2 as R), C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 1. / SQRT_2 as R), C::new(1. / SQRT_2 as R, 0.), C::new(0., 0.);
     C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
 ];
 
@@ -124,7 +124,7 @@ impl<T> DensityMatrixPointer<T> {
     }
 
     pub unsafe fn offset(&self, indices: (usize, usize)) -> *mut T {
-        self.pointer.add(self.flatten_index(indices))
+        self.pointer.add(self.flatten_index(indices) as usize)
     }
 
     pub unsafe fn read(&self, indices: (usize, usize)) -> T {
