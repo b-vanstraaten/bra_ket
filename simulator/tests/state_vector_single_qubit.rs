@@ -1,3 +1,4 @@
+use std::os::linux::raw::stat;
 use nalgebra::{dmatrix, dvector};
 use rand::{thread_rng, Rng};
 use test_log::test;
@@ -27,4 +28,33 @@ fn x0() {
 
     }
 
+}
+
+#[test]
+fn measure() {
+    let mut state = StateVector::new(3);
+
+    let mut program = Program::new();
+    program.measure(1);
+    program.run(&mut state);
+
+    println!("State vector {}", state.state_vector);
+}
+
+#[test]
+fn x1() {
+    let mut state = StateVector::new(2);
+
+    let mut program = Program::new();
+    program.x(1);
+    program.run(&mut state);
+
+    let other_state = StateVector::new_from_state_vector(dvector![
+            C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.)
+        ]);
+
+    assert_approximately_equal_vector(&state, &other_state);
+
+    println!("State vector {}", state.state_vector);
+    println!("Other state {}", other_state.state_vector);
 }

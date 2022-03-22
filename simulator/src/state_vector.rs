@@ -1,4 +1,4 @@
-use crate::state::{Measure, MeasureAll, Reset, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
+use crate::state::{Collapse, Measure, MeasureAll, Reset, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
 use crate::types::*;
 use rayon::prelude::*;
 use std::mem::size_of_val;
@@ -6,6 +6,7 @@ use nalgebra::ComplexField;
 
 use itertools::iproduct;
 use log::debug;
+use rand::Rng;
 use crate::index_swapping::*;
 
 use crate::helper_functions::log2;
@@ -20,13 +21,69 @@ pub struct StateVector {
 
 impl Reset for StateVector {
     fn reset(&mut self) {
-        todo!("not implemented yet");
+        self.state_vector = &self.state_vector * C::new(0., 0.);
+        self.state_vector[0] = C::new(1., 0.);
+    }
+}
+
+pub fn index_state(n: usize, target: &usize) -> usize {
+    let mask: usize = (1 << target) - 1;
+    let not_mask: usize = !mask;
+    return (n & mask) | ((n & not_mask) << 1);
+}
+
+
+pub fn collapse(s_vec: &mut CVector, target: &usize, collapsed_state: &usize, state_sum: &f64, number_of_qubits: &usize) {
+    let index_partial = |x| index_state(x, target);
+    println!("nrows {}", s_vec.nrows());
+    for i in 0..1<<(number_of_qubits-1) {
+
+        let zero_state: usize = index_partial(i);
+        let one_state: usize = zero_state | (1 << target);
+
+        match  collapsed_state {
+            0 => {
+                s_vec[zero_state] = s_vec[zero_state] / state_sum;
+                s_vec[one_state] = C::new(0.0, 0.0);
+            },
+            1 => {
+                s_vec[one_state] = s_vec[one_state] / state_sum;
+                s_vec[zero_state] = C::new(0.0, 0.0);
+            },
+            _ => (),
+        }
     }
 }
 
 impl Measure for StateVector {
-    fn measure(&mut self, target: &usize) {
-        todo!("not implemented yet");
+    fn measure(&mut self, target: &usize){
+        debug!("state vector before: \n{}", self.state_vector);
+        let index_partial = |x| index_state(x, target);
+
+        let mut sum_zero: f64 = 0.0; //C = C::new(0.0, 0.0);
+        let mut sum_one: f64 = 0.0; // C = C::new(0.0,0.0);
+
+        for i in 0..(1<<(self.number_of_qubits-1)) {
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1 << target);
+
+            sum_zero += self.state_vector[zero_state].modulus_squared();
+            sum_one += self.state_vector[one_state].modulus_squared();
+        }
+        // assert_eq!(C::new(1.0, 0.0), sum_one + sum_zero);
+
+        println!("Sum of probabilities {} and {} is {}", sum_one, sum_zero, sum_one+sum_zero);
+
+        let mut rng = rand::thread_rng();
+        let n: f64 = rng.gen();
+
+        if sum_zero > n {
+            let collapsed_state: usize = 0;
+            collapse(&mut self.state_vector, target, &collapsed_state, &sum_zero, &self.number_of_qubits);
+        } else {
+            let collapsed_state: usize = 1;
+            collapse(&mut self.state_vector, target, &collapsed_state, &sum_one, &self.number_of_qubits);
+        }
     }
 }
 
@@ -38,7 +95,19 @@ impl MeasureAll for StateVector {
 
 impl SingleQubitGate for StateVector {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
-        todo!("not implemented yet");
+        debug!("state vector before: \n{}", self.state_vector);
+        let index_partial = |x| index_state(x, target);
+        for i in 0..1<<(self.number_of_qubits-1) {
+
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1<<target);
+
+            let zero_amplitude: C = self.state_vector[zero_state];
+            let one_amplitude: C = self.state_vector[one_state];
+
+            self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)];
+            self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
+        }
     }
 }
 
@@ -50,8 +119,29 @@ impl SingleQubitKraus for StateVector {
 
 impl TwoQubitGate for StateVector {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
-        todo!("not implemented yet");
+        debug!("State vector before:\n{}", self.state_vector);
+        let index_partial = |x| index_state(x, target);
+        for i in 0..1<<(self.number_of_qubits-1) {
+
+            let zero_state: usize = index_partial(i);
+            let one_state: usize = zero_state | (1<<target);
+
+            let control_val: usize = (((1 << control) & zero_state) > 0).into();
+
+            let zero_amplitude: C = self.state_vector[zero_state];
+            let one_amplitude: C = self.state_vector[one_state];
+
+            match control_val {
+                0 => {
+                    self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)]
+                },
+                1 => {
+                    self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
+                } ,
+                _ => (),
+            }
         }
+    }
 }
 
 impl StateVector {
