@@ -15,6 +15,7 @@ pub struct Program {
 
 impl Program {
     pub fn new() -> Program {
+        println!("{}", AARDVARK);
         return Program { gates: vec![] };
     }
 

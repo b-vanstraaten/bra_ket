@@ -2,6 +2,8 @@ use crate::gates::Operation;
 use crate::Program;
 use itertools::zip;
 
+// Generate qasm file and input into python circuit generator https://www.media.mit.edu/quanta/qasm2circ/
+
 pub fn draw_circuit(program: &Program) {
     let qubits = program.which_qubits();
     let mut circuit: Vec<String> = vec![String::from("Qubit "); qubits.len()];
@@ -119,7 +121,7 @@ fn return_two_gate_string(
     return default;
 }
 
-pub const AARDVARK: &str = r#"
+pub const Aadvark: &str = r#"
 
 ****************************************************************
 ---------------------Quantum--Aardvark--------------------------

@@ -8,7 +8,7 @@ use simulator::*;
 // pretty assertions for human readability
 
 /// tests the x gate on a single qubit
-#[test]
+// #[test]
 fn x0() {
     let mut range = thread_rng();
     for _ in 1..10 {
@@ -37,6 +37,7 @@ fn measure() {
     let mut program = Program::new();
     program.measure(1);
     program.run(&mut state);
+    // program.draw();
 
     println!("State vector {}", state.state_vector);
 }

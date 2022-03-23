@@ -35,7 +35,6 @@ pub fn index_state(n: usize, target: &usize) -> usize {
 
 pub fn collapse(s_vec: &mut CVector, target: &usize, collapsed_state: &usize, state_sum: &f64, number_of_qubits: &usize) {
     let index_partial = |x| index_state(x, target);
-    println!("nrows {}", s_vec.nrows());
     for i in 0..1<<(number_of_qubits-1) {
 
         let zero_state: usize = index_partial(i);
