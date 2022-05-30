@@ -77,6 +77,10 @@ fn plot_gate(gate: &Operation, qubit_index: &usize) -> String {
             let m: String = format!("{:-<7}", "ArbU");
             return_string(qubit_index, *qubit, m)
         }
+        Operation::CZ(control, target) => {
+            let m: String = "CZ".to_owned();
+            return_two_gate_string(qubit_index, *control, *target, m)
+        }
         Operation::CNOT(control, target) => {
             let m: String = "CNOT".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)

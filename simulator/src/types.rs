@@ -68,6 +68,13 @@ pub static CNOT: Matrix4x4 = matrix![
     C::new(0., 0.), C::new(0., 0.),C::new(1., 0.),C::new(0., 0.);
 ];
 
+pub static CZ: Matrix4x4 = matrix![
+    C::new(1., 0.), C::new(0., 0.),C::new(0., 0.),C::new(0., 0.);
+    C::new(0., 0.), C::new(1., 0.),C::new(0., 0.),C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 0.),C::new(1., 0.),C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 0.),C::new(0., 0.),C::new(-1., 0.);
+];
+
 pub static ISWAP: Matrix4x4 = matrix![
     C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     C::new(0., 0.), C::new(0., 0.), C::new(0., 1.), C::new(0., 0.);
