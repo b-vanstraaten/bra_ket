@@ -1,5 +1,4 @@
 use nalgebra::dmatrix;
-use test_log::test;
 
 use simulator::*;
 
@@ -13,13 +12,13 @@ fn h0_cnot01() {
     program.cnot(0, 1);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
     ]);
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -31,13 +30,13 @@ fn h0_cnot10() {
     program.cnot(1, 0);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -49,13 +48,13 @@ fn h0_h1() {
     program.h(1);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
         C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
     ]);
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -67,13 +66,13 @@ fn x0_x1() {
     program.rx(1, PI);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
     ]);
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -87,14 +86,14 @@ fn x0_x1_m0_m1() {
     program.measure(1);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.);
     ]);
 
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -105,14 +104,14 @@ fn y1() {
     program.ry(1, PI);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
 
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -124,13 +123,13 @@ fn h0_z1() {
     program.rz(0, PI);
     program.run(&mut state);
 
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(0.5, 0.), C::new(-0.5, 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(-0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
     ]);
-    assert_approximately_equal_density(&required_state, &state);
+    assert_eq!(&required_state, &state);
 }
 
 #[test]
@@ -153,7 +152,7 @@ fn iswap01() {
     other_program.h(1);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal_density(&other_state, &state);
+    assert_eq!(&other_state, &state);
 }
 
 // https://qiskit.org/documentation/stubs/qiskit.circuit.library.iSwapGate.html
@@ -172,5 +171,5 @@ fn root_iswap01() {
     other_program.iswap(0, 1);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal_density(&other_state, &state);
+    assert_eq!(&other_state, &state);
 }

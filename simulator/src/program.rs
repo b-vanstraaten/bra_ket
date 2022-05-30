@@ -1,10 +1,10 @@
-use crate::StateVector;
-use crate::density_matrix::*;
 use crate::draw::*;
 use crate::gates::*;
+use crate::traits::{
+    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate,
+};
 use crate::types::*;
 use tqdm::tqdm;
-use crate::state::{Measure, MeasureAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
@@ -18,7 +18,12 @@ impl Program {
         return Program { gates: vec![] };
     }
 
-    pub fn run<T: Measure + MeasureAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate>(&mut self, state: &mut T) {
+    pub fn run<
+        T: Measure + MeasureAll + ResetAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
+    >(
+        &mut self,
+        state: &mut T,
+    ) {
         for gate in &self.gates {
             implement_gate(state, gate)
         }
@@ -46,6 +51,14 @@ impl Program {
 
     pub fn measure(&mut self, qubit: usize) {
         self.add_gate(Operation::Measure(qubit))
+    }
+
+    pub fn measure_all(&mut self) {
+        self.add_gate(Operation::MeasureAll)
+    }
+
+    pub fn reset_all(&mut self) {
+        self.add_gate(Operation::ResetAll)
     }
 
     pub fn x(&mut self, qubit: usize) {

@@ -1,6 +1,5 @@
-use nalgebra::{dmatrix, dvector};
+use nalgebra::dmatrix;
 use rand::{thread_rng, Rng};
-use test_log::test;
 
 use simulator::*;
 
@@ -19,11 +18,11 @@ fn x0() {
         program.run(&mut state);
 
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
-        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+        let required_state = DensityMatrix::from(dmatrix![
             C::new(c * c, 0.), C::new(0.,c * s);
             C::new(0., -c * s), C::new(s * s, 0.);
         ]);
-        assert_approximately_equal_density(&required_state, &state)
+        assert_eq!(&required_state, &state)
     }
 }
 
@@ -42,12 +41,12 @@ fn y0() {
 
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+        let required_state = DensityMatrix::from(dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
         ]);
 
-        assert_approximately_equal_density(&required_state, &state)
+        assert_eq!(&required_state, &state)
     }
 }
 
@@ -66,12 +65,12 @@ fn z0() {
 
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+        let required_state = DensityMatrix::from(dmatrix![
             C::new(c * c, 0.), C::new(c * s, 0.);
             C::new(c * s, 0.), C::new(s * s, 0.);
         ]);
 
-        assert_approximately_equal_density(&required_state, &state)
+        assert_eq!(&required_state, &state)
     }
 }
 
@@ -91,7 +90,7 @@ fn xy_commutation() {
     other_program.z(0);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal_density(&state, &other_state)
+    assert_eq!(&state, &other_state)
 }
 
 #[test]
@@ -111,7 +110,7 @@ fn xz_commutation() {
     other_program.ry(0, 3. * angle);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal_density(&state, &other_state)
+    assert_eq!(&state, &other_state)
 }
 
 /// tests the x gate on a single qubit
@@ -130,11 +129,11 @@ fn m0() {
 
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
-        let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+        let required_state = DensityMatrix::from(dmatrix![
         C::new(c * c, 0.), C::new(0., 0.);
         C::new(0., 0.), C::new(s * s, 0.);]);
 
-        assert_approximately_equal_density(&required_state, &state)
+        assert_eq!(&required_state, &state)
     }
 }
 
@@ -146,17 +145,12 @@ fn h0() {
     program.h(0);
     program.run(&mut state);
 
-    let required_density_matrix = dmatrix![
-        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
-        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
-    ];
-
-    let required_state = DensityMatrix::new_from_density_matrix(dmatrix![
+    let required_state = DensityMatrix::from(dmatrix![
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
         C::new(1. / 2., 0.), C::new(1. / 2., 0.);
     ]);
 
-    assert_approximately_equal_density(&required_state, &state)
+    assert_eq!(&required_state, &state)
 }
 
 #[test]
@@ -181,7 +175,7 @@ fn r0() {
         other_program.rz(0, omega);
         other_program.run(&mut other_state);
 
-        assert_approximately_equal_density(&state, &other_state)
+        assert_eq!(&state, &other_state)
     }
 }
 
@@ -200,5 +194,5 @@ fn s() {
     other_program.z(0);
     other_program.run(&mut other_state);
 
-    assert_approximately_equal_density(&state, &other_state)
+    assert_eq!(&state, &other_state)
 }

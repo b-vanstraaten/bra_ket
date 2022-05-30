@@ -1,7 +1,12 @@
+#![feature(trait_alias)]
 use crate::types::{Matrix2x2, Matrix4x4, C};
 
-pub trait Reset {
-    fn reset(&mut self);
+pub trait ResetAll {
+    fn reset_all(&mut self);
+}
+
+pub trait Zero {
+    fn zero(&mut self);
 }
 
 pub trait Measure {
@@ -22,8 +27,4 @@ pub trait SingleQubitKraus {
 
 pub trait TwoQubitGate {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4);
-}
-
-pub trait Collapse {
-    fn collapse(&mut self, target: &usize, collapsed_state: &usize, state_sum: C);
 }

@@ -5,10 +5,13 @@ use log::debug;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
 
-use crate::helper_functions::log2;
-use crate::index_swapping::*;
-use crate::state::{Measure, MeasureAll, Reset, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
+use crate::traits::{
+    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate, Zero,
+};
+
+use crate::helper_functions::*;
 use crate::types::*;
+use crate::StateVector;
 
 /// A struct to contain the state the quantum experiment. The system is comprised of a
 /// quantum register and a classical register. The classical register is described by 'number_of_bits' bits.
@@ -18,18 +21,77 @@ pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,
     pub density_matrix_pointer: DensityMatrixPointer<C>,
-    pub classical_register: ClassicalRegister,
 }
 
-impl Reset for DensityMatrix {
-    fn reset(&mut self) {
-        (0..1 << self.number_of_qubits)
+impl PartialEq for DensityMatrix {
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = false;
+        if self.number_of_qubits == other.number_of_qubits {
+            if self.density_matrix.shape() == other.density_matrix.shape() {
+                let difference = &self.density_matrix - &other.density_matrix;
+                if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
+                    result = true;
+                }
+            }
+        }
+        result
+    }
+}
+
+impl From<CMatrix> for DensityMatrix {
+    fn from(mut density_matrix: CMatrix) -> Self {
+        let shape = density_matrix.shape();
+        assert_eq!(
+            shape.0, shape.1,
+            "density matrix not square {} =/= {}",
+            shape.0, shape.1
+        );
+        let number_of_qubits = log2(shape.0 as usize);
+
+        let density_matrix_pointer = DensityMatrixPointer::new(&mut density_matrix[(0, 0)], shape);
+
+        DensityMatrix {
+            number_of_qubits,
+            density_matrix,
+            density_matrix_pointer,
+        }
+    }
+}
+
+impl From<StateVector> for DensityMatrix {
+    fn from(state_vector: StateVector) -> Self {
+        let density_matrix = DensityMatrix::new(state_vector.number_of_qubits);
+        (0..1 << &state_vector.number_of_qubits)
             .into_par_iter()
             .for_each(|n: usize| {
-                (0..1 << self.number_of_qubits).for_each(|m: usize| unsafe {
+                (0..1 << &state_vector.number_of_qubits).for_each(|m: usize| unsafe {
+                    let s_n = state_vector.state_vector_pointer.read(n);
+                    let s_m = state_vector.state_vector_pointer.read(m);
+                    density_matrix
+                        .density_matrix_pointer
+                        .write((n, m), s_n * s_m.conj())
+                })
+            });
+        density_matrix
+    }
+}
+
+impl Zero for DensityMatrix {
+    fn zero(&mut self) {
+        (0..1 << &self.number_of_qubits)
+            .into_par_iter()
+            .for_each(|n: usize| {
+                (0..1 << &self.number_of_qubits).for_each(|m: usize| unsafe {
                     self.density_matrix_pointer.write((n, m), C::new(0., 0.))
                 })
             });
+    }
+}
+
+impl ResetAll for DensityMatrix {
+    fn reset_all(&mut self) {
+        self.zero();
+        self.density_matrix[(0, 0)] = C::new(1., 0.)
     }
 }
 
@@ -73,12 +135,12 @@ impl SingleQubitGate for DensityMatrix {
         let swap = |x| swap_pair(x, target);
 
         unsafe {
-            (0..1 << self.number_of_qubits)
+            (0..1 << &self.number_of_qubits)
                 .into_par_iter()
                 .step_by(2)
                 .for_each(|n: usize| {
                     let mut rho = Matrix2x2::zeros();
-                    (0..1 << self.number_of_qubits)
+                    (0..1 << &self.number_of_qubits)
                         .step_by(2)
                         .for_each(|m: usize| {
                             iproduct!(0..2, 0..2).for_each(|(i, j)| {
@@ -108,12 +170,12 @@ impl TwoQubitGate for DensityMatrix {
         debug!("density matrix before:\n{}", self.density_matrix);
         let swap = |x| swap_two_pairs(x, target, control);
 
-        (0..1 << self.number_of_qubits)
+        (0..1 << &self.number_of_qubits)
             .into_par_iter()
             .step_by(4)
             .for_each(|n: usize| unsafe {
                 let mut rho = Matrix4x4::zeros();
-                (0..1 << self.number_of_qubits)
+                (0..1 << &self.number_of_qubits)
                     .step_by(4)
                     .for_each(|m: usize| {
                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
@@ -156,32 +218,13 @@ impl DensityMatrix {
         };
         let density_matrix_pointer = DensityMatrixPointer::new(
             &mut density_matrix[(0, 0)],
-            (1 << number_of_qubits, 1 << number_of_qubits),
+            (1 << &number_of_qubits, 1 << &number_of_qubits),
         );
 
-        let classical_register = ClassicalRegister::zeros(number_of_qubits);
-
         DensityMatrix {
             number_of_qubits,
             density_matrix,
             density_matrix_pointer,
-            classical_register,
-        }
-    }
-
-    pub fn new_from_density_matrix(mut density_matrix: CMatrix) -> DensityMatrix {
-        let shape = density_matrix.shape();
-        assert_eq!(shape.0, shape.1, "density matrix not square {} =/= {}", shape.0, shape.1);
-        let number_of_qubits = log2(shape.0 as usize);
-
-        let density_matrix_pointer = DensityMatrixPointer::new(&mut density_matrix[(0, 0)], shape);
-        let classical_register = ClassicalRegister::zeros(number_of_qubits);
-
-        DensityMatrix {
-            number_of_qubits,
-            density_matrix,
-            density_matrix_pointer,
-            classical_register,
         }
     }
 
@@ -189,36 +232,4 @@ impl DensityMatrix {
         let trace = (&self.density_matrix * &self.density_matrix).trace();
         trace.re > (1. - COMPARISON_PRECISION)
     }
-}
-
-pub fn assert_approximately_equal_density(state: &DensityMatrix, other_state: &DensityMatrix) {
-    if !approx_eq(&state, &other_state) {
-        println!("state: \n{}", state.density_matrix);
-        println!("other state: \n{}", other_state.density_matrix);
-        panic!("matrices are different");
-    }
-}
-
-fn approx_eq(state: &DensityMatrix, other_state: &DensityMatrix) -> bool {
-    let mut result = false;
-    if state.number_of_qubits == other_state.number_of_qubits {
-        if state.density_matrix.shape() == other_state.density_matrix.shape() {
-            let difference = &state.density_matrix - &other_state.density_matrix;
-            if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
-                result = true;
-            }
-        } else {
-            panic!(
-                "matrices are different sizes: {:#?} =/= {:#?}",
-                state.density_matrix.shape(),
-                other_state.density_matrix.shape()
-            )
-        }
-    } else {
-        panic!(
-            "states represent different numbers of qubits: {} =/= {}",
-            state.number_of_qubits, other_state.number_of_qubits
-        )
-    }
-    result
 }

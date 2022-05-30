@@ -1,9 +1,9 @@
-use std::f64::consts::{PI as PI_f64, SQRT_2};
+use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
 
-use nalgebra::{Complex, DMatrix, DVector, matrix, SMatrix};
+use nalgebra::{matrix, Complex, DMatrix, DVector, SMatrix};
 
 /// A real number
-pub type R = f64;
+pub type R = f32;
 
 /// A complex number
 pub type C = Complex<R>;
@@ -26,6 +26,7 @@ pub type Angle = R;
 
 /// pi
 pub static PI: Angle = PI_f64 as Angle;
+pub static SQRT_2: R = SQRT_2_f64 as R;
 
 /// The acceptable numerical precision for the test
 pub static COMPARISON_PRECISION: R = 1e-6;
@@ -138,7 +139,6 @@ impl<T> DensityMatrixPointer<T> {
 
 unsafe impl<T> Sync for DensityMatrixPointer<T> {}
 unsafe impl<T> Send for DensityMatrixPointer<T> {}
-
 
 #[derive(Debug)]
 pub struct StateVectorPointer<T> {

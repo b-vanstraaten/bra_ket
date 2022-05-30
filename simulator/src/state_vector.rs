@@ -1,15 +1,19 @@
-use crate::state::{Collapse, Measure, MeasureAll, Reset, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
+use crate::traits::{
+    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate, Zero,
+};
 use crate::types::*;
+use nalgebra::ComplexField;
 use rayon::prelude::*;
 use std::mem::size_of_val;
-use nalgebra::ComplexField;
 
 use itertools::iproduct;
 use log::debug;
-use rand::Rng;
-use crate::index_swapping::*;
 
-use crate::helper_functions::log2;
+use crate::helper_functions::*;
+
+use rand::distributions::WeightedIndex;
+use rand::prelude::*;
+use rand::seq::index::sample;
 
 #[derive(Debug)]
 pub struct StateVector {
@@ -19,93 +23,143 @@ pub struct StateVector {
     pub classical_register: ClassicalRegister,
 }
 
-impl Reset for StateVector {
-    fn reset(&mut self) {
-        self.state_vector = &self.state_vector * C::new(0., 0.);
+impl From<CVector> for StateVector {
+    fn from(mut state_vector: CVector) -> Self {
+        let shape = state_vector.shape();
+        let number_of_qubits = log2(shape.0 as usize);
+
+        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], shape.1);
+        let classical_register = ClassicalRegister::zeros(number_of_qubits);
+
+        StateVector {
+            number_of_qubits,
+            state_vector,
+            state_vector_pointer,
+            classical_register,
+        }
+    }
+}
+
+
+impl PartialEq for StateVector {
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = false;
+        if self.number_of_qubits == other.number_of_qubits {
+            if self.state_vector.shape() == other.state_vector.shape() {
+                let difference = &self.state_vector - &other.state_vector;
+                if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
+                    result = true;
+                }
+            }
+        }
+        result
+    }
+}
+
+impl Zero for StateVector {
+    fn zero(&mut self) {
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .for_each(|n: usize| {
+                    self.state_vector_pointer.write(n, C::new(0., 0.));
+                })
+        }
+    }
+}
+
+impl ResetAll for StateVector {
+    fn reset_all(&mut self) {
+        self.zero();
         self.state_vector[0] = C::new(1., 0.);
     }
 }
 
-pub fn index_state(n: usize, target: &usize) -> usize {
-    let mask: usize = (1 << target) - 1;
-    let not_mask: usize = !mask;
-    return (n & mask) | ((n & not_mask) << 1);
-}
-
-
-pub fn collapse(s_vec: &mut CVector, target: &usize, collapsed_state: &usize, state_sum: &f64, number_of_qubits: &usize) {
-    let index_partial = |x| index_state(x, target);
-    for i in 0..1<<(number_of_qubits-1) {
-
-        let zero_state: usize = index_partial(i);
-        let one_state: usize = zero_state | (1 << target);
-
-        match  collapsed_state {
-            0 => {
-                s_vec[zero_state] = s_vec[zero_state] / state_sum;
-                s_vec[one_state] = C::new(0.0, 0.0);
-            },
-            1 => {
-                s_vec[one_state] = s_vec[one_state] / state_sum;
-                s_vec[zero_state] = C::new(0.0, 0.0);
-            },
-            _ => (),
-        }
-    }
-}
-
 impl Measure for StateVector {
-    fn measure(&mut self, target: &usize){
+    fn measure(&mut self, target: &usize) {
         debug!("state vector before: \n{}", self.state_vector);
-        let index_partial = |x| index_state(x, target);
+        let swap = |x| swap_pair(x, target);
+        unsafe {
+            let (mut p0, mut p1): (R, R) = (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .map(|i| {
+                    let p0 = self.state_vector_pointer.read(swap(i)).modulus_squared();
+                    let p1 = self
+                        .state_vector_pointer
+                        .read(swap(i + 1))
+                        .modulus_squared();
+                    (p0, p1)
+                })
+                .reduce(|| (0., 0.), |(a0, a1), (b0, b1)| (a0 + b0, a1 + b1));
 
-        let mut sum_zero: f64 = 0.0; //C = C::new(0.0, 0.0);
-        let mut sum_one: f64 = 0.0; // C = C::new(0.0,0.0);
+            p0 = p0 / (p0 + p1);
+            p1 = p1 / (p0 + p1);
 
-        for i in 0..(1<<(self.number_of_qubits-1)) {
-            let zero_state: usize = index_partial(i);
-            let one_state: usize = zero_state | (1 << target);
+            let mut rng = thread_rng();
+            let probabilities = [p0, p1];
+            let dist = WeightedIndex::new(&probabilities).unwrap();
+            let s = dist.sample(&mut rng);
+            let p_sqrt = probabilities[s].sqrt();
 
-            sum_zero += self.state_vector[zero_state].modulus_squared();
-            sum_one += self.state_vector[one_state].modulus_squared();
-        }
-        // assert_eq!(C::new(1.0, 0.0), sum_one + sum_zero);
-
-        println!("Sum of probabilities {} and {} is {}", sum_one, sum_zero, sum_one+sum_zero);
-
-        let mut rng = rand::thread_rng();
-        let n: f64 = rng.gen();
-
-        if sum_zero > n {
-            let collapsed_state: usize = 0;
-            collapse(&mut self.state_vector, target, &collapsed_state, &sum_zero, &self.number_of_qubits);
-        } else {
-            let collapsed_state: usize = 1;
-            collapse(&mut self.state_vector, target, &collapsed_state, &sum_one, &self.number_of_qubits);
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .for_each(|n: usize| {
+                    let i0 = swap(n);
+                    let i1 = swap(n + 1);
+                    match s {
+                        0 => {
+                            let s0 = self.state_vector_pointer.read(i1);
+                            self.state_vector_pointer.write(i0, s0 / p_sqrt);
+                            self.state_vector_pointer.write(i1, C::new(0., 0.))
+                        }
+                        _ => {
+                            let s1 = self.state_vector_pointer.read(i1);
+                            self.state_vector_pointer.write(i0, C::new(0., 0.));
+                            self.state_vector_pointer.write(i1, s1 / p_sqrt);
+                        }
+                    }
+                })
         }
     }
 }
 
 impl MeasureAll for StateVector {
     fn measure_all(&mut self) {
-        todo!("not implemented yet");
+        let probabilities: Vec<R> = (0..1 << self.number_of_qubits)
+            .into_par_iter()
+            .map(|n: usize| unsafe { self.state_vector_pointer.read(n).modulus_squared() })
+            .collect();
+
+        let dist = WeightedIndex::new(&probabilities).unwrap();
+        let mut rng = thread_rng();
+        let s = dist.sample(&mut rng);
+
+        self.zero();
+        self.state_vector[s] = C::new(1., 0.);
     }
 }
 
 impl SingleQubitGate for StateVector {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
-        debug!("state vector before: \n{}", self.state_vector);
-        let index_partial = |x| index_state(x, target);
-        for i in 0..1<<(self.number_of_qubits-1) {
+        let swap = |x| swap_pair(x, target);
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .for_each(|n: usize| {
+                    let i0 = swap(n);
+                    let i1 = swap(n + 1);
 
-            let zero_state: usize = index_partial(i);
-            let one_state: usize = zero_state | (1<<target);
+                    let s0 = self.state_vector_pointer.read(i0);
+                    let s1 = self.state_vector_pointer.read(i1);
 
-            let zero_amplitude: C = self.state_vector[zero_state];
-            let one_amplitude: C = self.state_vector[one_state];
-
-            self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)];
-            self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
+                    self.state_vector_pointer
+                        .write(i0, u[(0, 0)] * s0 + u[(0, 1)] * s1);
+                    self.state_vector_pointer
+                        .write(i1, u[(1, 0)] * s0 + u[(1, 1)] * s1);
+                })
         }
     }
 }
@@ -119,26 +173,30 @@ impl SingleQubitKraus for StateVector {
 impl TwoQubitGate for StateVector {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
         debug!("State vector before:\n{}", self.state_vector);
-        let index_partial = |x| index_state(x, target);
-        for i in 0..1<<(self.number_of_qubits-1) {
+        let swap = |x| swap_two_pairs(x, target, control);
 
-            let zero_state: usize = index_partial(i);
-            let one_state: usize = zero_state | (1<<target);
+        unsafe {
+            (0..1 << self.number_of_qubits)
+                .into_par_iter()
+                .step_by(4)
+                .for_each(|n: usize| {
+                    let i0 = swap(n);
+                    let i1 = swap(n + 1);
+                    let i2 = swap(n + 2);
+                    let i3 = swap(n + 3);
 
-            let control_val: usize = (((1 << control) & zero_state) > 0).into();
+                    let s0 = self.state_vector_pointer.read(i0);
+                    let s1 = self.state_vector_pointer.read(i1);
+                    let s2 = self.state_vector_pointer.read(i2);
+                    let s3 = self.state_vector_pointer.read(i3);
 
-            let zero_amplitude: C = self.state_vector[zero_state];
-            let one_amplitude: C = self.state_vector[one_state];
-
-            match control_val {
-                0 => {
-                    self.state_vector[zero_state] = zero_amplitude * u[(0,0)] + one_amplitude * u[(0,1)]
-                },
-                1 => {
-                    self.state_vector[one_state] = zero_amplitude * u[(1, 0)] + one_amplitude * u[(1,1)];
-                } ,
-                _ => (),
-            }
+                    for (i, index) in [i0, i1, i2, i3].iter().enumerate() {
+                        self.state_vector_pointer.write(
+                            *index,
+                            u[(i, 0)] * s0 + u[(i, 1)] * s1 + u[(i, 2)] * s2 + u[(i, 3)] * s3,
+                        );
+                    }
+                })
         }
     }
 }
@@ -164,10 +222,7 @@ impl StateVector {
             state_vector[0] = C::new(1., 0.);
             state_vector
         };
-        let state_vector_pointer = StateVectorPointer::new(
-            &mut state_vector[0],
-            hilbert_dim,
-        );
+        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], hilbert_dim);
 
         let classical_register = ClassicalRegister::zeros(number_of_qubits);
 
@@ -178,52 +233,4 @@ impl StateVector {
             classical_register,
         }
     }
-
-    pub fn new_from_state_vector(mut state_vector: CVector) -> StateVector {
-        let shape = state_vector.shape();
-        let number_of_qubits = log2(shape.0 as usize);
-
-        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], shape.1);
-        let classical_register = ClassicalRegister::zeros(number_of_qubits);
-
-        StateVector {
-            number_of_qubits,
-            state_vector,
-            state_vector_pointer,
-            classical_register,
-        }
-    }
-
-}
-
-pub fn assert_approximately_equal_vector(state: &StateVector, other_state: &StateVector) {
-    if !approx_eq(&state, &other_state) {
-        println!("state: \n{}", state.state_vector);
-        println!("other state: \n{}", other_state.state_vector);
-        panic!("states are different");
-    }
-}
-
-fn approx_eq(state: &StateVector, other_state: &StateVector) -> bool {
-    let mut result = false;
-    if state.number_of_qubits == other_state.number_of_qubits {
-        if state.state_vector.shape() == other_state.state_vector.shape() {
-            let difference = &state.state_vector - &other_state.state_vector;
-            if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
-                result = true;
-            }
-        } else {
-            panic!(
-                "vector are different sizes: {:#?} =/= {:#?}",
-                state.state_vector.shape(),
-                other_state.state_vector.shape()
-            )
-        }
-    } else {
-        panic!(
-            "vectors represent different numbers of qubits: {} =/= {}",
-            state.number_of_qubits, other_state.number_of_qubits
-        )
-    }
-    result
 }

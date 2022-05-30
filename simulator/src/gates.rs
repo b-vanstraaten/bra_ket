@@ -3,13 +3,17 @@ use std::fmt;
 use log::debug;
 use nalgebra::matrix;
 
-use crate::state::{Measure, MeasureAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate};
+use crate::traits::{
+    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate,
+};
 use crate::types::*;
 
 #[derive(Debug, Clone)]
 pub enum Operation {
     Measure(usize),
     MeasureAll,
+
+    ResetAll,
 
     X(usize),
     Y(usize),
@@ -31,7 +35,7 @@ pub enum Operation {
 
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match *self {
+        match self {
             Operation::Measure(qubit) => write!(f, "M"),
             Operation::MeasureAll => write!(f, ""),
 
@@ -52,12 +56,15 @@ impl fmt::Display for Operation {
             Operation::SISWAP(_, _) => write!(f, ""),
             Operation::ArbitaryTwo(_, _, _) => write!(f, ""),
             Operation::ISWAP(_, _) => write!(f, ""),
+            _ => {
+                write!(f, "")
+            }
         }
     }
 }
 
 pub fn implement_gate<
-    T: Measure + MeasureAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
+    T: Measure + MeasureAll + ResetAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
 >(
     state: &mut T,
     gate: &Operation,
@@ -66,6 +73,7 @@ pub fn implement_gate<
     match gate {
         Operation::Measure(qubit) => state.measure(qubit),
         Operation::MeasureAll => state.measure_all(),
+        Operation::ResetAll => state.reset_all(),
 
         Operation::X(qubit) => state.single_qubit_gate(qubit, &SIGMA_X),
         Operation::Y(qubit) => state.single_qubit_gate(qubit, &SIGMA_Y),
@@ -74,20 +82,20 @@ pub fn implement_gate<
         Operation::H(qubit) => state.single_qubit_gate(qubit, &H),
 
         Operation::RX(qubit, angle) => {
-            let u = IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - SIGMA_X * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
+                - &SIGMA_X * C::new(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
 
         Operation::RY(qubit, angle) => {
-            let u = IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - SIGMA_Y * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
+                - &SIGMA_Y * C::new(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
 
         Operation::RZ(qubit, angle) => {
-            let u = IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - SIGMA_Z * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
+                - &SIGMA_Z * C::new(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
         Operation::R(qubit, phi, theta, omega) => {
@@ -114,6 +122,7 @@ pub fn which_qubits(gate: &Operation) -> Vec<&usize> {
     match gate {
         Operation::Measure(qubit) => vec![qubit],
         Operation::MeasureAll => vec![],
+        Operation::ResetAll => vec![],
 
         Operation::X(qubit) => vec![qubit],
         Operation::Y(qubit) => vec![qubit],
