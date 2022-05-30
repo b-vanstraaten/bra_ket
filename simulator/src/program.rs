@@ -94,6 +94,10 @@ impl Program {
         self.add_gate(Operation::H(qubit))
     }
 
+    pub fn cz(&mut self, control: usize, target: usize) {
+        self.add_gate(Operation::CZ(control, target))
+    }
+
     pub fn cnot(&mut self, control: usize, target: usize) {
         self.add_gate(Operation::CNOT(control, target))
     }
