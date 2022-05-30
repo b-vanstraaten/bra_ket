@@ -3,9 +3,7 @@ use std::fmt;
 use log::debug;
 use nalgebra::matrix;
 
-use crate::traits::{
-    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate,
-};
+use crate::state_traits::QuantumStateTraits;
 use crate::types::*;
 
 #[derive(Debug, Clone)]
@@ -64,7 +62,7 @@ impl fmt::Display for Operation {
 }
 
 pub fn implement_gate<
-    T: Measure + MeasureAll + ResetAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
+    T: QuantumStateTraits
 >(
     state: &mut T,
     gate: &Operation,

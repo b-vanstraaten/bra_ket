@@ -5,8 +5,8 @@ use log::debug;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
 
-use crate::traits::{
-    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate, Zero,
+use crate::state_traits::{
+    QuantumStateTraits
 };
 
 use crate::helper_functions::*;
@@ -22,6 +22,125 @@ pub struct DensityMatrix {
     pub density_matrix: CMatrix,
     pub density_matrix_pointer: DensityMatrixPointer<C>,
 }
+
+impl QuantumStateTraits for DensityMatrix {
+
+    fn check_qubit_number(&self, qubits: Vec<&usize>) {
+        let required_number_of_qubits = qubits.last().unwrap();
+        let number_of_qubits = &self.number_of_qubits;
+        assert!(required_number_of_qubits < &number_of_qubits,
+                "fewer qubits in the density matrix than required by program {} < {}",
+                required_number_of_qubits, number_of_qubits
+        )
+    }
+
+    fn zero(&mut self) {
+        (0..1 << &self.number_of_qubits)
+            .into_par_iter()
+            .for_each(|n: usize| {
+                (0..1 << &self.number_of_qubits).for_each(|m: usize| unsafe {
+                    self.density_matrix_pointer.write((n, m), C::new(0., 0.))
+                })
+            });
+    }
+
+    fn reset_all(&mut self) {
+        self.zero();
+        self.density_matrix[(0, 0)] = C::new(1., 0.)
+    }
+
+    fn measure(&mut self, target: &usize) {
+        let swap = |x| swap_pair(x, target);
+        (0..1 << self.number_of_qubits)
+            .into_par_iter()
+            .step_by(2)
+            .for_each(|n: usize| unsafe {
+                (0..1 << self.number_of_qubits)
+                    .step_by(2)
+                    .for_each(|m: usize| {
+                        for (i, j) in [(0, 1), (1, 0)] {
+                            self.density_matrix_pointer
+                                .write((swap(i + n), swap(j + m)), C::new(0., 0.))
+                        }
+                    });
+            });
+        debug!("density matrix after:\n{}", self.density_matrix);
+    }
+
+    fn measure_all(&mut self) {
+        (0..1 << self.number_of_qubits)
+            .into_par_iter()
+            .for_each(|n: usize| {
+                (0..1 << self.number_of_qubits).for_each(|m: usize| unsafe {
+                    if n != m {
+                        self.density_matrix_pointer.write((n, m), C::new(0., 0.))
+                    }
+                })
+            });
+    }
+
+    fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
+        debug!("density matrix before:\n{}", self.density_matrix);
+        let swap = |x| swap_pair(x, target);
+
+        unsafe {
+            (0..1 << &self.number_of_qubits)
+                .into_par_iter()
+                .step_by(2)
+                .for_each(|n: usize| {
+                    let mut rho = Matrix2x2::zeros();
+                    (0..1 << &self.number_of_qubits)
+                        .step_by(2)
+                        .for_each(|m: usize| {
+                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
+                                rho[(i, j)] =
+                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                            });
+
+                            rho = u * rho * u.adjoint();
+                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
+                                self.density_matrix_pointer
+                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
+                            });
+                        })
+                });
+        }
+    }
+
+    fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
+        debug!("density matrix before:\n{}", self.density_matrix);
+        let swap = |x| swap_two_pairs(x, target, control);
+
+        (0..1 << &self.number_of_qubits)
+            .into_par_iter()
+            .step_by(4)
+            .for_each(|n: usize| unsafe {
+                let mut rho = Matrix4x4::zeros();
+                (0..1 << &self.number_of_qubits)
+                    .step_by(4)
+                    .for_each(|m: usize| {
+                        iproduct!(0..4, 0..4).for_each(|(i, j)| {
+                            rho[(i, j)] =
+                                self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                        });
+
+                        rho = u * rho * u.adjoint();
+
+                        iproduct!(0..4, 0..4).for_each(|(i, j)| {
+                            self.density_matrix_pointer
+                                .write((swap(i + n), swap(j + m)), rho[(i, j)])
+                        });
+                    })
+            });
+        debug!("density matrix after:\n{}", self.density_matrix);
+    }
+
+    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
+        todo!("not implemented yet");
+    }
+
+}
+
 
 impl PartialEq for DensityMatrix {
     fn eq(&self, other: &Self) -> bool {
@@ -76,124 +195,9 @@ impl From<StateVector> for DensityMatrix {
     }
 }
 
-impl Zero for DensityMatrix {
-    fn zero(&mut self) {
-        (0..1 << &self.number_of_qubits)
-            .into_par_iter()
-            .for_each(|n: usize| {
-                (0..1 << &self.number_of_qubits).for_each(|m: usize| unsafe {
-                    self.density_matrix_pointer.write((n, m), C::new(0., 0.))
-                })
-            });
-    }
-}
 
-impl ResetAll for DensityMatrix {
-    fn reset_all(&mut self) {
-        self.zero();
-        self.density_matrix[(0, 0)] = C::new(1., 0.)
-    }
-}
 
-impl Measure for DensityMatrix {
-    fn measure(&mut self, target: &usize) {
-        let swap = |x| swap_pair(x, target);
-        (0..1 << self.number_of_qubits)
-            .into_par_iter()
-            .step_by(2)
-            .for_each(|n: usize| unsafe {
-                (0..1 << self.number_of_qubits)
-                    .step_by(2)
-                    .for_each(|m: usize| {
-                        for (i, j) in [(0, 1), (1, 0)] {
-                            self.density_matrix_pointer
-                                .write((swap(i + n), swap(j + m)), C::new(0., 0.))
-                        }
-                    });
-            });
-        debug!("density matrix after:\n{}", self.density_matrix);
-    }
-}
 
-impl MeasureAll for DensityMatrix {
-    fn measure_all(&mut self) {
-        (0..1 << self.number_of_qubits)
-            .into_par_iter()
-            .for_each(|n: usize| {
-                (0..1 << self.number_of_qubits).for_each(|m: usize| unsafe {
-                    if n != m {
-                        self.density_matrix_pointer.write((n, m), C::new(0., 0.))
-                    }
-                })
-            });
-    }
-}
-
-impl SingleQubitGate for DensityMatrix {
-    fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
-        debug!("density matrix before:\n{}", self.density_matrix);
-        let swap = |x| swap_pair(x, target);
-
-        unsafe {
-            (0..1 << &self.number_of_qubits)
-                .into_par_iter()
-                .step_by(2)
-                .for_each(|n: usize| {
-                    let mut rho = Matrix2x2::zeros();
-                    (0..1 << &self.number_of_qubits)
-                        .step_by(2)
-                        .for_each(|m: usize| {
-                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                                rho[(i, j)] =
-                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
-                            });
-
-                            rho = u * rho * u.adjoint();
-                            iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                                self.density_matrix_pointer
-                                    .write((swap(i + n), swap(j + m)), rho[(i, j)])
-                            });
-                        })
-                });
-        }
-    }
-}
-
-impl SingleQubitKraus for DensityMatrix {
-    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
-        todo!("not implemented yet");
-    }
-}
-
-impl TwoQubitGate for DensityMatrix {
-    fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
-        debug!("density matrix before:\n{}", self.density_matrix);
-        let swap = |x| swap_two_pairs(x, target, control);
-
-        (0..1 << &self.number_of_qubits)
-            .into_par_iter()
-            .step_by(4)
-            .for_each(|n: usize| unsafe {
-                let mut rho = Matrix4x4::zeros();
-                (0..1 << &self.number_of_qubits)
-                    .step_by(4)
-                    .for_each(|m: usize| {
-                        iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                            rho[(i, j)] =
-                                self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
-                        });
-
-                        rho = u * rho * u.adjoint();
-
-                        iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                            self.density_matrix_pointer
-                                .write((swap(i + n), swap(j + m)), rho[(i, j)])
-                        });
-                    })
-            });
-        debug!("density matrix after:\n{}", self.density_matrix);
-    }
-}
 
 impl DensityMatrix {
     pub fn new(number_of_qubits: usize) -> DensityMatrix {

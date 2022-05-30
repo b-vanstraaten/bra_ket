@@ -1,8 +1,6 @@
 use crate::draw::*;
-use crate::gates::*;
-use crate::traits::{
-    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate,
-};
+use crate::qubit_operations::*;
+use crate::state_traits::{QuantumStateTraits};
 use crate::types::*;
 use tqdm::tqdm;
 
@@ -18,12 +16,13 @@ impl Program {
         return Program { gates: vec![] };
     }
 
-    pub fn run<
-        T: Measure + MeasureAll + ResetAll + SingleQubitGate + SingleQubitKraus + TwoQubitGate,
-    >(
+    pub fn run<T: QuantumStateTraits>(
         &mut self,
         state: &mut T,
     ) {
+        // logic to panic if the program requires more qubits than present in the state
+        state.check_qubit_number(self.which_qubits());
+        // iterate through the gates and implement them
         for gate in &self.gates {
             implement_gate(state, gate)
         }
@@ -31,9 +30,11 @@ impl Program {
 
     pub fn which_qubits(&self) -> Vec<&usize> {
         let mut qubits: Vec<&usize> = vec![];
-        for gate in tqdm(self.gates.iter()) {
+        for gate in self.gates.iter() {
             qubits.append(which_qubits(gate).as_mut());
         }
+        qubits.sort(); // sorting
+        qubits.dedup(); // removes consecutive equal elements according the the partial eq trait
         qubits
     }
 
@@ -107,5 +108,20 @@ impl Program {
 
     pub fn s(&mut self, qubit: usize) {
         self.add_gate(Operation::S(qubit))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::Program;
+
+    #[test]
+    fn qubit_number() {
+        let mut program = Program::new();
+        program.x(5);
+        program.y(2);
+        program.cnot(0, 6);
+        let qubits = program.which_qubits();
+        assert_eq!(qubits, vec![&0, &2, &5, &6])
     }
 }

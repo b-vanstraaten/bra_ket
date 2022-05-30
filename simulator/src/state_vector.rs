@@ -1,6 +1,4 @@
-use crate::traits::{
-    Measure, MeasureAll, ResetAll, SingleQubitGate, SingleQubitKraus, TwoQubitGate, Zero,
-};
+use crate::state_traits::QuantumStateTraits;
 use crate::types::*;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
@@ -41,22 +39,17 @@ impl From<CVector> for StateVector {
 }
 
 
-impl PartialEq for StateVector {
-    fn eq(&self, other: &Self) -> bool {
-        let mut result = false;
-        if self.number_of_qubits == other.number_of_qubits {
-            if self.state_vector.shape() == other.state_vector.shape() {
-                let difference = &self.state_vector - &other.state_vector;
-                if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
-                    result = true;
-                }
-            }
-        }
-        result
-    }
-}
+impl QuantumStateTraits for StateVector {
 
-impl Zero for StateVector {
+    fn check_qubit_number(&self, qubits: Vec<&usize>) {
+        let required_number_of_qubits = qubits.last().unwrap();
+        let number_of_qubits = &self.number_of_qubits;
+        assert!(required_number_of_qubits < &number_of_qubits,
+                "fewer qubits in the state vector than required by program {} < {}",
+                required_number_of_qubits, number_of_qubits
+        )
+    }
+
     fn zero(&mut self) {
         unsafe {
             (0..1 << self.number_of_qubits)
@@ -66,16 +59,12 @@ impl Zero for StateVector {
                 })
         }
     }
-}
 
-impl ResetAll for StateVector {
     fn reset_all(&mut self) {
         self.zero();
         self.state_vector[0] = C::new(1., 0.);
     }
-}
 
-impl Measure for StateVector {
     fn measure(&mut self, target: &usize) {
         debug!("state vector before: \n{}", self.state_vector);
         let swap = |x| swap_pair(x, target);
@@ -123,9 +112,7 @@ impl Measure for StateVector {
                 })
         }
     }
-}
 
-impl MeasureAll for StateVector {
     fn measure_all(&mut self) {
         let probabilities: Vec<R> = (0..1 << self.number_of_qubits)
             .into_par_iter()
@@ -139,9 +126,7 @@ impl MeasureAll for StateVector {
         self.zero();
         self.state_vector[s] = C::new(1., 0.);
     }
-}
 
-impl SingleQubitGate for StateVector {
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
         let swap = |x| swap_pair(x, target);
         unsafe {
@@ -162,15 +147,11 @@ impl SingleQubitGate for StateVector {
                 })
         }
     }
-}
 
-impl SingleQubitKraus for StateVector {
     fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
         panic!("Kraus operators cannot be performed on state vectors");
     }
-}
 
-impl TwoQubitGate for StateVector {
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
         debug!("State vector before:\n{}", self.state_vector);
         let swap = |x| swap_two_pairs(x, target, control);
@@ -200,6 +181,24 @@ impl TwoQubitGate for StateVector {
         }
     }
 }
+
+
+impl PartialEq for StateVector {
+    fn eq(&self, other: &Self) -> bool {
+        let mut result = false;
+        if self.number_of_qubits == other.number_of_qubits {
+            if self.state_vector.shape() == other.state_vector.shape() {
+                let difference = &self.state_vector - &other.state_vector;
+                if difference.iter().all(|d| d.abs() < COMPARISON_PRECISION) {
+                    result = true;
+                }
+            }
+        }
+        result
+    }
+}
+
+
 
 impl StateVector {
     pub fn new(number_of_qubits: usize) -> StateVector {
