@@ -96,7 +96,7 @@ pub static S: Matrix2x2 = matrix![
 
 pub static SWAP: Matrix4x4 = matrix![
     C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-    C::new(0., 0.), C::new(0., 0.), C::new(0., 1.), C::new(0., 0.);
+    C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
     C::new(0., 0.), C::new(1., 0.), C::new(0., 0.), C::new(0., 0.);
     C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
 ];
@@ -116,18 +116,6 @@ impl<T> DensityMatrixPointer<T> {
     }
 
     pub fn flatten_index(&self, indices: (usize, usize)) -> usize {
-        assert!(
-            indices.0 < self.shape.0,
-            "index out of range {} >= {}",
-            indices.0,
-            self.shape.0
-        );
-        assert!(
-            indices.1 < self.shape.1,
-            "index out of range {} >= {}",
-            indices.1,
-            self.shape.1
-        );
         indices.0 + self.shape.1 * indices.1
     }
 

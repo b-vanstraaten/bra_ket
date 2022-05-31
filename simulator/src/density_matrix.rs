@@ -34,6 +34,11 @@ impl QuantumStateTraits for DensityMatrix {
         )
     }
 
+    fn reset_all(&mut self) {
+        self.zero();
+        self.density_matrix[(0, 0)] = C::new(1., 0.)
+    }
+
     fn zero(&mut self) {
         (0..1 << &self.number_of_qubits)
             .into_par_iter()
@@ -42,11 +47,6 @@ impl QuantumStateTraits for DensityMatrix {
                     self.density_matrix_pointer.write((n, m), C::new(0., 0.))
                 })
             });
-    }
-
-    fn reset_all(&mut self) {
-        self.zero();
-        self.density_matrix[(0, 0)] = C::new(1., 0.)
     }
 
     fn measure(&mut self, target: &usize) {
@@ -107,6 +107,10 @@ impl QuantumStateTraits for DensityMatrix {
         }
     }
 
+    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
+        todo!("not implemented yet");
+    }
+
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
         debug!("density matrix before:\n{}", self.density_matrix);
         let swap = |x| swap_two_pairs(x, target, control);
@@ -133,10 +137,6 @@ impl QuantumStateTraits for DensityMatrix {
                     })
             });
         debug!("density matrix after:\n{}", self.density_matrix);
-    }
-
-    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
-        todo!("not implemented yet");
     }
 
 }

@@ -50,6 +50,11 @@ impl QuantumStateTraits for StateVector {
         )
     }
 
+    fn reset_all(&mut self) {
+        self.zero();
+        self.state_vector[0] = C::new(1., 0.);
+    }
+
     fn zero(&mut self) {
         unsafe {
             (0..1 << self.number_of_qubits)
@@ -58,11 +63,6 @@ impl QuantumStateTraits for StateVector {
                     self.state_vector_pointer.write(n, C::new(0., 0.));
                 })
         }
-    }
-
-    fn reset_all(&mut self) {
-        self.zero();
-        self.state_vector[0] = C::new(1., 0.);
     }
 
     fn measure(&mut self, target: &usize) {

@@ -110,6 +110,10 @@ impl Program {
         self.add_gate(Operation::ISWAP(control, target))
     }
 
+    pub fn swap(&mut self, control: usize, target: usize) {
+        self.add_gate(Operation::SWAP(control, target))
+    }
+
     pub fn s(&mut self, qubit: usize) {
         self.add_gate(Operation::S(qubit))
     }
@@ -118,14 +122,16 @@ impl Program {
 #[cfg(test)]
 mod tests {
     use crate::Program;
+    use crate::qubit_operations::which_qubits;
 
     #[test]
     fn qubit_number() {
         let mut program = Program::new();
         program.x(5);
         program.y(2);
+        program.z(4);
         program.cnot(0, 6);
         let qubits = program.which_qubits();
-        assert_eq!(qubits, vec![&0, &2, &5, &6])
+        assert_eq!(qubits, vec![&0, &2, &4, &5, &6])
     }
 }
