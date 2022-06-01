@@ -6,7 +6,7 @@ fn swap(x: usize, bits: (&usize, &usize)) -> usize {
     let bit_value_0 = (&x & (1 << bits.0)) >> bits.0;
     let bit_value_1 = (&x & (1 << bits.1)) >> bits.1;
     let difference = {
-        let mut difference = bit_value_0 ^ bit_value_1;
+        let difference = bit_value_0 ^ bit_value_1;
         (difference << bits.0) | (difference << bits.1)
     };
     return x ^ difference;

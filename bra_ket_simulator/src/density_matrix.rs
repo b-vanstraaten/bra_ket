@@ -16,7 +16,7 @@ use crate::StateVector;
 /// A struct to contain the state the quantum experiment. The system is comprised of a
 /// quantum register and a classical register. The classical register is described by 'number_of_bits' bits.
 /// Whilest the quantum register, of 'number_of_qubits' qubits, must be described by a density matrix.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,

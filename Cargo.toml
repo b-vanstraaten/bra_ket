@@ -1,5 +1,5 @@
 [workspace]
 
 members = [
-    "simulator",
+    "bra_ket_simulator",
 ]

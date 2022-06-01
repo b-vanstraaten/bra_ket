@@ -6,7 +6,7 @@ use nalgebra::matrix;
 use crate::state_traits::QuantumStateTraits;
 use crate::types::*;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Operation {
     Measure(usize),
     MeasureAll,
@@ -27,6 +27,7 @@ pub enum Operation {
 
     CNOT(usize, usize),
     CZ(usize, usize),
+    CRZ(usize, usize, Angle),
     SISWAP(usize, usize),
     ArbitaryTwo(usize, usize, Matrix4x4),
     ISWAP(usize, usize),
@@ -113,6 +114,15 @@ pub fn implement_gate<
         Operation::ArbitarySingle(qubit, u) => state.single_qubit_gate(qubit, u),
         Operation::CNOT(control, target) => state.two_qubit_gate(target, control, &CNOT),
         Operation::CZ(control, target) => state.two_qubit_gate(target, control, &CZ),
+        Operation::CRZ(control, target, angle) => {
+            let U: Matrix4x4 = matrix![
+                C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
+                C::new(0., 0.), C::new(1., 0.), C::new(0., 0.), C::new(0., 0.);
+                C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
+                C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(angle.cos(), angle.sin());
+            ];
+            state.two_qubit_gate(target, control, &U)
+        },
         Operation::ISWAP(control, target) => state.two_qubit_gate(target, control, &ISWAP),
         Operation::SISWAP(control, target) => state.two_qubit_gate(target, control, &SISWAP),
         Operation::SWAP(control, target) => state.two_qubit_gate(target, control, &SWAP),
@@ -140,6 +150,7 @@ pub fn which_qubits(gate: &Operation) -> Vec<&usize> {
 
         Operation::CZ(control, target) => vec![control, target],
         Operation::CNOT(control, target) => vec![control, target],
+        Operation::CRZ(control, target, _) => vec![control, target],
         Operation::ISWAP(control, target) => vec![control, target],
         Operation::SISWAP(control, target) => vec![control, target],
         Operation::SWAP(control, target) => vec![control, target],

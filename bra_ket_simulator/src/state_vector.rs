@@ -13,7 +13,7 @@ use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 use rand::seq::index::sample;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StateVector {
     pub number_of_qubits: usize,
     pub state_vector: CVector,
@@ -42,9 +42,13 @@ impl From<CVector> for StateVector {
 impl QuantumStateTraits for StateVector {
 
     fn check_qubit_number(&self, qubits: Vec<&usize>) {
-        let required_number_of_qubits = qubits.last().unwrap();
+        let required_number_of_qubits = match qubits.last() {
+            Some(n) => n.to_owned(),
+            None => &0 // no gates in gate_list
+        };
+
         let number_of_qubits = &self.number_of_qubits;
-        assert!(required_number_of_qubits < &number_of_qubits,
+        assert!(required_number_of_qubits < number_of_qubits,
                 "fewer qubits in the state vector than required by program {} < {}",
                 required_number_of_qubits, number_of_qubits
         )

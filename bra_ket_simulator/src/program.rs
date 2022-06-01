@@ -2,14 +2,25 @@ use crate::draw::*;
 use crate::qubit_operations::*;
 use crate::state_traits::{QuantumStateTraits};
 use crate::types::*;
-use tqdm::tqdm;
+use std::ops::Add;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Program {
     pub gates: Vec<Operation>,
 }
+
+impl Add for Program {
+    type Output = Program;
+    fn add(self, other: Self) -> Self {
+        let mut program = Program::new();
+        let gates = [&self.gates[..], &other.gates[..]].concat();
+        program.add_gates(gates);
+        program
+    }
+}
+
 
 impl Program {
     pub fn new() -> Program {
@@ -98,6 +109,10 @@ impl Program {
         self.add_gate(Operation::CZ(control, target))
     }
 
+    pub fn crz(&mut self, control: usize, target: usize, angle: Angle) {
+        self.add_gate(Operation::CZ(control, target))
+    }
+
     pub fn cnot(&mut self, control: usize, target: usize) {
         self.add_gate(Operation::CNOT(control, target))
     }
@@ -121,11 +136,11 @@ impl Program {
 
 #[cfg(test)]
 mod tests {
-    use crate::Program;
+    use crate::{Operation, Program};
     use crate::qubit_operations::which_qubits;
 
     #[test]
-    fn qubit_number() {
+    fn test_qubit_number() {
         let mut program = Program::new();
         program.x(5);
         program.y(2);
@@ -134,4 +149,16 @@ mod tests {
         let qubits = program.which_qubits();
         assert_eq!(qubits, vec![&0, &2, &4, &5, &6])
     }
+
+    #[test]
+    fn test_add_gates() {
+        let mut program = Program::new();
+        program.add_gates(vec![Operation::H(0), Operation::CZ(0, 1)]);
+
+        let mut required_program = Program::new();
+        required_program.h(0);
+        required_program.cz(0, 1);
+        assert_eq!(program, required_program)
+    }
+
 }

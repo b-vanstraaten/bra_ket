@@ -101,7 +101,7 @@ pub static SWAP: Matrix4x4 = matrix![
     C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
 ];
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct DensityMatrixPointer<T> {
     pointer: *mut T,
     shape: (usize, usize),
@@ -135,7 +135,7 @@ impl<T> DensityMatrixPointer<T> {
 unsafe impl<T> Sync for DensityMatrixPointer<T> {}
 unsafe impl<T> Send for DensityMatrixPointer<T> {}
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StateVectorPointer<T> {
     pointer: *mut T,
     size: usize,

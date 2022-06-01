@@ -196,3 +196,36 @@ fn s() {
 
     assert_eq!(&state, &other_state)
 }
+
+#[test]
+fn reset_all() {
+    let mut program = Program::new();
+    program.h(0);
+    program.reset_all();
+
+    let mut state = DensityMatrix::new(1);
+    let mut required_state = DensityMatrix::new(1);
+
+    program.run(&mut state);
+    assert_eq!(state, required_state)
+}
+
+#[test]
+fn purity() {
+    let mut pure_program = Program::new();
+    let mut impure_program = Program::new();
+
+    pure_program.h(0);
+    impure_program.h(0);
+
+    impure_program.measure(0);
+
+    let mut pure_state = DensityMatrix::new(1);
+    let mut impure_state = DensityMatrix::new(1);
+
+    pure_program.run(&mut pure_state);
+    impure_program.run(&mut impure_state);
+
+    assert!(pure_state.is_pure());
+    assert!(!impure_state.is_pure());
+}
