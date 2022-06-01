@@ -73,7 +73,7 @@ fn plot_gate(gate: &Operation, qubit_index: &usize) -> String {
             let m: String = format!("R.{:.*},{:.*},{:.*}", 0, omega, 0, theta, 0, phi);
             return_string(qubit_index, *qubit, m)
         }
-        Operation::ArbitarySingle(qubit, u) => {
+        Operation::ArbitrarySingle(qubit, u) => {
             let m: String = format!("{:-<7}", "ArbU");
             return_string(qubit_index, *qubit, m)
         }

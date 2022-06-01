@@ -17,7 +17,7 @@ pub enum Operation {
     Y(usize),
     Z(usize),
     H(usize),
-    ArbitarySingle(usize, Matrix2x2),
+    ArbitrarySingle(usize, Matrix2x2),
     S(usize),
 
     RX(usize, Angle),
@@ -49,7 +49,7 @@ impl fmt::Display for Operation {
             Operation::RY(qubit, angle) => write!(f, "RY_{}({})", qubit, angle),
             Operation::RZ(qubit, angle) => write!(f, "RZ_{}({})", qubit, angle),
 
-            Operation::ArbitarySingle(qubit, _) => write!(f, "U_{}", qubit),
+            Operation::ArbitrarySingle(qubit, _) => write!(f, "U_{}", qubit),
             Operation::R(qubit, phi, theta, omega) => {
                 write!(f, "R_{}({}, {}, {})", qubit, phi, theta, omega)
             }
@@ -111,7 +111,7 @@ pub fn implement_gate<
             ];
             state.single_qubit_gate(qubit, &u)
         }
-        Operation::ArbitarySingle(qubit, u) => state.single_qubit_gate(qubit, u),
+        Operation::ArbitrarySingle(qubit, u) => state.single_qubit_gate(qubit, u),
         Operation::CNOT(control, target) => state.two_qubit_gate(target, control, &CNOT),
         Operation::CZ(control, target) => state.two_qubit_gate(target, control, &CZ),
         Operation::CRZ(control, target, angle) => {
@@ -146,7 +146,7 @@ pub fn which_qubits(gate: &Operation) -> Vec<&usize> {
         Operation::RY(qubit, _) => vec![qubit],
         Operation::RZ(qubit, _) => vec![qubit],
         Operation::R(qubit, _, _, _) => vec![qubit],
-        Operation::ArbitarySingle(qubit, _) => vec![qubit],
+        Operation::ArbitrarySingle(qubit, _) => vec![qubit],
 
         Operation::CZ(control, target) => vec![control, target],
         Operation::CNOT(control, target) => vec![control, target],

@@ -23,7 +23,7 @@ fn grover_two_qubit() {
 
     program.run(&mut state);
     // program.draw();
-    println!("{:?}", state);
+    println!("{}", state.density_matrix);
 }
 
 

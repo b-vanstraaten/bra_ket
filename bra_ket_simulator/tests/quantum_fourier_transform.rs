@@ -1,9 +1,6 @@
 use nalgebra::matrix;
 use simulator::*;
 
-// pretty assertions for human readability
-
-
 fn qft_no_swap(mut program: Program, n: usize) -> Program {
     if n == 0 {return program}
     let n = n - 1;
@@ -27,12 +24,13 @@ fn qft(mut program: Program, n: usize) -> Program {
 
 #[test]
 fn quantum_fourier_transform_n_qubit() {
-    let n = 8;
+    let n = 2;
     let mut init_program = Program::new();
     let mut qft_program = Program::new();
 
-
-
+    for i in 0..n {
+        init_program.h(i);
+    }
 
     qft_program = qft(qft_program, n);
 
@@ -41,8 +39,6 @@ fn quantum_fourier_transform_n_qubit() {
     init_program.run(&mut state);
     let init_state = state.clone();
     qft_program.run(&mut state);
-
-
 
     println!("{}", state.state_vector);
 

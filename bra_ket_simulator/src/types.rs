@@ -3,7 +3,7 @@ use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
 use nalgebra::{matrix, Complex, DMatrix, DVector, SMatrix};
 
 /// A real number
-pub type R = f32;
+pub type R = f64;
 
 /// A complex number
 pub type C = Complex<R>;
