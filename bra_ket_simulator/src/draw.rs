@@ -73,7 +73,7 @@ fn plot_gate(gate: &Operation, qubit_index: &usize) -> String {
             let m: String = format!("R.{:.*},{:.*},{:.*}", 0, omega, 0, theta, 0, phi);
             return_string(qubit_index, *qubit, m)
         }
-        Operation::ArbitrarySingle(qubit, u) => {
+        Operation::ArbitrarySingle(qubit, _u) => {
             let m: String = format!("{:-<7}", "ArbU");
             return_string(qubit_index, *qubit, m)
         }
@@ -89,7 +89,7 @@ fn plot_gate(gate: &Operation, qubit_index: &usize) -> String {
             let m: String = "SSwap".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
         }
-        Operation::ArbitaryTwo(control, target, u) => {
+        Operation::ArbitaryTwo(control, target, _u) => {
             let m: String = "ArbU".to_owned();
             return_two_gate_string(qubit_index, *control, *target, m)
         }
@@ -125,7 +125,7 @@ fn return_two_gate_string(
     return default;
 }
 
-pub const Aadvark: &str = r#"
+pub const aadvark: &str = r#"
 
 ****************************************************************
 ---------------------Quantum--Aardvark--------------------------

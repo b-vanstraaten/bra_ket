@@ -107,7 +107,7 @@ impl QuantumStateTraits for DensityMatrix {
         }
     }
 
-    fn single_qubit_kraus(&mut self, target: &usize, u: &Matrix2x2) {
+    fn single_qubit_kraus(&mut self, _target: &usize, _u: &Matrix2x2) {
         todo!("not implemented yet");
     }
 

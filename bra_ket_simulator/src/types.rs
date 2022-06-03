@@ -139,23 +139,21 @@ unsafe impl<T> Send for DensityMatrixPointer<T> {}
 
 #[derive(Debug, Clone)]
 pub struct StateVectorPointer<T> {
-    pointer: *mut T,
-    size: usize,
+    pointer: *mut T
 }
 
 impl<T> StateVectorPointer<T> {
-    pub fn new(value: &mut T, size: usize) -> Self {
+    pub fn new(value: &mut T) -> Self {
         StateVectorPointer {
-            pointer: value as *mut T,
-            size,
+            pointer: value as *mut T
         }
     }
-    pub unsafe fn read(&self, indices: usize) -> T {
-        self.pointer.add(indices).read()
+    pub unsafe fn read(&self, index: usize) -> T {
+        self.pointer.add(index).read()
     }
 
-    pub unsafe fn write(&self, indices: usize, value: T) {
-        self.pointer.add(indices).write(value)
+    pub unsafe fn write(&self, index: usize, value: T) {
+        self.pointer.add(index).write(value)
     }
 }
 

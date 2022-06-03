@@ -90,7 +90,7 @@ fn measure_all() {
 
     }
     let p_required = 0.5;
-    let std = (p_required * (1. - &p_required) / (n as R)).sqrt();
+    let _std = (p_required * (1. - &p_required) / (n as R)).sqrt();
     // let p_estimated = state.classical_register[0] / (n as R);
 
     // assert!(

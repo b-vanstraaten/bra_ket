@@ -41,7 +41,7 @@ fn quantum_fourier_transform_n_qubit() {
 
     let mut state = StateVector::new(n);
     init_program.run(&mut state);
-    let init_state = state.clone();
+    let _init_state = state.clone();
     qft_program.run(&mut state);
 
 

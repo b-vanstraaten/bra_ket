@@ -1,5 +1,4 @@
-#![feature(trait_alias)]
-use crate::types::{Matrix2x2, Matrix4x4, C};
+use crate::types::{Matrix2x2, Matrix4x4};
 
 pub trait QuantumStateTraits {
     fn check_qubit_number(&self, qubits: Vec<&usize>);

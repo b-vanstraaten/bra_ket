@@ -37,7 +37,7 @@ pub enum Operation {
 impl fmt::Display for Operation {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            Operation::Measure(qubit) => write!(f, "M"),
+            Operation::Measure(_qubit) => write!(f, "M"),
             Operation::MeasureAll => write!(f, ""),
 
             Operation::X(qubit) => write!(f, "X_{}", qubit),
@@ -115,13 +115,13 @@ pub fn implement_gate<
         Operation::CNOT(control, target) => state.two_qubit_gate(target, control, &CNOT),
         Operation::CZ(control, target) => state.two_qubit_gate(target, control, &CZ),
         Operation::CRZ(control, target, angle) => {
-            let U: Matrix4x4 = matrix![
+            let u: Matrix4x4 = matrix![
                 C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
                 C::new(0., 0.), C::new(1., 0.), C::new(0., 0.), C::new(0., 0.);
                 C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
                 C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(angle.cos(), angle.sin());
             ];
-            state.two_qubit_gate(target, control, &U)
+            state.two_qubit_gate(target, control, &u)
         },
         Operation::ISWAP(control, target) => state.two_qubit_gate(target, control, &ISWAP),
         Operation::SISWAP(control, target) => state.two_qubit_gate(target, control, &SISWAP),

@@ -109,7 +109,7 @@ impl Program {
         self.add_gate(Operation::CZ(control, target))
     }
 
-    pub fn crz(&mut self, control: usize, target: usize, angle: Angle) {
+    pub fn crz(&mut self, control: usize, target: usize, _angle: Angle) {
         self.add_gate(Operation::CZ(control, target))
     }
 
@@ -137,7 +137,7 @@ impl Program {
 #[cfg(test)]
 mod tests {
     use crate::{Operation, Program};
-    use crate::qubit_operations::which_qubits;
+    
 
     #[test]
     fn test_qubit_number() {
