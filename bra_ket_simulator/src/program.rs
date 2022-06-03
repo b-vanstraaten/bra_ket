@@ -6,7 +6,7 @@ use std::ops::Add;
 
 /// A struct to contain the quantum program. The density_matrix describes the quantum state
 /// and the vector of gates describe the operations to be performed on the density matrix.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Program {
     pub gates: Vec<Operation>,
 }
@@ -69,8 +69,8 @@ impl Program {
         self.add_gate(Operation::MeasureAll)
     }
 
-    pub fn reset_all(&mut self) {
-        self.add_gate(Operation::ResetAll)
+    pub fn reinitialise_all(&mut self) {
+        self.add_gate(Operation::ReinitialiseAll)
     }
 
     pub fn x(&mut self, qubit: usize) {

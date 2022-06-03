@@ -201,10 +201,10 @@ fn s() {
 fn reset_all() {
     let mut program = Program::new();
     program.h(0);
-    program.reset_all();
+    program.reinitialise_all();
 
     let mut state = DensityMatrix::new(1);
-    let mut required_state = DensityMatrix::new(1);
+    let required_state = DensityMatrix::new(1);
 
     program.run(&mut state);
     assert_eq!(state, required_state)

@@ -4,7 +4,6 @@ use nalgebra::ComplexField;
 use rayon::prelude::*;
 use std::mem::size_of_val;
 
-use itertools::iproduct;
 use log::debug;
 
 use crate::helper_functions::*;
@@ -27,7 +26,7 @@ impl From<CVector> for StateVector {
         let number_of_qubits = log2(shape.0 as usize);
 
         let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], shape.1);
-        let classical_register = ClassicalRegister::zeros(number_of_qubits);
+        let classical_register = vec![None; number_of_qubits];
 
         StateVector {
             number_of_qubits,
@@ -37,7 +36,6 @@ impl From<CVector> for StateVector {
         }
     }
 }
-
 
 impl QuantumStateTraits for StateVector {
 
@@ -54,9 +52,10 @@ impl QuantumStateTraits for StateVector {
         )
     }
 
-    fn reset_all(&mut self) {
+    fn reinitialise_all(&mut self) {
         self.zero();
         self.state_vector[0] = C::new(1., 0.);
+        self.classical_register = vec![None; self.number_of_qubits]
     }
 
     fn zero(&mut self) {
@@ -72,8 +71,10 @@ impl QuantumStateTraits for StateVector {
     fn measure(&mut self, target: &usize) {
         debug!("state vector before: \n{}", self.state_vector);
         let swap = |x| swap_pair(x, target);
+
+        // calculating the probabilities
         unsafe {
-            let (mut p0, mut p1): (R, R) = (0..1 << self.number_of_qubits)
+            let (p0, p1): (R, R) = (0..1 << self.number_of_qubits)
                 .into_par_iter()
                 .step_by(2)
                 .map(|i| {
@@ -86,28 +87,31 @@ impl QuantumStateTraits for StateVector {
                 })
                 .reduce(|| (0., 0.), |(a0, a1), (b0, b1)| (a0 + b0, a1 + b1));
 
-            p0 = p0 / (p0 + p1);
-            p1 = p1 / (p0 + p1);
-
+            // sampling randomly from the qubit probability distribution
             let mut rng = thread_rng();
             let probabilities = [p0, p1];
             let dist = WeightedIndex::new(&probabilities).unwrap();
-            let s = dist.sample(&mut rng);
-            let p_sqrt = probabilities[s].sqrt();
+            let qubit_state = dist.sample(&mut rng);
 
+            // updating the classical register
+            self.classical_register[target.to_owned()] = Some(qubit_state == 1);
+
+            // updating the state vector
+            let p_sqrt = probabilities[qubit_state].sqrt();
             (0..1 << self.number_of_qubits)
                 .into_par_iter()
                 .step_by(2)
                 .for_each(|n: usize| {
+                    // getting indexes of the |..0..> and |..1..> states
                     let i0 = swap(n);
                     let i1 = swap(n + 1);
-                    match s {
-                        0 => {
+                    match qubit_state {
+                        0 => { // qubit in state |0>
                             let s0 = self.state_vector_pointer.read(i1);
                             self.state_vector_pointer.write(i0, s0 / p_sqrt);
                             self.state_vector_pointer.write(i1, C::new(0., 0.))
                         }
-                        _ => {
+                        _ => { // qubit in state |1>
                             let s1 = self.state_vector_pointer.read(i1);
                             self.state_vector_pointer.write(i0, C::new(0., 0.));
                             self.state_vector_pointer.write(i1, s1 / p_sqrt);
@@ -118,15 +122,26 @@ impl QuantumStateTraits for StateVector {
     }
 
     fn measure_all(&mut self) {
+
+        // calculating the probability of measuring each state
         let probabilities: Vec<R> = (0..1 << self.number_of_qubits)
             .into_par_iter()
             .map(|n: usize| unsafe { self.state_vector_pointer.read(n).modulus_squared() })
             .collect();
 
+        // sampling from the probability distribution
         let dist = WeightedIndex::new(&probabilities).unwrap();
         let mut rng = thread_rng();
         let s = dist.sample(&mut rng);
 
+        // updating the classical register
+        for n in 0..self.number_of_qubits {
+            // extracting the bit value at position n in s
+            let qubit_state = (s & (1 << n)) >> n;
+            self.classical_register[n] = Some(qubit_state == 1)
+        }
+
+        // updating the state_vector
         self.zero();
         self.state_vector[s] = C::new(1., 0.);
     }
@@ -227,7 +242,7 @@ impl StateVector {
         };
         let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], hilbert_dim);
 
-        let classical_register = ClassicalRegister::zeros(number_of_qubits);
+        let classical_register = vec![None; number_of_qubits];
 
         StateVector {
             number_of_qubits,
@@ -236,4 +251,25 @@ impl StateVector {
             classical_register,
         }
     }
+
+    pub fn measured_qubit_state(&self, target: usize) -> bool {
+        match self.classical_register[target] {
+            Some(qubit_state) => qubit_state,
+            None => panic!("qubit {} not measured yet", target)
+        }
+    }
+
+    pub fn measured_overall_state(&self) -> I {
+        let mut overall_state = 0;
+        for qubit in 0..self.number_of_qubits {
+            let qubit_state = self.measured_qubit_state(qubit);
+            overall_state += (1 & (qubit_state as I)) << qubit;
+        }
+        overall_state
+    }
+
+    pub fn reset_classical_registor(&mut self) {
+        self.classical_register = vec![None; self.number_of_qubits];
+    }
+
 }

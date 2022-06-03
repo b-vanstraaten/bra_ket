@@ -34,7 +34,7 @@ impl QuantumStateTraits for DensityMatrix {
         )
     }
 
-    fn reset_all(&mut self) {
+    fn reinitialise_all(&mut self) {
         self.zero();
         self.density_matrix[(0, 0)] = C::new(1., 0.)
     }

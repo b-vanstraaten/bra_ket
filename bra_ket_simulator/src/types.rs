@@ -2,6 +2,8 @@ use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
 
 use nalgebra::{matrix, Complex, DMatrix, DVector, SMatrix};
 
+pub type I = usize;
+
 /// A real number
 pub type R = f64;
 
@@ -19,7 +21,7 @@ pub type Matrix2x2 = SMatrix<C, 2, 2>;
 
 pub type Matrix4x4 = SMatrix<C, 4, 4>;
 
-pub type ClassicalRegister = DVector<R>;
+pub type ClassicalRegister = Vec<Option<bool>>;
 
 /// An angle
 pub type Angle = R;

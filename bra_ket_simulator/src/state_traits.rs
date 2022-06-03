@@ -3,7 +3,7 @@ use crate::types::{Matrix2x2, Matrix4x4, C};
 
 pub trait QuantumStateTraits {
     fn check_qubit_number(&self, qubits: Vec<&usize>);
-    fn reset_all(&mut self);
+    fn reinitialise_all(&mut self);
     fn zero(&mut self);
     fn measure(&mut self, target: &usize);
     fn measure_all(&mut self);

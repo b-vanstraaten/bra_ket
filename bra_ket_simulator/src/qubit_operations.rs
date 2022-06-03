@@ -11,7 +11,7 @@ pub enum Operation {
     Measure(usize),
     MeasureAll,
 
-    ResetAll,
+    ReinitialiseAll,
 
     X(usize),
     Y(usize),
@@ -75,7 +75,7 @@ pub fn implement_gate<
     match gate {
         Operation::Measure(qubit) => state.measure(qubit),
         Operation::MeasureAll => state.measure_all(),
-        Operation::ResetAll => state.reset_all(),
+        Operation::ReinitialiseAll => state.reinitialise_all(),
 
         Operation::X(qubit) => state.single_qubit_gate(qubit, &SIGMA_X),
         Operation::Y(qubit) => state.single_qubit_gate(qubit, &SIGMA_Y),
@@ -134,7 +134,7 @@ pub fn which_qubits(gate: &Operation) -> Vec<&usize> {
     match gate {
         Operation::Measure(qubit) => vec![qubit],
         Operation::MeasureAll => vec![],
-        Operation::ResetAll => vec![],
+        Operation::ReinitialiseAll => vec![],
 
         Operation::X(qubit) => vec![qubit],
         Operation::Y(qubit) => vec![qubit],
