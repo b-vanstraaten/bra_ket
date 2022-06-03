@@ -1,5 +1,14 @@
-[workspace]
+[package]
+name = "simulator"
+version = "0.1.0"
+edition = "2021"
 
-members = [
-    "bra_ket_simulator",
-]
+[dependencies]
+nalgebra = "0.30.1"
+log = "0.4.14"
+itertools = "0.10.3"
+rayon = "1.5.1"
+rand = "0.8.5"
+tqdm = "0.3.1"
+
+[dev-dependencies]

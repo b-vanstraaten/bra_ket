@@ -23,7 +23,7 @@ fn grover_two_qubit() {
     let mut state = StateVector::new(2);
     program.run(&mut state);
     // program.draw();
-    println!("{}", state.state_vector);
+
 }
 
 
