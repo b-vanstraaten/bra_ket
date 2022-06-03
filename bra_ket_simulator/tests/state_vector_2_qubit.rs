@@ -118,7 +118,6 @@ fn measure_all() {
         state.measured_overall_state()
 
     }).counts();
-    println!("{:?}", counts);
 
     let p_required = 0.25;
     let std = (p_required * (1. - &p_required) / n as R).sqrt();
