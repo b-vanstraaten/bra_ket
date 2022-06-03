@@ -2,6 +2,7 @@ use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
 
 use nalgebra::{matrix, DMatrix, DVector, SMatrix};
 use nalgebra::Complex as ComplexBase;
+use crate::macros::*;
 
 /// An integer number
 pub type Int = usize;
@@ -39,72 +40,72 @@ pub static COMPARISON_PRECISION: Real = 1e-6;
 
 /// The pauli idenitiy matrix
 pub static IDENTITY: Matrix2x2 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(1., 0.);
+    c!(1., 0.), c!(0., 0.);
+    c!(0., 0.), c!(1., 0.);
 ];
 
 /// The x pauli matrix
 pub static SIGMA_X: Matrix2x2 = matrix![
-    Complex::new(0., 0.), Complex::new(1., 0.);
-    Complex::new(1., 0.), Complex::new(0., 0.);
+    c!(0., 0.), c!(1., 0.);
+    c!(1., 0.), c!(0., 0.);
 ];
 
 /// the y pauli matrix
 pub static SIGMA_Y: Matrix2x2 = matrix![
-    Complex::new(0., 0.), Complex::new(0., -1.);
-    Complex::new(0., 1.), Complex::new(0., 0.);
+    c!(0., 0.), c!(0., -1.);
+    c!(0., 1.), c!(0., 0.);
 ];
 
 /// The z pauli matrix
 pub static SIGMA_Z: Matrix2x2 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(-1., 0.);
+    c!(1., 0.), c!(0., 0.);
+    c!(0., 0.), c!(-1., 0.);
 ];
 
 /// The hadamard matrix
 pub static H: Matrix2x2 = matrix![
-    Complex::new(1. / SQRT_2 as Real, 0.), Complex::new(1. / SQRT_2 as Real, 0.);
-    Complex::new(1. / SQRT_2 as Real, 0.), Complex::new(-1. / SQRT_2 as Real, 0.);
+    c!(1. / SQRT_2 as Real, 0.), c!(1. / SQRT_2 as Real, 0.);
+    c!(1. / SQRT_2 as Real, 0.), c!(-1. / SQRT_2 as Real, 0.);
 ];
 
 pub static CNOT: Matrix4x4 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.),Complex::new(0., 0.),Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(1., 0.),Complex::new(0., 0.),Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.),Complex::new(0., 0.),Complex::new(1., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.),Complex::new(1., 0.),Complex::new(0., 0.);
+    c!(1., 0.), c!(0., 0.),c!(0., 0.),c!(0., 0.);
+    c!(0., 0.), c!(1., 0.),c!(0., 0.),c!(0., 0.);
+    c!(0., 0.), c!(0., 0.),c!(0., 0.),c!(1., 0.);
+    c!(0., 0.), c!(0., 0.),c!(1., 0.),c!(0., 0.);
 ];
 
 pub static CZ: Matrix4x4 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.),Complex::new(0., 0.),Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(1., 0.),Complex::new(0., 0.),Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.),Complex::new(1., 0.),Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.),Complex::new(0., 0.),Complex::new(-1., 0.);
+    c!(1., 0.), c!(0., 0.),c!(0., 0.),c!(0., 0.);
+    c!(0., 0.), c!(1., 0.),c!(0., 0.),c!(0., 0.);
+    c!(0., 0.), c!(0., 0.),c!(1., 0.),c!(0., 0.);
+    c!(0., 0.), c!(0., 0.),c!(0., 0.),c!(-1., 0.);
 ];
 
 pub static ISWAP: Matrix4x4 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 1.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 1.), Complex::new(0., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(1., 0.);
+    c!(1., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 0.), c!(0., 1.), c!(0., 0.);
+    c!(0., 0.), c!(0., 1.), c!(0., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(1., 0.);
 ];
 
 pub static SISWAP: Matrix4x4 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(1. / SQRT_2 as Real, 0.), Complex::new(0., 1. / SQRT_2 as Real), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 1. / SQRT_2 as Real), Complex::new(1. / SQRT_2 as Real, 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(1., 0.);
+    c!(1., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+    c!(0., 0.), c!(1. / SQRT_2, 0.), c!(0., 1. / SQRT_2), c!(0., 0.);
+    c!(0., 0.), c!(0., 1. / SQRT_2), c!(1. / SQRT_2, 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(1., 0.);
 ];
 
 pub static S: Matrix2x2 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 1.);
+    c!(1., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 1.);
 ];
 
 pub static SWAP: Matrix4x4 = matrix![
-    Complex::new(1., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(1., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(1., 0.), Complex::new(0., 0.), Complex::new(0., 0.);
-    Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(0., 0.), Complex::new(1., 0.);
+    c!(1., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 0.), c!(1., 0.), c!(0., 0.);
+    c!(0., 0.), c!(1., 0.), c!(0., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(1., 0.);
 ];
 
 #[derive(Debug, Clone)]
