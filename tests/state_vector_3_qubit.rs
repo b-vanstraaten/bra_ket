@@ -1,7 +1,6 @@
 use nalgebra::dvector;
 
-use simulator::SQRT_2;
-use simulator::*;
+use bra_ket::*;
 
 #[test]
 fn ghz_0() {

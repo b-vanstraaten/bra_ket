@@ -1,6 +1,6 @@
 use nalgebra::dmatrix;
 
-use simulator::*;
+use bra_ket::*;
 
 // pretty assertions for human readability
 

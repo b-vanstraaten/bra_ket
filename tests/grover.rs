@@ -1,4 +1,4 @@
-use simulator::*;
+use bra_ket::*;
 
 #[test]
 fn grover_two_qubit() {

@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use nalgebra::{dvector, ComplexField};
 
-use simulator::*;
+use bra_ket::*;
 
 #[test]
 fn x0_cnot01() {
