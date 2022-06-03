@@ -125,7 +125,7 @@ fn return_two_gate_string(
     return default;
 }
 
-pub const aadvark: &str = r#"
+pub const AADVARK: &str = r#"
 
 ****************************************************************
 ---------------------Quantum--Aardvark--------------------------
