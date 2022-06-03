@@ -12,10 +12,10 @@ fn x0_cnot01() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(1., 0.)
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(1., 0.)
     ]);
 
     assert_eq!(&required_state, &state);
@@ -30,10 +30,10 @@ fn h0_h1() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(1. / 2., 0.),
-        C::new(1. / 2., 0.),
-        C::new(1. / 2., 0.),
-        C::new(1. / 2., 0.)
+        c!(1. / 2., 0.),
+        c!(1. / 2., 0.),
+        c!(1. / 2., 0.),
+        c!(1. / 2., 0.)
     ]);
 
     assert_eq!(&required_state, &state);
@@ -54,11 +54,11 @@ fn h0_h1_measure() {
 
     for _ in 1..n {
         program.run(&mut state);
-        p_estimated += state.state_vector[0].modulus_squared() / (n as R);
+        p_estimated += state.state_vector[0].modulus_squared() / (n as Real);
     }
 
     let p_required = 0.25;
-    let std = (p_required * (1. - &p_required) / (n as R)).sqrt();
+    let std = (p_required * (1. - &p_required) / (n as Real)).sqrt();
 
     assert!(
         (p_estimated - &p_required).abs() < 3. * std,
@@ -89,8 +89,8 @@ fn h0_cnot_measure_all() {
 
     // running a three sigma hypothesis test that the probability of measuring the |0> state is 0.5
     let p_required = 0.5;
-    let std = (p_required * (1. - p_required) / n as R).sqrt();
-    let p_estimated = counts[&0] as R / n as R;
+    let std = (p_required * (1. - p_required) / n as Real).sqrt();
+    let p_estimated = counts[&0] as Real / n as Real;
     assert!(
         (p_estimated - &p_required).abs() < 3. * std,
         "estimated probabily {} not consistent with the required {}",
@@ -120,8 +120,8 @@ fn measure_all() {
     }).counts();
 
     let p_required = 0.25;
-    let std = (p_required * (1. - &p_required) / n as R).sqrt();
-    let p_estimated = counts[&0] as R / n as R;
+    let std = (p_required * (1. - &p_required) / n as Real).sqrt();
+    let p_estimated = counts[&0] as Real / n as Real;
 
     assert!(
         (p_estimated - &p_required).abs() < 3. * std,

@@ -1,5 +1,6 @@
 
 use bra_ket::*;
+use std::f64::consts::{PI, SQRT_2};
 
 // https://joshuagoings.com/2020/08/20/VQE/
 
@@ -9,7 +10,7 @@ fn qft_no_swap(mut program: Program, n: usize) -> Program {
     program.h(n);
     for qubit in 0..n {
         let k = n - qubit - 1;
-        let angle = PI / (2 << k) as R;
+        let angle = PI / (2 << k) as Real;
         program.crz(n, qubit, angle)
     }
     return qft_no_swap(program, n)

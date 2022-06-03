@@ -1,4 +1,5 @@
 use nalgebra::dvector;
+use std::f64::consts::{PI, SQRT_2};
 
 use bra_ket::*;
 
@@ -13,14 +14,14 @@ fn ghz_0() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(1. / SQRT_2, 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(1. / SQRT_2, 0.)
+        c!(1. / SQRT_2, 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(1. / SQRT_2, 0.)
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -36,14 +37,14 @@ fn ghz_1() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(1. / SQRT_2, 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(1. / SQRT_2, 0.)
+        c!(1. / SQRT_2, 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(1. / SQRT_2, 0.)
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -59,14 +60,14 @@ fn ghz_2() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(1. / SQRT_2, 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(1. / SQRT_2, 0.)
+        c!(1. / SQRT_2, 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(1. / SQRT_2, 0.)
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -90,14 +91,14 @@ fn deutsch_jozsa_balanced() {
     program.run(&mut state);
 
     let required_state = StateVector::from(dvector![
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(1. / SQRT_2, 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(0., 0.),
-        C::new(-1. / SQRT_2, 0.)
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(1. / SQRT_2, 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(0., 0.),
+        c!(-1. / SQRT_2, 0.)
     ]);
     assert_eq!(&required_state, &state);
 }

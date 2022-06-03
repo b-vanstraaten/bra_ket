@@ -1,5 +1,6 @@
 use nalgebra::dmatrix;
 use rand::{thread_rng, Rng};
+use std::f64::consts::{PI, SQRT_2};
 
 use bra_ket::*;
 
@@ -19,8 +20,8 @@ fn x0() {
 
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
         let required_state = DensityMatrix::from(dmatrix![
-            C::new(c * c, 0.), C::new(0.,c * s);
-            C::new(0., -c * s), C::new(s * s, 0.);
+            c!(c * c, 0.), c!(0.,c * s);
+            c!(0., -c * s), c!(s * s, 0.);
         ]);
         assert_eq!(&required_state, &state)
     }
@@ -42,8 +43,8 @@ fn y0() {
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
         let required_state = DensityMatrix::from(dmatrix![
-            C::new(c * c, 0.), C::new(c * s, 0.);
-            C::new(c * s, 0.), C::new(s * s, 0.);
+            c!(c * c, 0.), c!(c * s, 0.);
+            c!(c * s, 0.), c!(s * s, 0.);
         ]);
 
         assert_eq!(&required_state, &state)
@@ -66,8 +67,8 @@ fn z0() {
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
         let required_state = DensityMatrix::from(dmatrix![
-            C::new(c * c, 0.), C::new(c * s, 0.);
-            C::new(c * s, 0.), C::new(s * s, 0.);
+            c!(c * c, 0.), c!(c * s, 0.);
+            c!(c * s, 0.), c!(s * s, 0.);
         ]);
 
         assert_eq!(&required_state, &state)
@@ -130,8 +131,8 @@ fn m0() {
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
         let required_state = DensityMatrix::from(dmatrix![
-        C::new(c * c, 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(s * s, 0.);]);
+        c!(c * c, 0.), c!(0., 0.);
+        c!(0., 0.), c!(s * s, 0.);]);
 
         assert_eq!(&required_state, &state)
     }
@@ -146,8 +147,8 @@ fn h0() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
-        C::new(1. / 2., 0.), C::new(1. / 2., 0.);
+        c!(1. / 2., 0.), c!(1. / 2., 0.);
+        c!(1. / 2., 0.), c!(1. / 2., 0.);
     ]);
 
     assert_eq!(&required_state, &state)

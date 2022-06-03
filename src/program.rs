@@ -1,11 +1,10 @@
 use crate::draw::*;
-use crate::qubit_operations::*;
+use crate::operations::*;
 use crate::state_traits::{QuantumStateTraits};
 use crate::types::*;
 use std::ops::Add;
 
-/// A struct to contain the quantum program. The density_matrix describes the quantum state
-/// and the vector of gates describe the operations to be performed on the density matrix.
+/// A quantum program, encoding the sequence of qubit operations to be performed.
 #[derive(Debug, PartialEq, Clone)]
 pub struct Program {
     pub gates: Vec<Operations>,
@@ -137,7 +136,6 @@ impl Program {
 #[cfg(test)]
 mod tests {
     use crate::{Operations, Program};
-    
 
     #[test]
     fn test_qubit_number() {

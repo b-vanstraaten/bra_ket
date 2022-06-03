@@ -1,6 +1,7 @@
 use nalgebra::dmatrix;
 
 use bra_ket::*;
+use std::f64::consts::{PI, SQRT_2};
 
 // pretty assertions for human readability
 
@@ -13,10 +14,10 @@ fn h0_cnot01() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.5, 0.);
+        c!(0.5, 0.), c!(0., 0.), c!(0., 0.), c!(0.5, 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0.5, 0.), c!(0., 0.), c!(0., 0.), c!(0.5, 0.);
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -31,10 +32,10 @@ fn h0_cnot10() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
+        c!(0.5, 0.), c!(0.5, 0.), c!(0., 0.), c!(0., 0.);
+        c!(0.5, 0.), c!(0.5, 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -49,10 +50,10 @@ fn h0_h1() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
-        C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
-        C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
-        C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.), C::new(0.25, 0.);
+        c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.);
+        c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.);
+        c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.);
+        c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.), c!(0.25, 0.);
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -67,10 +68,10 @@ fn x0_x1() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(1., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(1., 0.);
     ]);
     assert_eq!(&required_state, &state);
 }
@@ -87,10 +88,10 @@ fn x0_x1_m0_m1() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0.25, 0.);
+        c!(0.25, 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0.25, 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0.25, 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0.25, 0.);
     ]);
 
     assert_eq!(&required_state, &state);
@@ -105,10 +106,10 @@ fn y1() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(1., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
     ]);
 
     assert_eq!(&required_state, &state);
@@ -124,10 +125,10 @@ fn h0_z1() {
     program.run(&mut state);
 
     let required_state = DensityMatrix::from(dmatrix![
-        C::new(0.5, 0.), C::new(-0.5, 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(-0.5, 0.), C::new(0.5, 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-        C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
+        c!(0.5, 0.), c!(-0.5, 0.), c!(0., 0.), c!(0., 0.);
+        c!(-0.5, 0.), c!(0.5, 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+        c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
     ]);
     assert_eq!(&required_state, &state);
 }

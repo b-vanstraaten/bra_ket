@@ -5,12 +5,17 @@ use nalgebra::matrix;
 
 use crate::state_traits::QuantumStateTraits;
 use crate::types::*;
+use crate::macros::*;
 
+/// The operations which can be performed on either the state vector or density matrix describing the quantum state
+/// as part of a quantum program.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operations {
+    /// Measure a qubit.
     Measure(usize),
+    /// Measure all qubits.
     MeasureAll,
-
+    /// Reinitialise all qubits to their ground state.
     ReinitialiseAll,
 
     X(usize),
@@ -84,20 +89,17 @@ pub fn implement_gate<
         Operations::H(qubit) => state.single_qubit_gate(qubit, &H),
 
         Operations::RX(qubit, angle) => {
-            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - &SIGMA_X * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * c!((angle / 2.).cos(), 0.) - &SIGMA_X * c!(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
 
         Operations::RY(qubit, angle) => {
-            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - &SIGMA_Y * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * c!((angle / 2.).cos(), 0.) - &SIGMA_Y * c!(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
 
         Operations::RZ(qubit, angle) => {
-            let u = &IDENTITY * C::new((angle / 2.).cos(), 0.)
-                - &SIGMA_Z * C::new(0., (angle / 2.).sin());
+            let u = &IDENTITY * c!((angle / 2.).cos(), 0.) - &SIGMA_Z * c!(0., (angle / 2.).sin());
             state.single_qubit_gate(qubit, &u)
         }
         Operations::R(qubit, phi, theta, omega) => {
@@ -106,8 +108,8 @@ pub fn implement_gate<
             let (c_minus, s_minus) = (((phi - omega) / 2.).cos(), ((phi - omega) / 2.).sin());
 
             let u: Matrix2x2 = matrix![
-                C::new(c_plus, -s_plus) * c_theta, -C::new(c_minus, s_minus) * s_theta;
-                C::new(c_minus, -s_minus) * s_theta,  C::new(c_plus, s_plus) * c_theta
+                c!(c_plus, -s_plus) * c_theta, -c!(c_minus, s_minus) * s_theta;
+                c!(c_minus, -s_minus) * s_theta,  c!(c_plus, s_plus) * c_theta
             ];
             state.single_qubit_gate(qubit, &u)
         }
@@ -116,10 +118,10 @@ pub fn implement_gate<
         Operations::CZ(control, target) => state.two_qubit_gate(target, control, &CZ),
         Operations::CRZ(control, target, angle) => {
             let u: Matrix4x4 = matrix![
-                C::new(1., 0.), C::new(0., 0.), C::new(0., 0.), C::new(0., 0.);
-                C::new(0., 0.), C::new(1., 0.), C::new(0., 0.), C::new(0., 0.);
-                C::new(0., 0.), C::new(0., 0.), C::new(1., 0.), C::new(0., 0.);
-                C::new(0., 0.), C::new(0., 0.), C::new(0., 0.), C::new(angle.cos(), angle.sin());
+                c!(1., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);
+                c!(0., 0.), c!(1., 0.), c!(0., 0.), c!(0., 0.);
+                c!(0., 0.), c!(0., 0.), c!(1., 0.), c!(0., 0.);
+                c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(angle.cos(), angle.sin());
             ];
             state.two_qubit_gate(target, control, &u)
         },

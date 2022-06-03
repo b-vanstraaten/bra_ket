@@ -11,14 +11,12 @@ use crate::helper_functions::*;
 use crate::types::*;
 use crate::StateVector;
 
-/// A struct to contain the state the quantum experiment. The system is comprised of a
-/// quantum register and a classical register. The classical register is described by 'number_of_bits' bits.
-/// Whilest the quantum register, of 'number_of_qubits' qubits, must be described by a density matrix.
+/// A density matrix describing an in general mixed quantum state.
 #[derive(Debug, Clone)]
 pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,
-    pub density_matrix_pointer: DensityMatrixPointer<C>,
+    density_matrix_pointer: DensityMatrixPointer<Complex>,
 }
 
 impl QuantumStateTraits for DensityMatrix {
@@ -35,7 +33,7 @@ impl QuantumStateTraits for DensityMatrix {
 
     fn reinitialise_all(&mut self) {
         self.zero();
-        self.density_matrix[(0, 0)] = C::new(1., 0.)
+        self.density_matrix[(0, 0)] = Complex::new(1., 0.)
     }
 
     fn zero(&mut self) {
@@ -43,7 +41,7 @@ impl QuantumStateTraits for DensityMatrix {
             .into_par_iter()
             .for_each(|n: usize| {
                 (0..1 << &self.number_of_qubits).for_each(|m: usize| unsafe {
-                    self.density_matrix_pointer.write((n, m), C::new(0., 0.))
+                    self.write((n, m), Complex::new(0., 0.))
                 })
             });
     }
@@ -58,8 +56,7 @@ impl QuantumStateTraits for DensityMatrix {
                     .step_by(2)
                     .for_each(|m: usize| {
                         for (i, j) in [(0, 1), (1, 0)] {
-                            self.density_matrix_pointer
-                                .write((swap(i + n), swap(j + m)), C::new(0., 0.))
+                            self.write((swap(i + n), swap(j + m)), Complex::new(0., 0.))
                         }
                     });
             });
@@ -72,7 +69,7 @@ impl QuantumStateTraits for DensityMatrix {
             .for_each(|n: usize| {
                 (0..1 << self.number_of_qubits).for_each(|m: usize| unsafe {
                     if n != m {
-                        self.density_matrix_pointer.write((n, m), C::new(0., 0.))
+                        self.write((n, m), Complex::new(0., 0.))
                     }
                 })
             });
@@ -93,12 +90,12 @@ impl QuantumStateTraits for DensityMatrix {
                         .for_each(|m: usize| {
                             iproduct!(0..2, 0..2).for_each(|(i, j)| {
                                 rho[(i, j)] =
-                                    self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                                    self.read((swap(i + n), swap(j + m)))
                             });
 
                             rho = u * rho * u.adjoint();
                             iproduct!(0..2, 0..2).for_each(|(i, j)| {
-                                self.density_matrix_pointer
+                                self
                                     .write((swap(i + n), swap(j + m)), rho[(i, j)])
                             });
                         })
@@ -124,14 +121,13 @@ impl QuantumStateTraits for DensityMatrix {
                     .for_each(|m: usize| {
                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
                             rho[(i, j)] =
-                                self.density_matrix_pointer.read((swap(i + n), swap(j + m)))
+                                self.read((swap(i + n), swap(j + m)))
                         });
 
                         rho = u * rho * u.adjoint();
 
                         iproduct!(0..4, 0..4).for_each(|(i, j)| {
-                            self.density_matrix_pointer
-                                .write((swap(i + n), swap(j + m)), rho[(i, j)])
+                            self.write((swap(i + n), swap(j + m)), rho[(i, j)])
                         });
                     })
             });
@@ -164,7 +160,8 @@ impl From<CMatrix> for DensityMatrix {
         );
         let number_of_qubits = log2(shape.0 as usize);
 
-        let density_matrix_pointer = DensityMatrixPointer::new(&mut density_matrix[(0, 0)], shape);
+        let density_matrix_pointer = DensityMatrixPointer::new(
+            &mut density_matrix[(0, 0)], shape);
 
         DensityMatrix {
             number_of_qubits,
@@ -181,8 +178,8 @@ impl From<StateVector> for DensityMatrix {
             .into_par_iter()
             .for_each(|n: usize| {
                 (0..1 << &state_vector.number_of_qubits).for_each(|m: usize| unsafe {
-                    let s_n = state_vector.state_vector_pointer.read(n);
-                    let s_m = state_vector.state_vector_pointer.read(m);
+                    let s_n = state_vector.read(n);
+                    let s_m = state_vector.read(m);
                     density_matrix
                         .density_matrix_pointer
                         .write((n, m), s_n * s_m.conj())
@@ -199,7 +196,7 @@ impl DensityMatrix {
             let hilbert_dim = 1 << number_of_qubits;
             // printing the size of the density matrix to be created
             {
-                let density_matrix_footprint = (hilbert_dim << 2) * size_of_val(&C::new(0., 0.));
+                let density_matrix_footprint = (hilbert_dim << 2) * size_of_val(&Complex::new(0., 0.));
                 let bytes_to_gigabyte: usize = 2 << 33;
                 debug!(
                     "Allocating density matrix of size: {:.4} Gb",
@@ -208,9 +205,9 @@ impl DensityMatrix {
             }
 
             // creating the density matrix
-            let mut rho = CMatrix::from_element(hilbert_dim, hilbert_dim, C::new(0., 0.));
+            let mut rho = CMatrix::from_element(hilbert_dim, hilbert_dim, Complex::new(0., 0.));
             // setting the (0, 0) element to 1 to represent initialisation in the |000...> state
-            rho[(0, 0)] = C::new(1., 0.);
+            rho[(0, 0)] = Complex::new(1., 0.);
             rho
         };
         let density_matrix_pointer = DensityMatrixPointer::new(
@@ -228,5 +225,13 @@ impl DensityMatrix {
     pub fn is_pure(&self) -> bool {
         let trace = (&self.density_matrix * &self.density_matrix).trace();
         trace.re > (1. - COMPARISON_PRECISION)
+    }
+
+    pub unsafe fn write(&self, indices: (usize, usize), value: Complex) {
+        self.density_matrix_pointer.write(indices, value)
+    }
+
+    pub unsafe fn read(&self, indices: (usize, usize)) -> Complex {
+        self.density_matrix_pointer.read(indices)
     }
 }

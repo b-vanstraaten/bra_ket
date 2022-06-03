@@ -1,4 +1,4 @@
-use crate::qubit_operations::Operations;
+use crate::operations::Operations;
 use crate::Program;
 use itertools::zip;
 

@@ -2,6 +2,7 @@ use nalgebra::{dvector, ComplexField};
 use rand::{thread_rng, Rng};
 
 use bra_ket::*;
+use std::f64::consts::{PI, SQRT_2};
 
 // pretty assertions for human readability
 
@@ -20,7 +21,7 @@ fn x0() {
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
         let other_state =
-            StateVector::from(dvector![C::new(c, 0.), C::new(0., -s)]);
+            StateVector::from(dvector![c!(c, 0.), c!(0., -s)]);
 
         assert_eq!(&state, &other_state);
     }
@@ -40,7 +41,7 @@ fn y0() {
         let (c, s) = ((angle / 2.).cos(), (angle / 2.).sin());
 
         let other_state =
-            StateVector::from(dvector![C::new(c, 0.), C::new(s, 0.)]);
+            StateVector::from(dvector![c!(c, 0.), c!(s, 0.)]);
 
         assert_eq!(&state, &other_state);
     }
@@ -60,11 +61,11 @@ fn measure() {
 
     for _ in 1..n {
         program.run(&mut state);
-        p_estimated += state.state_vector[0].modulus_squared() / (n as R);
+        p_estimated += state.state_vector[0].modulus_squared() / (n as Real);
     }
 
     let p_required = 0.5;
-    let std = (p_required * (1. - &p_required) / (n as R)).sqrt();
+    let std = (p_required * (1. - &p_required) / (n as Real)).sqrt();
 
     assert!(
         (p_estimated - &p_required).abs() < 3. * std,
@@ -90,7 +91,7 @@ fn measure_all() {
 
     }
     let p_required = 0.5;
-    let _std = (p_required * (1. - &p_required) / (n as R)).sqrt();
+    let _std = (p_required * (1. - &p_required) / (n as Real)).sqrt();
     // let p_estimated = state.classical_register[0] / (n as R);
 
     // assert!(

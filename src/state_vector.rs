@@ -11,13 +11,13 @@ use crate::helper_functions::*;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 
-
+/// A state vector describing a pure quantum state.
 #[derive(Debug, Clone)]
 pub struct StateVector {
     pub number_of_qubits: usize,
     pub state_vector: CVector,
-    pub state_vector_pointer: StateVectorPointer<C>,
     pub classical_register: ClassicalRegister,
+    state_vector_pointer: StateVectorPointer<Complex>,
 }
 
 impl From<CVector> for StateVector {
@@ -54,7 +54,7 @@ impl QuantumStateTraits for StateVector {
 
     fn reinitialise_all(&mut self) {
         self.zero();
-        self.state_vector[0] = C::new(1., 0.);
+        self.state_vector[0] = Complex::new(1., 0.);
         self.classical_register = vec![None; self.number_of_qubits]
     }
 
@@ -63,7 +63,7 @@ impl QuantumStateTraits for StateVector {
             (0..1 << self.number_of_qubits)
                 .into_par_iter()
                 .for_each(|n: usize| {
-                    self.state_vector_pointer.write(n, C::new(0., 0.));
+                    self.write(n, Complex::new(0., 0.));
                 })
         }
     }
@@ -74,11 +74,11 @@ impl QuantumStateTraits for StateVector {
 
         // calculating the probabilities
         unsafe {
-            let (p0, p1): (R, R) = (0..1 << self.number_of_qubits)
+            let (p0, p1): (Real, Real) = (0..1 << self.number_of_qubits)
                 .into_par_iter()
                 .step_by(2)
                 .map(|i| {
-                    let p0 = self.state_vector_pointer.read(swap(i)).modulus_squared();
+                    let p0 = self.read(swap(i)).modulus_squared();
                     let p1 = self
                         .state_vector_pointer
                         .read(swap(i + 1))
@@ -107,14 +107,14 @@ impl QuantumStateTraits for StateVector {
                     let i1 = swap(n + 1);
                     match qubit_state {
                         0 => { // qubit in state |0>
-                            let s0 = self.state_vector_pointer.read(i1);
-                            self.state_vector_pointer.write(i0, s0 / p_sqrt);
-                            self.state_vector_pointer.write(i1, C::new(0., 0.))
+                            let s0 = self.read(i1);
+                            self.write(i0, s0 / p_sqrt);
+                            self.write(i1, Complex::new(0., 0.))
                         }
                         _ => { // qubit in state |1>
-                            let s1 = self.state_vector_pointer.read(i1);
-                            self.state_vector_pointer.write(i0, C::new(0., 0.));
-                            self.state_vector_pointer.write(i1, s1 / p_sqrt);
+                            let s1 = self.read(i1);
+                            self.write(i0, Complex::new(0., 0.));
+                            self.write(i1, s1 / p_sqrt);
                         }
                     }
                 })
@@ -124,9 +124,9 @@ impl QuantumStateTraits for StateVector {
     fn measure_all(&mut self) {
 
         // calculating the probability of measuring each state
-        let probabilities: Vec<R> = (0..1 << self.number_of_qubits)
+        let probabilities: Vec<Real> = (0..1 << self.number_of_qubits)
             .into_par_iter()
-            .map(|n: usize| unsafe { self.state_vector_pointer.read(n).modulus_squared() })
+            .map(|n: usize| unsafe { self.read(n).modulus_squared() })
             .collect();
 
         // sampling from the probability distribution
@@ -143,7 +143,7 @@ impl QuantumStateTraits for StateVector {
 
         // updating the state_vector
         self.zero();
-        self.state_vector[s] = C::new(1., 0.);
+        self.state_vector[s] = Complex::new(1., 0.);
     }
 
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
@@ -156,13 +156,11 @@ impl QuantumStateTraits for StateVector {
                     let i0 = swap(n);
                     let i1 = swap(n + 1);
 
-                    let s0 = self.state_vector_pointer.read(i0);
-                    let s1 = self.state_vector_pointer.read(i1);
+                    let s0 = self.read(i0);
+                    let s1 = self.read(i1);
 
-                    self.state_vector_pointer
-                        .write(i0, u[(0, 0)] * s0 + u[(0, 1)] * s1);
-                    self.state_vector_pointer
-                        .write(i1, u[(1, 0)] * s0 + u[(1, 1)] * s1);
+                    self.write(i0, u[(0, 0)] * s0 + u[(0, 1)] * s1);
+                    self.write(i1, u[(1, 0)] * s0 + u[(1, 1)] * s1);
                 })
         }
     }
@@ -185,14 +183,14 @@ impl QuantumStateTraits for StateVector {
                     let i2 = swap(n + 2);
                     let i3 = swap(n + 3);
 
-                    let s0 = self.state_vector_pointer.read(i0);
-                    let s1 = self.state_vector_pointer.read(i1);
-                    let s2 = self.state_vector_pointer.read(i2);
-                    let s3 = self.state_vector_pointer.read(i3);
+                    let s0 = self.read(i0);
+                    let s1 = self.read(i1);
+                    let s2 = self.read(i2);
+                    let s3 = self.read(i3);
 
                     for (i, index) in [i0, i1, i2, i3].iter().enumerate() {
-                        self.state_vector_pointer.write(
-                            *index,
+                        self.write(
+                            index.to_owned(),
                             u[(i, 0)] * s0 + u[(i, 1)] * s1 + u[(i, 2)] * s2 + u[(i, 3)] * s3,
                         );
                     }
@@ -226,7 +224,7 @@ impl StateVector {
             // calculating the hilbert dim
             // printing the size of the density matrix to be created
             {
-                let state_vector_footprint = (hilbert_dim << 2) * size_of_val(&C::new(0., 0.));
+                let state_vector_footprint = (hilbert_dim << 2) * size_of_val(&Complex::new(0., 0.));
                 let bytes_to_gigabyte: usize = 2 << 33;
                 debug!(
                     "Allocating density matrix of size: {:.4} Gb",
@@ -235,9 +233,9 @@ impl StateVector {
             }
 
             // creating the density matrix
-            let mut state_vector = CVector::from_element(hilbert_dim, C::new(0., 0.));
+            let mut state_vector = CVector::from_element(hilbert_dim, Complex::new(0., 0.));
             // setting the (0, 0) element to 1 to represent initialisation in the |000...> state
-            state_vector[0] = C::new(1., 0.);
+            state_vector[0] = Complex::new(1., 0.);
             state_vector
         };
         let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0]);
@@ -259,17 +257,25 @@ impl StateVector {
         }
     }
 
-    pub fn measured_overall_state(&self) -> I {
+    pub fn measured_overall_state(&self) -> Int {
         let mut overall_state = 0;
         for qubit in 0..self.number_of_qubits {
             let qubit_state = self.measured_qubit_state(qubit);
-            overall_state += (1 & (qubit_state as I)) << qubit;
+            overall_state += (1 & (qubit_state as Int)) << qubit;
         }
         overall_state
     }
 
-    pub fn reset_classical_registor(&mut self) {
+    pub fn reset_classical_register(&mut self) {
         self.classical_register = vec![None; self.number_of_qubits];
+    }
+
+    pub unsafe fn write(&self, index: usize, value: Complex) {
+        self.state_vector_pointer.write(index, value);
+    }
+
+    pub unsafe fn read(&self, index: usize) -> Complex {
+        self.state_vector_pointer.read(index)
     }
 
 }
