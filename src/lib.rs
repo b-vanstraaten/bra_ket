@@ -14,4 +14,4 @@ pub use draw::*;
 pub use program::*;
 pub use state_vector::StateVector;
 pub use types::*;
-pub use qubit_operations::Operation;
+pub use qubit_operations::Operations;

@@ -5,9 +5,7 @@ use log::debug;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
 
-use crate::state_traits::{
-    QuantumStateTraits
-};
+use crate::state_traits::QuantumStateTraits;
 
 use crate::helper_functions::*;
 use crate::types::*;
@@ -24,13 +22,14 @@ pub struct DensityMatrix {
 }
 
 impl QuantumStateTraits for DensityMatrix {
-
     fn check_qubit_number(&self, qubits: Vec<&usize>) {
         let required_number_of_qubits = qubits.last().unwrap();
         let number_of_qubits = &self.number_of_qubits;
-        assert!(required_number_of_qubits < &number_of_qubits,
-                "fewer qubits in the density matrix than required by program {} < {}",
-                required_number_of_qubits, number_of_qubits
+        assert!(
+            required_number_of_qubits < &number_of_qubits,
+            "fewer qubits in the density matrix than required by program {} < {}",
+            required_number_of_qubits,
+            number_of_qubits
         )
     }
 
@@ -138,9 +137,7 @@ impl QuantumStateTraits for DensityMatrix {
             });
         debug!("density matrix after:\n{}", self.density_matrix);
     }
-
 }
-
 
 impl PartialEq for DensityMatrix {
     fn eq(&self, other: &Self) -> bool {
@@ -194,10 +191,6 @@ impl From<StateVector> for DensityMatrix {
         density_matrix
     }
 }
-
-
-
-
 
 impl DensityMatrix {
     pub fn new(number_of_qubits: usize) -> DensityMatrix {

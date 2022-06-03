@@ -8,7 +8,7 @@ use std::ops::Add;
 /// and the vector of gates describe the operations to be performed on the density matrix.
 #[derive(Debug, PartialEq, Clone)]
 pub struct Program {
-    pub gates: Vec<Operation>,
+    pub gates: Vec<Operations>,
 }
 
 impl Add for Program {
@@ -53,90 +53,90 @@ impl Program {
         draw_circuit(&self)
     }
 
-    pub fn add_gate(&mut self, gate: Operation) {
+    pub fn add_gate(&mut self, gate: Operations) {
         self.gates.push(gate);
     }
 
-    pub fn add_gates(&mut self, mut gates: Vec<Operation>) {
+    pub fn add_gates(&mut self, mut gates: Vec<Operations>) {
         self.gates.append(&mut gates)
     }
 
     pub fn measure(&mut self, qubit: usize) {
-        self.add_gate(Operation::Measure(qubit))
+        self.add_gate(Operations::Measure(qubit))
     }
 
     pub fn measure_all(&mut self) {
-        self.add_gate(Operation::MeasureAll)
+        self.add_gate(Operations::MeasureAll)
     }
 
     pub fn reinitialise_all(&mut self) {
-        self.add_gate(Operation::ReinitialiseAll)
+        self.add_gate(Operations::ReinitialiseAll)
     }
 
     pub fn x(&mut self, qubit: usize) {
-        self.add_gate(Operation::X(qubit))
+        self.add_gate(Operations::X(qubit))
     }
 
     pub fn rx(&mut self, qubit: usize, angle: Angle) {
-        self.add_gate(Operation::RX(qubit, angle))
+        self.add_gate(Operations::RX(qubit, angle))
     }
 
     pub fn y(&mut self, qubit: usize) {
-        self.add_gate(Operation::Y(qubit))
+        self.add_gate(Operations::Y(qubit))
     }
 
     pub fn ry(&mut self, qubit: usize, angle: Angle) {
-        self.add_gate(Operation::RY(qubit, angle))
+        self.add_gate(Operations::RY(qubit, angle))
     }
 
     pub fn z(&mut self, qubit: usize) {
-        self.add_gate(Operation::Z(qubit))
+        self.add_gate(Operations::Z(qubit))
     }
 
     pub fn rz(&mut self, qubit: usize, angle: Angle) {
-        self.add_gate(Operation::RZ(qubit, angle))
+        self.add_gate(Operations::RZ(qubit, angle))
     }
 
     pub fn r(&mut self, qubit: usize, phi: Angle, theta: Angle, omega: Angle) {
-        self.add_gate(Operation::R(qubit, phi, theta, omega))
+        self.add_gate(Operations::R(qubit, phi, theta, omega))
     }
 
     pub fn h(&mut self, qubit: usize) {
-        self.add_gate(Operation::H(qubit))
+        self.add_gate(Operations::H(qubit))
     }
 
     pub fn cz(&mut self, control: usize, target: usize) {
-        self.add_gate(Operation::CZ(control, target))
+        self.add_gate(Operations::CZ(control, target))
     }
 
     pub fn crz(&mut self, control: usize, target: usize, _angle: Angle) {
-        self.add_gate(Operation::CZ(control, target))
+        self.add_gate(Operations::CZ(control, target))
     }
 
     pub fn cnot(&mut self, control: usize, target: usize) {
-        self.add_gate(Operation::CNOT(control, target))
+        self.add_gate(Operations::CNOT(control, target))
     }
 
     pub fn siswap(&mut self, control: usize, target: usize) {
-        self.add_gate(Operation::SISWAP(control, target))
+        self.add_gate(Operations::SISWAP(control, target))
     }
 
     pub fn iswap(&mut self, control: usize, target: usize) {
-        self.add_gate(Operation::ISWAP(control, target))
+        self.add_gate(Operations::ISWAP(control, target))
     }
 
     pub fn swap(&mut self, control: usize, target: usize) {
-        self.add_gate(Operation::SWAP(control, target))
+        self.add_gate(Operations::SWAP(control, target))
     }
 
     pub fn s(&mut self, qubit: usize) {
-        self.add_gate(Operation::S(qubit))
+        self.add_gate(Operations::S(qubit))
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::{Operation, Program};
+    use crate::{Operations, Program};
     
 
     #[test]
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn test_add_gates() {
         let mut program = Program::new();
-        program.add_gates(vec![Operation::H(0), Operation::CZ(0, 1)]);
+        program.add_gates(vec![Operations::H(0), Operations::CZ(0, 1)]);
 
         let mut required_program = Program::new();
         required_program.h(0);
