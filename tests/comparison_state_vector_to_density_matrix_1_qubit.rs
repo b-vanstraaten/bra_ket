@@ -1,5 +1,5 @@
 use rand::{thread_rng, Rng};
-use simulator::*;
+use bra_ket::*;
 
 /// tests the x gate on a single qubit
 #[test]

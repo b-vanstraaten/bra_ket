@@ -1,5 +1,5 @@
 // pretty assertions for human readability
-use simulator::*;
+use bra_ket::*;
 
 #[test]
 fn h0() {

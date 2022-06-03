@@ -1,7 +1,7 @@
 use nalgebra::dmatrix;
 use rand::{thread_rng, Rng};
 
-use simulator::*;
+use bra_ket::*;
 
 // pretty assertions for human readability
 
