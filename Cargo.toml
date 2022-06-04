@@ -3,7 +3,6 @@ name = "bra_ket"
 description = "A multithreaded circuit model quanutm simulator for state vectors and density matricies."
 license = "MIT"
 readme = "README.md"
-homepage = ""
 repository = "https://github.com/b-vanstraaten/bra_ket"
 keywords = ["quantum", "simulator", "circuit", "state", "density"]
 categories = ["science", "simulation"]
