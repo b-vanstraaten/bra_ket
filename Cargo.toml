@@ -9,5 +9,10 @@ log = "0.4.14"
 itertools = "0.10.3"
 rayon = "1.5.1"
 rand = "0.8.5"
+argmin = { version = "0.5.1", features = [
+    "ctrlc",
+    "ndarrayl",
+    "nalgebral"
+] }
 
 [dev-dependencies]

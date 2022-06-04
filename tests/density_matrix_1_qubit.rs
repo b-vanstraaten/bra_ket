@@ -1,6 +1,6 @@
 use nalgebra::dmatrix;
 use rand::{thread_rng, Rng};
-use std::f64::consts::{PI, SQRT_2};
+use std::f64::consts::{PI};
 
 use bra_ket::*;
 

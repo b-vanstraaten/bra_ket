@@ -1,4 +1,4 @@
-use crate::state_traits::QuantumStateTraits;
+use crate::state_traits::StateTraits;
 use crate::types::*;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
@@ -12,15 +12,25 @@ use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 
 /// A state vector describing a pure quantum state.
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct StateVector {
+    /// The number of qubits in the quantum state.
     pub number_of_qubits: usize,
+    /// The actual state_vector describing a quantum state.
     pub state_vector: CVector,
+    /// A classical register where the outcome of measurements are stored.
     pub classical_register: ClassicalRegister,
     state_vector_pointer: StateVectorPointer<Complex>,
 }
 
+impl Clone for StateVector {
+    fn clone(&self) -> Self {
+        StateVector::from(self.state_vector.clone())
+    }
+}
+
 impl From<CVector> for StateVector {
+    /// Create a stave vector from a complex vector
     fn from(mut state_vector: CVector) -> Self {
         let shape = state_vector.shape();
         let number_of_qubits = log2(shape.0 as usize);
@@ -37,8 +47,9 @@ impl From<CVector> for StateVector {
     }
 }
 
-impl QuantumStateTraits for StateVector {
+impl StateTraits for StateVector {
 
+    /// Checks that the number of qubits required by a program is compatible with the number of qubits in the state vector.
     fn check_qubit_number(&self, qubits: Vec<&usize>) {
         let required_number_of_qubits = match qubits.last() {
             Some(n) => n.to_owned(),
@@ -52,12 +63,14 @@ impl QuantumStateTraits for StateVector {
         )
     }
 
+    /// Reinitialize all qubits in their ground state.
     fn reinitialise_all(&mut self) {
         self.zero();
         self.state_vector[0] = Complex::new(1., 0.);
         self.classical_register = vec![None; self.number_of_qubits]
     }
 
+    /// Sets the every element of the state vector to 0. + 0.i
     fn zero(&mut self) {
         unsafe {
             (0..1 << self.number_of_qubits)
@@ -68,59 +81,59 @@ impl QuantumStateTraits for StateVector {
         }
     }
 
+    fn get_probability(self: &StateVector, target: &usize) -> Real {
+        let swap = |x| swap_pair(x, target);
+        (0..1 << self.number_of_qubits)
+            .into_par_iter()
+            .step_by(2)
+            .map(|i| unsafe { self.read(swap(i)).modulus_squared()})
+            .sum()
+    }
+
+    fn get_expectation(self: &StateVector, target: &usize) -> Real {
+        let p = self.get_probability(target);
+        p - (1. - p)
+    }
+
+    /// Measures the target qubit
     fn measure(&mut self, target: &usize) {
         debug!("state vector before: \n{}", self.state_vector);
         let swap = |x| swap_pair(x, target);
 
-        // calculating the probabilities
-        unsafe {
-            let (p0, p1): (Real, Real) = (0..1 << self.number_of_qubits)
-                .into_par_iter()
-                .step_by(2)
-                .map(|i| {
-                    let p0 = self.read(swap(i)).modulus_squared();
-                    let p1 = self
-                        .state_vector_pointer
-                        .read(swap(i + 1))
-                        .modulus_squared();
-                    (p0, p1)
-                })
-                .reduce(|| (0., 0.), |(a0, a1), (b0, b1)| (a0 + b0, a1 + b1));
+        let p0 = self.get_probability(target);
+        // sampling randomly from the qubit probability distribution
+        let mut rng = thread_rng();
+        let probabilities = [p0, 1. - p0];
+        let dist = WeightedIndex::new(&probabilities).unwrap();
+        let qubit_state = dist.sample(&mut rng);
 
-            // sampling randomly from the qubit probability distribution
-            let mut rng = thread_rng();
-            let probabilities = [p0, p1];
-            let dist = WeightedIndex::new(&probabilities).unwrap();
-            let qubit_state = dist.sample(&mut rng);
+        // updating the classical register
+        self.classical_register[target.to_owned()] = Some(qubit_state == 1);
 
-            // updating the classical register
-            self.classical_register[target.to_owned()] = Some(qubit_state == 1);
-
-            // updating the state vector
-            let p_sqrt = probabilities[qubit_state].sqrt();
-            (0..1 << self.number_of_qubits)
-                .into_par_iter()
-                .step_by(2)
-                .for_each(|n: usize| {
-                    // getting indexes of the |..0..> and |..1..> states
-                    let i0 = swap(n);
-                    let i1 = swap(n + 1);
-                    match qubit_state {
-                        0 => { // qubit in state |0>
-                            let s0 = self.read(i1);
-                            self.write(i0, s0 / p_sqrt);
-                            self.write(i1, Complex::new(0., 0.))
-                        }
-                        _ => { // qubit in state |1>
-                            let s1 = self.read(i1);
-                            self.write(i0, Complex::new(0., 0.));
-                            self.write(i1, s1 / p_sqrt);
-                        }
+        // updating the state vector
+        let p_sqrt = probabilities[qubit_state].sqrt();
+        (0..1 << self.number_of_qubits)
+            .into_par_iter()
+            .step_by(2)
+            .for_each(|n: usize| unsafe {
+                // getting indexes of the |..0..> and |..1..> states
+                let i0 = swap(n);
+                let i1 = swap(n + 1);
+                match qubit_state {
+                    0 => { // qubit in state |0>
+                        let s0 = self.read(i1);
+                        self.write(i0, s0 / p_sqrt);
+                        self.write(i1, Complex::new(0., 0.))
                     }
-                })
-        }
+                    _ => { // qubit in state |1>
+                        let s1 = self.read(i1);
+                        self.write(i0, Complex::new(0., 0.));
+                        self.write(i1, s1 / p_sqrt);
+                    }
+                }
+            })
     }
-
+    /// Measures all qubits
     fn measure_all(&mut self) {
 
         // calculating the probability of measuring each state
@@ -146,6 +159,7 @@ impl QuantumStateTraits for StateVector {
         self.state_vector[s] = Complex::new(1., 0.);
     }
 
+    /// Performs a single qubit gate
     fn single_qubit_gate(&mut self, target: &usize, u: &Matrix2x2) {
         let swap = |x| swap_pair(x, target);
         unsafe {
@@ -169,6 +183,7 @@ impl QuantumStateTraits for StateVector {
         panic!("Kraus operators cannot be performed on state vectors");
     }
 
+    /// Performs a two qubit gate
     fn two_qubit_gate(&mut self, target: &usize, control: &usize, u: &Matrix4x4) {
         debug!("State vector before:\n{}", self.state_vector);
         let swap = |x| swap_two_pairs(x, target, control);

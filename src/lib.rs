@@ -11,9 +11,8 @@ mod types;
 mod macros;
 
 pub use density_matrix::DensityMatrix;
-pub use draw::AADVARK;
 pub use program::Program;
 pub use state_vector::StateVector;
-pub use types::{Complex, Real, Angle, Int};
+pub use types::{Complex, Real, Angle, Int, PI};
 pub use operations::Operations;
-pub use macros::*;
+pub use state_traits::*;

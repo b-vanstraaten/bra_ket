@@ -1,8 +1,8 @@
 
 use bra_ket::*;
-use std::f64::consts::{PI, SQRT_2};
+use std::f64::consts::{PI};
 
-// https://joshuagoings.com/2020/08/20/VQE/
+
 
 fn qft_no_swap(mut program: Program, n: usize) -> Program {
     if n == 0 {return program}

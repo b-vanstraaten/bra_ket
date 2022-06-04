@@ -1,6 +1,6 @@
 use rand::{thread_rng, Rng};
 use bra_ket::*;
-use std::f64::consts::{PI, SQRT_2};
+use std::f64::consts::{PI};
 
 /// tests the x gate on a single qubit
 #[test]

@@ -6,7 +6,7 @@ use itertools::zip;
 
 pub fn draw_circuit(program: &Program) {
     let qubits = program.which_qubits();
-    let mut circuit: Vec<String> = vec![String::from("Qubit "); qubits.len()];
+    let mut circuit: Vec<String> = vec![String::from("qubit "); qubits.len()];
 
     for (n, string) in zip(qubits.to_owned(), circuit.iter_mut()) {
         string.push_str(format!("{} : ---", n).as_str())
@@ -36,20 +36,20 @@ pub fn draw_circuit(program: &Program) {
 fn plot_gate(gate: &Operations, qubit_index: &usize) -> String {
     match gate {
         Operations::Measure(qubit) => {
-            let m: String = format!("{:-<7}", "M");
+            let m: String = format!("{:-<3}", "M");
             return_string(qubit_index, *qubit, m)
         }
 
         Operations::X(qubit) => {
-            let m: String = format!("{:-<7}", "X");
+            let m: String = format!("{:-<1}", "X");
             return_string(qubit_index, *qubit, m)
         }
         Operations::Y(qubit) => {
-            let m: String = format!("{:-<7}", "Y");
+            let m: String = format!("{:-<1}", "Y");
             return_string(qubit_index, *qubit, m)
         }
         Operations::Z(qubit) => {
-            let m: String = format!("{:-<7}", "Z");
+            let m: String = format!("{:-<1}", "Z");
             return_string(qubit_index, *qubit, m)
         }
 
@@ -66,7 +66,7 @@ fn plot_gate(gate: &Operations, qubit_index: &usize) -> String {
             return_string(qubit_index, *qubit, m)
         }
         Operations::H(qubit) => {
-            let m: String = format!("{:-<7}", "H");
+            let m: String = format!("{:-<1}", "H");
             return_string(qubit_index, *qubit, m)
         }
         Operations::R(qubit, omega, theta, phi) => {
@@ -74,7 +74,7 @@ fn plot_gate(gate: &Operations, qubit_index: &usize) -> String {
             return_string(qubit_index, *qubit, m)
         }
         Operations::ArbitrarySingle(qubit, _u) => {
-            let m: String = format!("{:-<7}", "ArbU");
+            let m: String = format!("{:-<1}", "ArbU");
             return_string(qubit_index, *qubit, m)
         }
         Operations::CZ(control, target) => {
@@ -104,7 +104,7 @@ fn return_string(indexed_qubit: &usize, gate_qubit: usize, message: String) -> S
     if *indexed_qubit == gate_qubit {
         return message;
     }
-    let default: String = format!("{:-<7}", "-");
+    let default: String = format!("{:-<3}", "-");
     return default;
 }
 
@@ -115,36 +115,13 @@ fn return_two_gate_string(
     message: String,
 ) -> String {
     if *indexed_qubit == control {
-        let m: String = format!("{:->5}_C", message);
+        let m: String = format!("{:->1}_C", message);
         return m;
     } else if *indexed_qubit == target {
-        let m: String = format!("{:->5}_T", message);
+        let m: String = format!("{:->1}_T", message);
         return m;
     }
-    let default: String = format!("{:-<7}", "-");
+    let default: String = format!("{:-<1}", "-");
     return default;
 }
 
-pub const AADVARK: &str = r#"
-
-****************************************************************
----------------------Quantum--Aardvark--------------------------
-     (`.  : /               __..----..__
-      `.`.| |:          _,-':::''' '  `:`-._
-        `.:/||       _,':::::'         `::::`-.
-          \\`|    _,':::::::'     `:.     `':::`.
-           ;` `-''  `::::::.                  `::\
-        ,-'      .::'  `:::::.         `::..    `:\
-      ,' /_) -.            `::.           `:.     |
-    ,'.:     `    `:.        `:.     .::.          \
-__,-'   ___,..-''-.  `:.        `.   /::::.         |
-|):'_,--'           `.    `::..       |::::::.      ::\
-`-'                 |`--.:_::::|_____|::::::::.__  ::|
-                   |   _/|::::|      |::::::|::/|  :|
-                   /:./  |:::/        |__:::):/  |  :\
-                 ,'::'  /:::|        ,'::::/_/    `. ``-..--'-_
-                ''''   (//|/|      ,';':,-'         `-.___---''
----------------------------------------------------------------
-****************************************************************
-
-"#;

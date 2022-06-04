@@ -1,9 +1,7 @@
-use std::fmt;
-
 use log::debug;
 use nalgebra::matrix;
 
-use crate::state_traits::QuantumStateTraits;
+use crate::state_traits::StateTraits;
 use crate::types::*;
 use crate::macros::*;
 
@@ -22,8 +20,8 @@ pub enum Operations {
     Y(usize),
     Z(usize),
     H(usize),
-    ArbitrarySingle(usize, Matrix2x2),
     S(usize),
+    ArbitrarySingle(usize, Matrix2x2),
 
     RX(usize, Angle),
     RY(usize, Angle),
@@ -39,39 +37,8 @@ pub enum Operations {
     SWAP(usize, usize)
 }
 
-impl fmt::Display for Operations {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            Operations::Measure(_qubit) => write!(f, "M"),
-            Operations::MeasureAll => write!(f, ""),
-
-            Operations::X(qubit) => write!(f, "X_{}", qubit),
-            Operations::Y(qubit) => write!(f, "Y_{}", qubit),
-            Operations::Z(qubit) => write!(f, "Z_{}", qubit),
-            Operations::H(qubit) => write!(f, "H_{}", qubit),
-            Operations::S(qubit) => write!(f, "S_{}", qubit),
-            Operations::RX(qubit, angle) => write!(f, "RX_{}({})", qubit, angle),
-            Operations::RY(qubit, angle) => write!(f, "RY_{}({})", qubit, angle),
-            Operations::RZ(qubit, angle) => write!(f, "RZ_{}({})", qubit, angle),
-
-            Operations::ArbitrarySingle(qubit, _) => write!(f, "U_{}", qubit),
-            Operations::R(qubit, phi, theta, omega) => {
-                write!(f, "R_{}({}, {}, {})", qubit, phi, theta, omega)
-            }
-            Operations::CNOT(control, target) => write!(f, "CNOT {} -> {}", control, target),
-            Operations::CZ(control, target) => write!(f, "CZ {} -> {}", control, target),
-            Operations::SISWAP(_, _) => write!(f, ""),
-            Operations::ArbitaryTwo(_, _, _) => write!(f, ""),
-            Operations::ISWAP(_, _) => write!(f, ""),
-            _ => {
-                write!(f, "")
-            }
-        }
-    }
-}
-
 pub fn implement_gate<
-    T: QuantumStateTraits
+    T: StateTraits
 >(
     state: &mut T,
     gate: &Operations,

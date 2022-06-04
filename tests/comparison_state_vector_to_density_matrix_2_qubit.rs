@@ -1,5 +1,5 @@
 use bra_ket::*;
-use std::f64::consts::{PI, SQRT_2};
+use std::f64::consts::{PI};
 
 // pretty assertions for human readability
 

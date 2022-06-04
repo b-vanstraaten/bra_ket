@@ -5,21 +5,21 @@ use log::debug;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
 
-use crate::state_traits::QuantumStateTraits;
+use crate::state_traits::StateTraits;
 
 use crate::helper_functions::*;
 use crate::types::*;
 use crate::StateVector;
 
 /// A density matrix describing an in general mixed quantum state.
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug)]
 pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,
     density_matrix_pointer: DensityMatrixPointer<Complex>,
 }
 
-impl QuantumStateTraits for DensityMatrix {
+impl StateTraits for DensityMatrix {
     fn check_qubit_number(&self, qubits: Vec<&usize>) {
         let required_number_of_qubits = qubits.last().unwrap();
         let number_of_qubits = &self.number_of_qubits;
@@ -133,6 +133,14 @@ impl QuantumStateTraits for DensityMatrix {
             });
         debug!("density matrix after:\n{}", self.density_matrix);
     }
+
+    fn get_probability(&self, target: &usize) -> Real {
+        todo!()
+    }
+
+    fn get_expectation(&self, target: &usize) -> Real {
+        todo!()
+    }
 }
 
 impl PartialEq for DensityMatrix {
@@ -151,6 +159,7 @@ impl PartialEq for DensityMatrix {
 }
 
 impl From<CMatrix> for DensityMatrix {
+    /// Create a density matrix from a complex matrix
     fn from(mut density_matrix: CMatrix) -> Self {
         let shape = density_matrix.shape();
         assert_eq!(
@@ -168,6 +177,7 @@ impl From<CMatrix> for DensityMatrix {
             density_matrix,
             density_matrix_pointer,
         }
+
     }
 }
 

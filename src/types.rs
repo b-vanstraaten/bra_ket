@@ -16,8 +16,11 @@ pub type Complex = ComplexBase<Real>;
 /// A density matrix
 pub type CMatrix = DMatrix<Complex>;
 
-/// A state vector
+/// A complex vector
 pub type CVector = DVector<Complex>;
+
+/// A real vector
+pub type RVector = DVector<Real>;
 
 /// A 2x2 complex matrix
 pub type Matrix2x2 = SMatrix<Complex, 2, 2>;
@@ -26,11 +29,11 @@ pub type Matrix4x4 = SMatrix<Complex, 4, 4>;
 
 pub type ClassicalRegister = Vec<Option<bool>>;
 
-/// An angle
+/// An angle in radians
 pub type Angle = Real;
 
 /// pi
-static PI: Angle = PI_f64 as Angle;
+pub static PI: Angle = PI_f64 as Angle;
 
 /// The square root of two
 static SQRT_2: Real = SQRT_2_f64 as Real;
@@ -60,6 +63,11 @@ pub static SIGMA_Y: Matrix2x2 = matrix![
 pub static SIGMA_Z: Matrix2x2 = matrix![
     c!(1., 0.), c!(0., 0.);
     c!(0., 0.), c!(-1., 0.);
+];
+
+pub static S: Matrix2x2 = matrix![
+    c!(1., 0.), c!(0., 0.);
+    c!(0., 0.), c!(0., 1.);
 ];
 
 /// The hadamard matrix
@@ -96,10 +104,6 @@ pub static SISWAP: Matrix4x4 = matrix![
     c!(0., 0.), c!(0., 0.), c!(0., 0.), c!(1., 0.);
 ];
 
-pub static S: Matrix2x2 = matrix![
-    c!(1., 0.), c!(0., 0.);
-    c!(0., 0.), c!(0., 1.);
-];
 
 pub static SWAP: Matrix4x4 = matrix![
     c!(1., 0.), c!(0., 0.), c!(0., 0.), c!(0., 0.);

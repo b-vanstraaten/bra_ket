@@ -1,6 +1,6 @@
 use crate::draw::*;
 use crate::operations::*;
-use crate::state_traits::{QuantumStateTraits};
+use crate::state_traits::{StateTraits};
 use crate::types::*;
 use std::ops::Add;
 
@@ -10,6 +10,7 @@ pub struct Program {
     pub gates: Vec<Operations>,
 }
 
+/// Add two programs, so that one runs after the other.
 impl Add for Program {
     type Output = Program;
     fn add(self, other: Self) -> Self {
@@ -26,8 +27,8 @@ impl Program {
         return Program { gates: vec![] };
     }
 
-    pub fn run<T: QuantumStateTraits>(
-        &mut self,
+    pub fn run<T: StateTraits>(
+        &self,
         state: &mut T,
     ) {
         // logic to panic if the program requires more qubits than present in the state
