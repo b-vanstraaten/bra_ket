@@ -1,6 +1,11 @@
 use std::iter::zip;
-use nalgebra::matrix;
+use itertools::enumerate;
+use nalgebra::{DVector, matrix};
 use bra_ket::*;
+
+use textplots::{Chart, Plot, Shape};
+
+
 ///https://joshuagoings.com/2020/08/20/VQE/
 
 /// makes the ansatz circuit to prepare the quantum state
@@ -37,6 +42,7 @@ fn make_measurement_programs() -> Vec<Program> {
     measure_x0_x1.cnot(1, 0);
 
     let mut measure_y0_y1 = Program::new();
+    measure_y0_y1.h(0);
     measure_y0_y1.rz(0, - PI / 2.);
     measure_y0_y1.h(1);
     measure_y0_y1.rz(1, - PI / 2.);
@@ -56,13 +62,40 @@ fn evaluate_energy(theta: Real) -> Real {
         |(coefficient, measurement_program)| {
             let full_program = ansatz.to_owned() + measurement_program;
             full_program.run(&mut state);
-            coefficient * state.get_expectation(&0)
+            let expectation = state.get_expectation(&0);
+            coefficient * expectation
         }
     ).sum();
     expectation + 0.7055696146 - 0.4804
 }
 
-fn main() {
-    println!("{}", evaluate_energy(0.11))
+fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
+    let mut x = DVector::zeros(n);
+    for i in 0..n {
+        x[i] = start + (end - start) * (i as Real / n as Real)
+    }
+    x
+}
 
+fn main() {
+    println!("Energy as function of theta");
+    Chart::new(200, 32, -PI as f32, PI as f32)
+        .lineplot(
+            &Shape::Continuous(
+                Box::new(|theta| evaluate_energy(theta as Real) as f32)
+            ))
+        .display();
+
+    let n = 100;
+    let theta_s = linspace(- PI, PI, n);
+    let mut energies = DVector::zeros(n);
+
+    for (i, theta) in enumerate(theta_s.iter()) {
+        energies[i] =  evaluate_energy(theta.to_owned());
+    }
+    let (arg_min, E_min) = energies.argmin();
+    let theta_min = theta_s[arg_min];
+
+    println!("Minimum theta: {} (radians)", theta_min as f32);
+    println!("Minimum energy: {} (hartrees)", E_min as f32)
 }
