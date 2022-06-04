@@ -1,6 +1,6 @@
 [package]
 name = "bra_ket"
-description = "A multithreaded circuit model quanutm simulator for state vectors and density matricies"
+description = "A multithreaded circuit model quanutm simulator for state vectors and density matricies."
 license = "MIT"
 readme = "README.md"
 homepage = ""
