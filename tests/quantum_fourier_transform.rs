@@ -37,7 +37,7 @@ fn quantum_fourier_transform_n_qubit() {
     init_program.z(0);
     init_program.z(1);
 
-    let mut qft_program = qft(n);
+    let qft_program = qft(n);
 
     let mut state = StateVector::new(n);
     init_program.run(&mut state);

@@ -1,4 +1,4 @@
-use crate::types::{Matrix2x2, Matrix4x4, RVector};
+use crate::types::{Matrix2x2, Matrix4x4};
 use crate::types::Real;
 
 /// The traits every quantum state must possess to permit it being acted upon by a quantum program.

@@ -49,7 +49,7 @@ impl Program {
         qubits
     }
 
-    pub fn draw(&mut self) {
+    pub fn draw(&self) {
         draw_circuit(&self)
     }
 

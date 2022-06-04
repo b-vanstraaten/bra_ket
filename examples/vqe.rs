@@ -1,6 +1,6 @@
 use std::iter::zip;
 use itertools::enumerate;
-use nalgebra::{DVector, matrix};
+use nalgebra::{DVector};
 use bra_ket::*;
 
 use textplots::{Chart, Plot, Shape};
@@ -28,7 +28,7 @@ fn make_ansatz(theta: Angle) -> Program {
 
 /// makes the measurement circuits which permit measuring the pauli string in the hamiltonian.
 fn make_measurement_programs() -> Vec<Program> {
-    let mut measure_z0 = Program::new();
+    let measure_z0 = Program::new();
 
     let mut measure_z1  = Program::new();
     measure_z1.swap(0, 1);
@@ -78,6 +78,10 @@ fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
 }
 
 fn main() {
+    let mut ansatz = make_ansatz(0.);
+    ansatz.draw();
+
+
     println!("Energy as function of theta");
     Chart::new(200, 32, -PI as f32, PI as f32)
         .lineplot(
@@ -93,9 +97,9 @@ fn main() {
     for (i, theta) in enumerate(theta_s.iter()) {
         energies[i] =  evaluate_energy(theta.to_owned());
     }
-    let (arg_min, E_min) = energies.argmin();
+    let (arg_min, energy_min) = energies.argmin();
     let theta_min = theta_s[arg_min];
 
     println!("Minimum theta: {} (radians)", theta_min as f32);
-    println!("Minimum energy: {} (hartrees)", E_min as f32)
+    println!("Minimum energy: {} (hartrees)", energy_min as f32)
 }

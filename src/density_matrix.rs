@@ -134,11 +134,11 @@ impl StateTraits for DensityMatrix {
         debug!("density matrix after:\n{}", self.density_matrix);
     }
 
-    fn get_probability(&self, target: &usize) -> Real {
+    fn get_probability(&self, _target: &usize) -> Real {
         todo!()
     }
 
-    fn get_expectation(&self, target: &usize) -> Real {
+    fn get_expectation(&self, _target: &usize) -> Real {
         todo!()
     }
 }
