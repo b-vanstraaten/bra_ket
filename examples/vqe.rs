@@ -81,7 +81,6 @@ fn main() {
     let ansatz = make_ansatz(0.);
     ansatz.draw();
 
-
     println!("Plot of Energy(theta)");
     Chart::new(200, 32, -PI as f32, PI as f32)
         .lineplot(
