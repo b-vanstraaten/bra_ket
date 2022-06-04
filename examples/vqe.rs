@@ -78,11 +78,11 @@ fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
 }
 
 fn main() {
-    let mut ansatz = make_ansatz(0.);
+    let ansatz = make_ansatz(0.);
     ansatz.draw();
 
 
-    println!("Energy as function of theta");
+    println!("Plot of Energy(theta)");
     Chart::new(200, 32, -PI as f32, PI as f32)
         .lineplot(
             &Shape::Continuous(

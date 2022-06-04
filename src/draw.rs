@@ -1,5 +1,5 @@
 use crate::operations::Operations;
-use crate::Program;
+use crate::{PI, Program};
 use itertools::zip;
 
 // Generate qasm file and input into python circuit generator https://www.media.mit.edu/quanta/qasm2circ/
@@ -54,15 +54,15 @@ fn plot_gate(gate: &Operations, qubit_index: &usize) -> String {
         }
 
         Operations::RX(qubit, angle) => {
-            let m: String = format!("RX({:.*})", 1, angle);
+            let m: String = format!("RX({:.*} pi)", 1, angle / PI);
             return_string(qubit_index, *qubit, m)
         }
         Operations::RY(qubit, angle) => {
-            let m: String = format!("RY({:.*})", 1, angle);
+            let m: String = format!("RY({:.*} pi)", 1, angle / PI);
             return_string(qubit_index, *qubit, m)
         }
         Operations::RZ(qubit, angle) => {
-            let m: String = format!("RZ({:.*})", 1, angle);
+            let m: String = format!("RZ({:.*})", 1, angle / PI);
             return_string(qubit_index, *qubit, m)
         }
         Operations::H(qubit) => {
