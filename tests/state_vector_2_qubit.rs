@@ -84,7 +84,7 @@ fn h0_cnot_measure_all() {
     let n = 100;
     let counts = (0..n).map(|_| {
             program.run(&mut state);
-            state.measured_overall_state()
+            state.get_measured_overall_state()
         }).counts();
 
     // running a three sigma hypothesis test that the probability of measuring the |0> state is 0.5
@@ -115,8 +115,7 @@ fn measure_all() {
     let n = 100;
     let counts = (0..n).map(|_| {
         program.run(&mut state);
-        state.measured_overall_state()
-
+        state.get_measured_overall_state()
     }).counts();
 
     let p_required = 0.25;

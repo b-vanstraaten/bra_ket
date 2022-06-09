@@ -2,7 +2,6 @@ use nalgebra::{dvector, ComplexField};
 use rand::{thread_rng, Rng};
 
 use bra_ket::*;
-use std::f64::consts::{PI};
 
 // pretty assertions for human readability
 
@@ -80,15 +79,13 @@ fn measure_all() {
     let mut program = Program::new();
     let mut state = StateVector::new(1);
 
+    program.reinitialise_all();
     program.h(0);
     program.measure_all();
-    program.reinitialise_all();
 
     let n = 100;
     for _ in 1..n {
         program.run(&mut state);
-
-
     }
     let p_required = 0.5;
     let _std = (p_required * (1. - &p_required) / (n as Real)).sqrt();

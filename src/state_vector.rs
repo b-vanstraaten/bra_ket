@@ -265,17 +265,17 @@ impl StateVector {
         }
     }
 
-    pub fn measured_qubit_state(&self, target: usize) -> bool {
+    pub fn get_measured_qubit_state(&self, target: usize) -> bool {
         match self.classical_register[target] {
             Some(qubit_state) => qubit_state,
             None => panic!("qubit {} not measured yet", target)
         }
     }
 
-    pub fn measured_overall_state(&self) -> Int {
+    pub fn get_measured_overall_state(&self) -> Int {
         let mut overall_state = 0;
         for qubit in 0..self.number_of_qubits {
-            let qubit_state = self.measured_qubit_state(qubit);
+            let qubit_state = self.get_measured_qubit_state(qubit);
             overall_state += (1 & (qubit_state as Int)) << qubit;
         }
         overall_state

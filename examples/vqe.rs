@@ -3,8 +3,6 @@ use itertools::enumerate;
 use nalgebra::{DVector};
 use bra_ket::*;
 
-use textplots::{Chart, Plot, Shape};
-
 
 ///https://joshuagoings.com/2020/08/20/VQE/
 
@@ -26,47 +24,81 @@ fn make_ansatz(theta: Angle) -> Program {
     ansatz
 }
 
-/// makes the measurement circuits which permit measuring the pauli string in the hamiltonian.
-fn make_measurement_programs() -> Vec<Program> {
-    let measure_z0 = Program::new();
-
-    let mut measure_z1  = Program::new();
-    measure_z1.swap(0, 1);
-
-    let mut measure_z0_z1 = Program::new();
-    measure_z0_z1.cnot(1, 0);
-
-    let mut measure_x0_x1 = Program::new();
-    measure_x0_x1.h(0);
-    measure_x0_x1.h(1);
-    measure_x0_x1.cnot(1, 0);
-
-    let mut measure_y0_y1 = Program::new();
-    measure_y0_y1.h(0);
-    measure_y0_y1.rz(0, - PI / 2.);
-    measure_y0_y1.h(1);
-    measure_y0_y1.rz(1, - PI / 2.);
-    measure_y0_y1.cnot(1, 0);
-
-    vec![measure_z0, measure_z1, measure_z0_z1, measure_x0_x1, measure_y0_y1]
-}
-
 /// calculates the energy of the ansatz state for a given theta in the ansatz circuit.
 fn evaluate_energy(theta: Real) -> Real {
     let ansatz = make_ansatz(theta);
-    let measurement_programs = make_measurement_programs();
-    let coefficients = vec![0.3435, -0.4347, 0.5716, 0.0910, 0.0910];
-
     let mut state = StateVector::new(2);
-    let expectation: Real = zip(coefficients, measurement_programs).map(
-        |(coefficient, measurement_program)| {
-            let full_program = ansatz.to_owned() + measurement_program;
-            full_program.run(&mut state);
-            let expectation = state.get_expectation(&0);
-            coefficient * expectation
-        }
-    ).sum();
-    expectation + 0.7055696146 - 0.4804
+    let mut energy = 0.;
+
+    energy += 0.7055696146; // adding the nuclear repulsion
+    energy -= 0.4804; // adding energy from the I0_I1 component of the hamiltonian
+
+    energy += { // adding the energy from the Z0 components of the hamiltonian
+        let coefficient = 0.3435; // the weighting for the pauli term in the hamiltonian
+        // running the ansatz circuit
+        ansatz.run(&mut state);
+        // measuring the expectation value of the 0th qubit in the Z basis
+        let expectation = state.get_expectation(&0);
+        coefficient * expectation
+    };
+
+    energy += { // adding the energy from the Z1 components of the hamiltonian
+        let coefficient = -0.4347; // the weighting for the pauli term in the hamiltonian
+        ansatz.run(&mut state); // running the ansatz circuit and then the measurement
+        // measuring the expectation value of the 1st qubit in the Z basis
+        let expectation = state.get_expectation(&1);
+        coefficient * expectation
+    };
+
+    energy += { // adding the energy from the Z0_Z1 components of the hamiltonian
+        // creating a measurement program which maps the eigenstates of Z0_Z1 to Z eigenstates
+        // of the 0th qubit.
+        let mut measure_z0_z1 = Program::new();
+        measure_z0_z1.cnot(1, 0);
+
+        let coefficient = 0.5716; // the weighting for the pauli term in the hamiltonian
+        // running the ansatz circuit and then the measurement program
+        (ansatz.to_owned() + measure_z0_z1).run(&mut state);
+        // measuring the expectation value of the 0th qubit in the Z basis
+        let expectation = state.get_expectation(&0);
+        coefficient * expectation
+    };
+
+    energy += { // adding the energy from the X0_X1 components of the hamiltonian
+        // creating a measurement program which maps the eigenstates of X0_X1 to Z eigenstates
+        // of the 0th qubit.
+        let mut measure_x0_x1 = Program::new();
+        measure_x0_x1.h(0);
+        measure_x0_x1.h(1);
+        measure_x0_x1.cnot(1, 0);
+
+        let coefficient = 0.0910; // the weighting for the pauli term in the hamiltonian
+        // running the ansatz circuit and then the measurement program
+        (ansatz.to_owned() + measure_x0_x1).run(&mut state);
+        // measuring the expectation value of the 0th qubit in the Z basis
+        let expectation = state.get_expectation(&0);
+        coefficient * expectation
+    };
+
+
+    energy += { // adding the energy from the Y0_Y1 components of the hamiltonian
+        // creating a measurement program which maps the eigenstates of Y0_Y1 to Z eigenstates
+        // of the 0th qubit.
+        let mut measure_y0_y1 = Program::new();
+        measure_y0_y1.h(0);
+        measure_y0_y1.rz(0, - PI / 2.);
+        measure_y0_y1.h(1);
+        measure_y0_y1.rz(1, - PI / 2.);
+        measure_y0_y1.cnot(1, 0);
+
+        let coefficient = 0.0910; // the weighting for the pauli term in the hamiltonian
+        // running the ansatz circuit and then the measurement program
+        (ansatz.to_owned() + measure_y0_y1).run(&mut state);
+        // measuring the expectation value of the 0th qubit in the Z basis
+        let expectation = state.get_expectation(&0);
+        coefficient * expectation
+    };
+    energy
 }
 
 fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
@@ -78,17 +110,6 @@ fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
 }
 
 fn main() {
-    let ansatz = make_ansatz(0.);
-    ansatz.draw();
-
-    println!("Plot of Energy(theta)");
-    Chart::new(200, 32, -PI as f32, PI as f32)
-        .lineplot(
-            &Shape::Continuous(
-                Box::new(|theta| evaluate_energy(theta as Real) as f32)
-            ))
-        .display();
-
     let n = 100;
     let theta_s = linspace(- PI, PI, n);
     let mut energies = DVector::zeros(n);
