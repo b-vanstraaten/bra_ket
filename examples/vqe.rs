@@ -1,13 +1,10 @@
-use std::iter::zip;
-use itertools::enumerate;
-use nalgebra::{DVector};
+
+use itertools_num::linspace;
 use bra_ket::*;
 
 
-///https://joshuagoings.com/2020/08/20/VQE/
-
 /// makes the ansatz circuit to prepare the quantum state
-fn make_ansatz(theta: Angle) -> Program {
+fn make_ansatz(theta: &Real) -> Program {
     let mut ansatz = Program::new();
     ansatz.reinitialise_all();
     ansatz.x(0);
@@ -16,7 +13,7 @@ fn make_ansatz(theta: Angle) -> Program {
     ansatz.ry(1, PI / 2.);
 
     ansatz.cnot(1, 0);
-    ansatz.rz(0, theta);
+    ansatz.rz(0, theta.to_owned());
     ansatz.cnot(1, 0);
 
     ansatz.rx(0, PI / 2.);
@@ -25,7 +22,7 @@ fn make_ansatz(theta: Angle) -> Program {
 }
 
 /// calculates the energy of the ansatz state for a given theta in the ansatz circuit.
-fn evaluate_energy(theta: Real) -> Real {
+fn evaluate_energy(theta: &Real) -> Real {
     let ansatz = make_ansatz(theta);
     let mut state = StateVector::new(2);
     let mut energy = 0.;
@@ -101,25 +98,19 @@ fn evaluate_energy(theta: Real) -> Real {
     energy
 }
 
-fn linspace(start: Real, end: Real, n: Int) -> DVector<Real> {
-    let mut x = DVector::zeros(n);
-    for i in 0..n {
-        x[i] = start + (end - start) * (i as Real / n as Real)
-    }
-    x
-}
-
 fn main() {
     let n = 100;
-    let theta_s = linspace(- PI, PI, n);
-    let mut energies = DVector::zeros(n);
+    let theta_s = RVector::from_iterator(n, linspace::<Real>(- PI, PI, n));
+    let energies =  RVector::from_iterator(n,theta_s
+        .iter()
+        .map(|theta| evaluate_energy(theta))
+    );
 
-    for (i, theta) in enumerate(theta_s.iter()) {
-        energies[i] =  evaluate_energy(theta.to_owned());
-    }
+
     let (arg_min, energy_min) = energies.argmin();
     let theta_min = theta_s[arg_min];
 
+    assert!(-1.15 < energy_min && energy_min < -1.14, "wrong energy");
     println!("Minimum theta: {} (radians)", theta_min as f32);
     println!("Minimum energy: {} (hartrees)", energy_min as f32)
 }

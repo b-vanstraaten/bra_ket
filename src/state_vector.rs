@@ -3,6 +3,7 @@ use crate::types::*;
 use nalgebra::ComplexField;
 use rayon::prelude::*;
 use std::mem::size_of_val;
+use std::fmt;
 
 use log::debug;
 
@@ -21,6 +22,12 @@ pub struct StateVector {
     /// A classical register where the outcome of measurements are stored.
     pub classical_register: ClassicalRegister,
     state_vector_pointer: StateVectorPointer<Complex>,
+}
+
+impl fmt::Display for StateVector {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "state vector{}classical register \n{:?}",self.state_vector, self.classical_register)
+    }
 }
 
 impl Clone for StateVector {
