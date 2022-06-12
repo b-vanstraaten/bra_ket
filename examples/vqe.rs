@@ -121,5 +121,5 @@ fn main() {
             &theta_s,
             &energies,
             &[Caption(""), Color("black")]);
-    fg.show();
+    fg.show().unwrap();
 }

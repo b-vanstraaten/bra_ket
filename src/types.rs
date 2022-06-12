@@ -1,5 +1,5 @@
 use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
-use std::panic::set_hook;
+
 
 use nalgebra::{matrix, DMatrix, DVector, SMatrix};
 use nalgebra::Complex as ComplexBase;

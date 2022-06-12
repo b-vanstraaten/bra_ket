@@ -1,6 +1,6 @@
 
 use bra_ket::*;
-use std::f64::consts::{PI};
+
 
 #[test]
 fn quantum_fourier_transform_n_qubit() {
