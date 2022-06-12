@@ -12,6 +12,7 @@ use crate::helper_functions::*;
 use rand::distributions::WeightedIndex;
 use rand::prelude::*;
 
+
 /// A state vector describing a pure quantum state.
 #[derive(Debug)]
 pub struct StateVector {
@@ -26,7 +27,7 @@ pub struct StateVector {
 
 impl fmt::Display for StateVector {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "state vector{}classical register \n{:?}",self.state_vector, self.classical_register)
+        write!(f, "state vector:{}classical register \n{:?}\n",self.state_vector, self.classical_register)
     }
 }
 

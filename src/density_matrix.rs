@@ -10,6 +10,7 @@ use crate::state_traits::StateTraits;
 use crate::helper_functions::*;
 use crate::types::*;
 use crate::StateVector;
+use std::fmt;
 
 /// A density matrix describing an in general mixed quantum state.
 #[derive(Clone, Debug)]
@@ -17,6 +18,12 @@ pub struct DensityMatrix {
     pub number_of_qubits: usize,
     pub density_matrix: CMatrix,
     density_matrix_pointer: DensityMatrixPointer<Complex>,
+}
+
+impl fmt::Display for DensityMatrix {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "density matrix:{}", self.density_matrix)
+    }
 }
 
 impl StateTraits for DensityMatrix {

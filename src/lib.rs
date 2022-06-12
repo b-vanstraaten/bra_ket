@@ -14,7 +14,7 @@ mod quantum_functions;
 pub use density_matrix::DensityMatrix;
 pub use program::Program;
 pub use state_vector::StateVector;
-pub use types::{Complex, Real, Angle, Int, PI, RVector, CVector};
+pub use types::{Complex, Real, Angle, Int, RVector, CVector, SQRT_2,  PI};
 pub use operations::Operations;
 pub use state_traits::*;
 pub use quantum_functions::*;

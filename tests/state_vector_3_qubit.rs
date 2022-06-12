@@ -1,6 +1,4 @@
 use nalgebra::dvector;
-use std::f64::consts::{SQRT_2};
-
 use bra_ket::*;
 
 #[test]

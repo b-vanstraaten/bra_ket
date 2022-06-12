@@ -9,7 +9,7 @@ use crate::macros::*;
 pub type Int = usize;
 
 /// A Real number
-pub type Real = f64;
+pub type Real = f32;
 
 /// A complex number
 pub type Complex = ComplexBase<Real>;
@@ -37,7 +37,7 @@ pub type Angle = Real;
 pub static PI: Angle = PI_f64 as Angle;
 
 /// The square root of two
-static SQRT_2: Real = SQRT_2_f64 as Real;
+pub static SQRT_2: Real = SQRT_2_f64 as Real;
 
 /// The acceptable numerical precision for the tests
 pub static COMPARISON_PRECISION: Real = 1e-6;

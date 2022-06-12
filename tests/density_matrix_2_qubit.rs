@@ -1,7 +1,6 @@
 use nalgebra::dmatrix;
 
 use bra_ket::*;
-use std::f64::consts::{PI};
 
 // pretty assertions for human readability
 
