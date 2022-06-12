@@ -1,7 +1,6 @@
-
 use itertools_num::linspace;
 use bra_ket::*;
-
+use gnuplot::{Figure, Caption, Color, AxesCommon};
 
 /// makes the ansatz circuit to prepare the quantum state
 fn make_ansatz(theta: &Real) -> Program {
@@ -110,7 +109,17 @@ fn main() {
     let (arg_min, energy_min) = energies.argmin();
     let theta_min = theta_s[arg_min];
 
-    assert!(-1.15 < energy_min && energy_min < -1.14, "wrong energy");
     println!("Minimum theta: {} (radians)", theta_min as f32);
-    println!("Minimum energy: {} (hartrees)", energy_min as f32)
+    println!("Minimum energy: {} (hartrees)", energy_min as f32);
+
+    let mut fg = Figure::new();
+    fg.axes2d()
+        .set_title("Energy of H2", &[])
+        .set_x_label("theta (radians)", &[])
+        .set_y_label("E (hartrees)", &[])
+        .lines(
+            &theta_s,
+            &energies,
+            &[Caption(""), Color("black")]);
+    fg.show();
 }

@@ -1,4 +1,5 @@
 use std::f64::consts::{PI as PI_f64, SQRT_2 as SQRT_2_f64};
+use std::panic::set_hook;
 
 use nalgebra::{matrix, DMatrix, DVector, SMatrix};
 use nalgebra::Complex as ComplexBase;
@@ -127,6 +128,8 @@ impl<T> DensityMatrixPointer<T> {
     }
 
     pub fn flatten_index(&self, indices: (usize, usize)) -> usize {
+        assert!(indices.0 < self.shape.0, "index 0 out of bounds {} > {}", indices.0, self.shape.0);
+        assert!(indices.1 < self.shape.1, "index 1 out of bounds {} > {}", indices.1, self.shape.1);
         indices.0 + self.shape.1 * indices.1
     }
 
@@ -148,20 +151,24 @@ unsafe impl<T> Send for DensityMatrixPointer<T> {}
 
 #[derive(Debug, Clone)]
 pub struct StateVectorPointer<T> {
-    pointer: *mut T
+    pointer: *mut T,
+    size: usize
 }
 
 impl<T> StateVectorPointer<T> {
-    pub fn new(value: &mut T) -> Self {
+    pub fn new(value: &mut T, size: usize) -> Self {
         StateVectorPointer {
-            pointer: value as *mut T
+            pointer: value as *mut T,
+            size: size
         }
     }
     pub unsafe fn read(&self, index: usize) -> T {
+        assert!(index < self.size, "index out of bounds {} > {}", index, self.size);
         self.pointer.add(index).read()
     }
 
     pub unsafe fn write(&self, index: usize, value: T) {
+        assert!(index < self.size, "index out of bounds {} > {}", index, self.size);
         self.pointer.add(index).write(value)
     }
 }

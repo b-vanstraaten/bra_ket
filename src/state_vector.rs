@@ -42,7 +42,7 @@ impl From<CVector> for StateVector {
         let shape = state_vector.shape();
         let number_of_qubits = log2(shape.0 as usize);
 
-        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0]);
+        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], shape.0);
         let classical_register = vec![None; number_of_qubits];
 
         StateVector {
@@ -260,7 +260,7 @@ impl StateVector {
             state_vector[0] = Complex::new(1., 0.);
             state_vector
         };
-        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0]);
+        let state_vector_pointer = StateVectorPointer::new(&mut state_vector[0], hilbert_dim);
 
         let classical_register = vec![None; number_of_qubits];
 
