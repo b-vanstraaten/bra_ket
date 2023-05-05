@@ -242,20 +242,20 @@ impl PartialEq for StateVector {
 
 impl StateVector {
     pub fn new(number_of_qubits: usize) -> StateVector {
+        // calculating the hilbert dim
         let hilbert_dim = 1 << number_of_qubits;
         let mut state_vector = {
-            // calculating the hilbert dim
-            // printing the size of the density matrix to be created
+            // printing the size of the state vector to be created
             {
-                let state_vector_footprint = (hilbert_dim << 2) * size_of_val(&Complex::new(0., 0.));
-                let bytes_to_gigabyte: usize = 2 << 33;
+                let state_vector_footprint = hilbert_dim * size_of_val(&Complex::new(0., 0.));
+                let bytes_to_gigabyte: u64 = 1 << 30;
                 debug!(
-                    "Allocating density matrix of size: {:.4} Gb",
-                    (state_vector_footprint as f32) / (bytes_to_gigabyte as f32)
+                    "Allocating state vector of size: {:.4} Gb",
+                    (state_vector_footprint as f64) / (bytes_to_gigabyte as f64)
                 );
             }
 
-            // creating the density matrix
+            // creating the state vector
             let mut state_vector = CVector::from_element(hilbert_dim, Complex::new(0., 0.));
             // setting the (0, 0) element to 1 to represent initialisation in the |000...> state
             state_vector[0] = Complex::new(1., 0.);

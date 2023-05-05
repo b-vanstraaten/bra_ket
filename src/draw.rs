@@ -1,6 +1,6 @@
 use crate::operations::Operations;
 use crate::{PI, Program};
-use itertools::zip;
+use std::iter::zip;
 
 // Generate qasm file and input into python circuit generator https://www.media.mit.edu/quanta/qasm2circ/
 

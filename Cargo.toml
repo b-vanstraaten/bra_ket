@@ -10,19 +10,20 @@ categories = ["science", "simulation"]
 version = "0.1.3"
 edition = "2021"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
-nalgebra = "0.30.1"
-log = "0.4.14"
-itertools = "0.10.3"
-itertools-num = "0.1.3"
-rayon = "1.5.1"
-rand = "0.8.5"
-tqdm = "0.4.0"
+nalgebra = "0.32"
+log = "0.4"
+itertools = "0.10"
+itertools-num = "0.1"
+rayon = "1"
+rand = "0.8"
 gnuplot = "0.0.37"
 
-
 [dev-dependencies]
-criterion = "0.3.5"
+criterion = "0.4"
 
 [[bench]]
 name = "benchmarks"

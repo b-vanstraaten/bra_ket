@@ -208,16 +208,16 @@ impl From<StateVector> for DensityMatrix {
 
 impl DensityMatrix {
     pub fn new(number_of_qubits: usize) -> DensityMatrix {
+        // calculating the hilbert dim
+        let hilbert_dim = 1 << number_of_qubits;
         let mut density_matrix = {
-            // calculating the hilbert dim
-            let hilbert_dim = 1 << number_of_qubits;
             // printing the size of the density matrix to be created
             {
-                let density_matrix_footprint = (hilbert_dim << 2) * size_of_val(&Complex::new(0., 0.));
-                let bytes_to_gigabyte: usize = 2 << 33;
+                let density_matrix_footprint = (hilbert_dim * hilbert_dim) * size_of_val(&Complex::new(0., 0.));
+                let bytes_to_gigabyte: u64 = 1 << 30;
                 debug!(
                     "Allocating density matrix of size: {:.4} Gb",
-                    (density_matrix_footprint as f32) / (bytes_to_gigabyte as f32)
+                    (density_matrix_footprint as f64) / (bytes_to_gigabyte as f64)
                 );
             }
 
