@@ -18,11 +18,13 @@ fn grover_two_qubit() {
     program.h(0);
     program.h(1);
 
-    // program.measure_all();
+    program.measure_all();
 
     let mut state = StateVector::new(2);
     program.run(&mut state);
     program.draw();
+
+    println!("{:?}", state)
 
 }
 
