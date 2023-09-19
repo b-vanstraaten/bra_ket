@@ -1,10 +1,10 @@
 # Rust Quantum Simulator
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/b-vanstraaten/bra_ket/main)](https://github.com/b-vanstraaten/bra_ket/actions)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/b-vanstraaten/bra_ket/tests)](https://github.com/b-vanstraaten/bra_ket/actions)
 
 
 ![Rust logo](https://www.rust-lang.org/static/images/rust-logo-blk.svg)
 
-This is a Rust-based quantum simulator that provides an identical interface for state vector and density matrix simulations. It is fully parallelized using the Rayon library. This project was developed as a learning exercise in Rust programming and quantum computing.
+This is a Rust-based quantum simulator that provides an identical interface for state vector and density matrix simulations. It is fully parallelized using the Rayon library. This project was developed as a learning exercise in Rust programming and qubit simulation.
 
 ## Features
 
