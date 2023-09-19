@@ -201,7 +201,7 @@ fn s() {
 fn reset_all() {
     let mut program = Program::new();
     program.h(0);
-    program.reinitialise_all();
+    program.reset_all();
 
     let mut state = DensityMatrix::new(1);
     let required_state = DensityMatrix::new(1);

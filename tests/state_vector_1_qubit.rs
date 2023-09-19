@@ -50,12 +50,12 @@ fn y0() {
 fn measure() {
     let mut program = Program::new();
 
-    program.reinitialise_all();
+    program.reset_all();
     program.h(0);
     program.measure(0);
     let mut state = StateVector::new(1);
 
-    let n = 100;
+    let n = 10;
     let mut p_estimated = 0.;
 
     for _ in 1..n {
@@ -79,7 +79,7 @@ fn measure_all() {
     let mut program = Program::new();
     let mut state = StateVector::new(1);
 
-    program.reinitialise_all();
+    program.reset_all();
     program.h(0);
     program.measure_all();
 

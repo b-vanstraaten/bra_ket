@@ -6,10 +6,10 @@ use nalgebra::Complex as ComplexBase;
 use crate::macros::*;
 
 /// An integer number
-pub type Int = usize;
+pub type Int = i64;
 
 /// A Real number
-pub type Real = f32;
+pub type Real = f64;
 
 /// A complex number
 pub type Complex = ComplexBase<Real>;

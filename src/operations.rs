@@ -9,12 +9,14 @@ use crate::macros::*;
 /// as part of a quantum program.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Operations {
+    Barrier,
+
     /// Measure a qubit.
     Measure(usize),
     /// Measure all qubits.
     MeasureAll,
     /// Reinitialise all qubits to their ground state.
-    ReinitialiseAll,
+    ResetAll,
 
     X(usize),
     Y(usize),
@@ -45,9 +47,10 @@ pub fn implement_gate<
 ) {
     debug!("{:?}", gate);
     match gate {
+        Operations::Barrier => {},
         Operations::Measure(qubit) => state.measure(qubit),
         Operations::MeasureAll => state.measure_all(),
-        Operations::ReinitialiseAll => state.reinitialise_all(),
+        Operations::ResetAll => state.reinitialise_all(),
 
         Operations::X(qubit) => state.single_qubit_gate(qubit, &SIGMA_X),
         Operations::Y(qubit) => state.single_qubit_gate(qubit, &SIGMA_Y),
@@ -101,9 +104,10 @@ pub fn implement_gate<
 
 pub fn which_qubits(gate: &Operations) -> Vec<&usize> {
     match gate {
+        Operations::Barrier => vec![],
         Operations::Measure(qubit) => vec![qubit],
         Operations::MeasureAll => vec![],
-        Operations::ReinitialiseAll => vec![],
+        Operations::ResetAll => vec![],
 
         Operations::X(qubit) => vec![qubit],
         Operations::Y(qubit) => vec![qubit],

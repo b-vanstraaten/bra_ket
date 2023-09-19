@@ -43,7 +43,7 @@ fn h0_h1() {
 fn h0_h1_measure() {
     let mut program = Program::new();
 
-    program.reinitialise_all();
+    program.reset_all();
     program.h(0);
     program.h(1);
     program.measure(0);
@@ -72,7 +72,7 @@ fn h0_h1_measure() {
 fn h0_cnot_measure_all() {
     // writing the quantum program
     let mut program = Program::new();
-    program.reinitialise_all();
+    program.reset_all();
     program.h(0);
     program.cnot(0, 1);
     program.measure_all();
@@ -103,7 +103,7 @@ fn h0_cnot_measure_all() {
 fn measure_all() {
     let mut program = Program::new();
 
-    program.reinitialise_all();
+    program.reset_all();
     program.h(0);
     program.h(1);
     program.measure_all();

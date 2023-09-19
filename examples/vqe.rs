@@ -2,10 +2,12 @@ use itertools_num::linspace;
 use bra_ket::*;
 use gnuplot::{Figure, Caption, Color, AxesCommon};
 
+///https://journals.aps.org/prx/pdf/10.1103/PhysRevX.6.031007
+
 /// makes the ansatz circuit to prepare the quantum state
 fn make_ansatz(theta: &Real) -> Program {
     let mut ansatz = Program::new();
-    ansatz.reinitialise_all();
+    ansatz.reset_all();
     ansatz.x(0);
 
     ansatz.rx(0, 3. * PI / 2.);

@@ -13,6 +13,7 @@ fn qft_no_swap(mut program: Program, n: usize) -> Program {
     return qft_no_swap(program, n)
 }
 
+/// creates a program which performs the quantum fourier transform
 pub fn qft(n: usize) -> Program {
     let mut program = Program::new();
     program = qft_no_swap(program, n);

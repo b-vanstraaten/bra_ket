@@ -69,8 +69,8 @@ impl Program {
         self.add_gate(Operations::MeasureAll)
     }
 
-    pub fn reinitialise_all(&mut self) {
-        self.add_gate(Operations::ReinitialiseAll)
+    pub fn reset_all(&mut self) {
+        self.add_gate(Operations::ResetAll)
     }
 
     pub fn x(&mut self, qubit: usize) {

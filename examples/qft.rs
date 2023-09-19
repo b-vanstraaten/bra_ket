@@ -6,7 +6,7 @@ use gnuplot::{Figure, Caption, Color, AxesCommon};
 fn time_and_average<T: StateTraits>(program: Program, state: &mut T) -> (usize, f32, Option<f32>) {
     let start_time = Instant::now();
     let mut times_ns:Vec<u128> = Vec::new();
-    while start_time.elapsed().as_millis() < 1000 && times_ns.len() < 1000 {
+    while start_time.elapsed().as_secs() < 1 && times_ns.len() < 100 {
         let t0 = Instant::now();
         program.run(state);
         times_ns.push(t0.elapsed().as_nanos())
@@ -33,7 +33,7 @@ fn time_and_average<T: StateTraits>(program: Program, state: &mut T) -> (usize, 
 
 fn main() {
     //vectors to hold the data relating to timing the evolution of state vectors of various sizes
-    let n_state_vector = Vec::from_iter(1..25);
+    let n_state_vector = Vec::from_iter(1..20);
     let mut means_state_vector: Vec<f32> = Vec::with_capacity(n_state_vector.len());
     let mut stds_state_vector: Vec<Option<f32>> = Vec::with_capacity(n_state_vector.len());
 
@@ -57,7 +57,7 @@ fn main() {
     };
 
     //vectors to hold the data relating to timing the evolution of density matrix of various sizes
-    let n_density_matrix = Vec::from_iter(1..13);
+    let n_density_matrix = Vec::from_iter(1..10);
     let mut means_density_matrix: Vec<f32> = Vec::with_capacity(n_state_vector.len());
     let mut stds_density_matrix: Vec<Option<f32>> = Vec::with_capacity(n_state_vector.len());
 
@@ -80,6 +80,7 @@ fn main() {
         println!("{}", message)
     };
 
+    // plotting the results
     let mut fg = Figure::new();
     fg.axes2d()
         .set_title("Time scaling of Quantum Fourier Transform", &[])

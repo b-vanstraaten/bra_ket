@@ -19,7 +19,5 @@ fn quantum_fourier_transform_n_qubit() {
     init_program.run(&mut state);
     let _init_state = state.clone();
     qft_program.run(&mut state);
-
-
 }
 
