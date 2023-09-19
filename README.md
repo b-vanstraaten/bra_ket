@@ -1,6 +1,5 @@
 # Rust Quantum Simulator
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/b-vanstraaten/bra_ket/tests)](https://github.com/b-vanstraaten/bra_ket/actions)
-
+![GitHub Workflow Status](https://github.com/b-vanstraaten/bra_ket/workflows/Rust/badge.svg)
 
 ![Rust logo](https://www.rust-lang.org/static/images/rust-logo-blk.svg)
 
